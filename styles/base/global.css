@@ -1,0 +1,12 @@
+.nexum-logo {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 900;
+    font-size: 1.85rem;
+    letter-spacing: -0.03em;
+    color: #FFFFFF;
+    text-transform: uppercase;
+  }
+
+  [id] {
+    scroll-margin-top: 100px;
+  }
