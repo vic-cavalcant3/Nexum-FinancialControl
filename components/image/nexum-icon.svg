@@ -1,0 +1,26 @@
+<svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="g1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#a78bfa"/>
+      <stop offset="100%" stop-color="#5b21b6"/>
+    </linearGradient>
+    <linearGradient id="g2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#7c3aed"/>
+      <stop offset="100%" stop-color="#3b0f8c"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="200" height="200" rx="44" fill="#0f0f0f"/>
+
+  <!-- N mark: left bar -->
+  <rect x="38" y="44" width="26" height="112" rx="7" fill="url(#g1)"/>
+  <!-- N mark: right bar -->
+  <rect x="136" y="44" width="26" height="112" rx="7" fill="url(#g1)"/>
+  <!-- N mark: diagonal -->
+  <polygon points="64,44 90,44 162,156 136,156" fill="url(#g2)"/>
+
+  <!-- Accent dot -->
+  <circle cx="168" cy="36" r="11" fill="#a78bfa" opacity="0.9"/>
+  <circle cx="168" cy="36" r="5" fill="#ede9fe"/>
+</svg>

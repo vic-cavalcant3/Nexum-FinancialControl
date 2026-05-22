@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nexum - Inicial</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="icon" type="image/svg+xml" href="../components/image/nexum-icon.svg">
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<style>
+  :root {
+    --bg-primary: #0f0f0f;
+    --bg-secondary: #1a1a1a;
+    --bg-card: #1e1e1e;
+    --bg-card-hover: #252525;
+    --accent-purple: #8b5cf6;
+    --accent-purple-light: #a78bfa;
+    --accent-purple-dark: #6d28d9;
+    --accent-green: #22c55e;
+    --accent-red: #ef4444;
+    --accent-yellow: #f59e0b;
+    --accent-blue: #3b82f6;
+    --text-primary: #ffffff;
+    --text-secondary: #9ca3af;
+    --text-muted: #6b7280;
+    --border-color: #2a2a2a;
+    --sidebar-width: 220px;
+    --topbar-height: 65px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    display: flex;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  .sidebar-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    z-index: 99;
+  }
+  .sidebar-overlay.open { display: block; }
+
+  .sidebar {
+    width: var(--sidebar-width);
+    background: var(--bg-secondary);
+    border-right: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 0; left: 0;
+    height: 100vh;
+    z-index: 100;
+    padding: 24px 0;
+    transition: transform 0.25s ease;
+  }
+
+  .sidebar-logo {
+    padding: 0 20px 28px;
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .sidebar-close {
+    display: none;
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    padding: 4px;
+  }
+
+  .sidebar-nav {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 0 12px;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    color: var(--text-secondary);
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.15s ease;
+    text-decoration: none;
+  }
+
+  .nav-item:hover { background: var(--bg-card); color: var(--text-primary); }
+
+  .nav-item.active {
+    background: rgba(139, 92, 246, 0.15);
+    color: var(--accent-purple-light);
+    border-left: 2px solid var(--accent-purple);
+    padding-left: 10px;
+  }
+
+  .nav-item i { width: 18px; height: 18px; flex-shrink: 0; }
+
+  .sidebar-bottom {
+    padding: 16px 12px 0;
+    border-top: 1px solid var(--border-color);
+    margin-top: auto;
+  }
+
+  .support-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    color: var(--text-secondary);
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.15s ease;
+  }
+
+  .support-item:hover { background: var(--bg-card); color: var(--text-primary); }
+
+  .main {
+    margin-left: var(--sidebar-width);
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    min-width: 0;
+  }
+
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 24px;
+    height: var(--topbar-height);
+    border-bottom: 1px solid var(--border-color);
+    background: var(--bg-primary);
+    position: sticky;
+    top: 0;
+    z-index: 50;
+  }
+
+  .topbar-left {
+    display: none;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .menu-btn {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    padding: 4px;
+  }
+
+  .topbar-brand {
+    font-size: 18px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+  }
+
+  .topbar-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-left: auto;
+  }
+
+  .topbar-icon {
+    width: 38px; height: 38px;
+    border-radius: 50%;
+    background: var(--bg-card);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    color: var(--text-secondary);
+    transition: all 0.15s ease;
+    position: relative;
+  }
+
+  .topbar-icon:hover { background: var(--bg-card-hover); color: var(--text-primary); }
+
+  .notif-dot {
+    position: absolute; top: 6px; right: 6px;
+    width: 8px; height: 8px;
+    background: var(--accent-purple);
+    border-radius: 50%;
+    border: 2px solid var(--bg-primary);
+  }
+
+  .avatar {
+    width: 38px; height: 38px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent-purple-dark), var(--accent-purple));
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    font-size: 14px; font-weight: 700;
+    color: white;
+    flex-shrink: 0;
+  }
+
+  .content { padding: 32px 28px; flex: 1; }
+
+  .page-header { margin-bottom: 28px; }
+
+  .page-header h1 {
+    font-size: 32px;
+    font-weight: 800;
+    letter-spacing: -1px;
+    margin-bottom: 6px;
+  }
+
+  .page-header p { font-size: 14px; color: var(--text-secondary); }
+
+  .summary-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+
+  .summary-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    padding: 20px 22px;
+    transition: border-color 0.2s;
+  }
+
+  .summary-card:hover { border-color: #3a3a3a; }
+
+  .summary-card.highlight {
+    background: linear-gradient(135deg, #5b21b6 0%, #7c3aed 50%, #8b5cf6 100%);
+    border-color: transparent;
+  }
+
+  .summary-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+    color: var(--text-muted);
+  }
+
+  .summary-card.highlight .summary-label { color: rgba(255,255,255,0.7); }
+  .summary-label.green { color: var(--accent-green) !important; }
+  .summary-label.red   { color: var(--accent-red)   !important; }
+
+  .summary-value {
+    font-size: clamp(18px, 2vw, 28px);
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    margin-bottom: 10px;
+  }
+
+  .summary-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+    font-weight: 500;
+  }
+
+  .summary-badge.up      { color: var(--accent-green); }
+  .summary-badge.down    { color: var(--accent-red); }
+  .summary-badge.neutral { color: rgba(255,255,255,0.75); }
+  .summary-badge i { width: 14px; height: 14px; }
+
+  .middle-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+
+  .card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    padding: 20px 22px;
+  }
+
+  .card-title { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+  .card-sub   { font-size: 12px; color: var(--text-muted); margin-bottom: 16px; }
+
+  .meta-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 4px;
+  }
+
+  .meta-percent { font-size: 22px; font-weight: 700; color: var(--accent-purple-light); }
+
+  .progress-bar {
+    height: 6px;
+    background: #2d2d2d;
+    border-radius: 99px;
+    margin-bottom: 14px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent-purple-dark), var(--accent-purple-light));
+    border-radius: 99px;
+    width: 34%;
+  }
+
+  .meta-quote { font-size: 13px; color: var(--text-secondary); line-height: 1.5; }
+
+  .alert-card {
+    background: var(--bg-card);
+    border: 1px solid #3d2d00;
+    border-left: 3px solid var(--accent-yellow);
+    border-radius: 14px;
+    padding: 20px 22px;
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .alert-icon-wrap {
+    width: 42px; height: 42px;
+    background: rgba(245,158,11,0.1);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    color: var(--accent-yellow);
+  }
+
+  .alert-icon-wrap i { width: 22px; height: 22px; }
+  .alert-title { font-size: 15px; font-weight: 600; color: var(--accent-yellow); margin-bottom: 6px; }
+  .alert-text  { font-size: 13px; color: var(--text-secondary); line-height: 1.5; }
+  .alert-text span { color: var(--accent-red); font-weight: 600; }
+  .alert-text a    { color: var(--text-primary); text-decoration: underline; cursor: pointer; }
+
+  .charts-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+
+  .category-list { display: flex; flex-direction: column; gap: 16px; }
+  .category-item { display: flex; flex-direction: column; gap: 8px; }
+
+  .category-row { display: flex; align-items: center; gap: 12px; }
+
+  .cat-icon {
+    width: 36px; height: 36px;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .cat-icon.food      { background: rgba(139,92,246,0.2);  color: var(--accent-purple-light); }
+  .cat-icon.transport { background: rgba(245,158,11,0.15); color: var(--accent-yellow); }
+  .cat-icon.home      { background: rgba(59,130,246,0.15); color: var(--accent-blue); }
+  .cat-icon i { width: 18px; height: 18px; }
+
+  .cat-name   { font-size: 13px; font-weight: 500; }
+  .cat-amount { font-size: 13px; font-weight: 600; color: var(--text-primary); margin-left: auto; }
+
+  .cat-bar {
+    height: 4px;
+    border-radius: 99px;
+    background: #2a2a2a;
+    margin-left: 48px;
+    overflow: hidden;
+  }
+
+  .cat-bar-fill { height: 100%; border-radius: 99px; }
+  .cat-bar-fill.food      { background: linear-gradient(90deg, var(--accent-purple-dark), var(--accent-purple-light)); width: 75%; }
+  .cat-bar-fill.transport { background: linear-gradient(90deg, #d97706, var(--accent-yellow)); width: 55%; }
+  .cat-bar-fill.home      { background: linear-gradient(90deg, #1d4ed8, var(--accent-blue)); width: 85%; }
+
+  .chart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+  }
+
+  .chart-filter {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 4px 10px;
+    cursor: pointer;
+    display: flex; align-items: center; gap: 4px;
+  }
+
+  .chart-filter i { width: 12px; height: 12px; }
+
+  .bar-chart {
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+    height: 130px;
+    padding-bottom: 24px;
+  }
+
+  .bar-group {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    height: 100%;
+    justify-content: flex-end;
+  }
+
+  .bar { width: 100%; border-radius: 6px 6px 0 0; }
+  .bar.inactive { background: #2d2d2d; }
+  .bar.active   { background: linear-gradient(180deg, var(--accent-purple-light), var(--accent-purple-dark)); }
+  .bar-label    { font-size: 10px; color: var(--text-muted); font-weight: 500; }
+
+  .transactions-card { margin-bottom: 24px; }
+
+  .tx-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+
+  .tx-link { font-size: 13px; color: var(--accent-purple-light); font-weight: 500; cursor: pointer; text-decoration: none; }
+  .tx-link:hover { color: var(--accent-purple); }
+
+  .tx-table { width: 100%; border-collapse: collapse; }
+
+  .tx-table thead th {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    text-align: left;
+    padding: 0 0 12px;
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  .tx-table thead th:last-child { text-align: right; }
+
+  .tx-table tbody tr {
+    border-bottom: 1px solid var(--border-color);
+    transition: background 0.12s;
+  }
+
+  .tx-table tbody tr:last-child { border-bottom: none; }
+  .tx-table tbody tr:hover { background: rgba(255,255,255,0.02); }
+
+  .tx-table tbody td {
+    padding: 14px 0;
+    font-size: 14px;
+    vertical-align: middle;
+  }
+
+  .tx-table tbody td:last-child { text-align: right; }
+
+  .tx-name-cell { display: flex; align-items: center; gap: 12px; }
+
+  .tx-icon {
+    width: 36px; height: 36px;
+    border-radius: 10px;
+    background: var(--bg-secondary);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--text-secondary);
+    flex-shrink: 0;
+  }
+
+  .tx-icon i { width: 16px; height: 16px; }
+  .tx-label    { font-weight: 500; font-size: 14px; }
+  .tx-category { font-size: 13px; color: var(--text-secondary); }
+  .tx-date     { font-size: 13px; color: var(--text-secondary); }
+  .tx-amount   { font-size: 14px; font-weight: 600; }
+  .tx-amount.negative { color: var(--accent-red); }
+  .tx-amount.positive { color: var(--accent-green); }
+
+  /* ── tablet ≤ 1024px ── */
+  @media (max-width: 1024px) {
+    .summary-grid { grid-template-columns: repeat(2, 1fr); }
+    .summary-grid .summary-card:last-child { grid-column: 1 / -1; }
+    .charts-grid { grid-template-columns: 1fr; }
+  }
+
+  /* ── mobile ≤ 768px ── */
+  @media (max-width: 768px) {
+    .sidebar { transform: translateX(-100%); box-shadow: 4px 0 24px rgba(0,0,0,0.5); }
+    .sidebar.open { transform: translateX(0); }
+    .sidebar-close { display: flex; }
+    .topbar-left { display: flex; }
+    .main { margin-left: 0; }
+    .content { padding: 20px 16px; }
+    .page-header h1 { font-size: 24px; }
+    .summary-grid { grid-template-columns: 1fr; }
+    .summary-grid .summary-card:last-child { grid-column: auto; }
+    .middle-grid { grid-template-columns: 1fr; }
+    .charts-grid { grid-template-columns: 1fr; }
+    .tx-table .col-cat,
+    .tx-table .col-date { display: none; }
+  }
+
+  /* ── small ≤ 480px ── */
+  @media (max-width: 480px) {
+    .content { padding: 16px 12px; }
+    .card    { padding: 16px; }
+    .summary-card { padding: 16px; }
+    .alert-card   { padding: 16px; flex-direction: column; gap: 10px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="sidebar-overlay" id="overlay" onclick="closeSidebar()"></div>
+
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-logo">
+    NEXUM
+    <button class="sidebar-close" onclick="closeSidebar()">
+      <i data-lucide="x" style="width:20px;height:20px;"></i>
+    </button>
+  </div>
+  <nav class="sidebar-nav">
+    <a class="nav-item active">
+      <i data-lucide="layout-dashboard"></i>
+      Home
+    </a>
+    <a class="nav-item">
+      <i data-lucide="arrow-left-right"></i>
+      Transações
+    </a>
+    <a class="nav-item">
+      <i data-lucide="calendar-days"></i>
+      Planejamento
+    </a>
+    <a class="nav-item">
+      <i data-lucide="target"></i>
+      Metas
+    </a>
+    <a class="nav-item">
+      <i data-lucide="bar-chart-2"></i>
+      Relatórios
+    </a>
+    <a class="nav-item">
+      <i data-lucide="bot"></i>
+      Consultor IA
+    </a>
+    <a class="nav-item">
+      <i data-lucide="settings"></i>
+      Configurações
+    </a>
+  </nav>
+  <div class="sidebar-bottom">
+    <div class="support-item">
+      <i data-lucide="help-circle"></i>
+      Suporte
+    </div>
+  </div>
+</aside>
+
+<main class="main">
+  <header class="topbar">
+    <div class="topbar-left">
+      <button class="menu-btn" onclick="openSidebar()">
+        <i data-lucide="menu" style="width:22px;height:22px;"></i>
+      </button>
+      <span class="topbar-brand">NEXUM</span>
+    </div>
+    <div class="topbar-right">
+      <div class="topbar-icon">
+        <i data-lucide="bell" style="width:18px;height:18px;"></i>
+        <span class="notif-dot"></span>
+      </div>
+      <div class="avatar">JP</div>
+    </div>
+  </header>
+
+  <div class="content">
+    <div class="page-header">
+      <h1>Olá, João Pedro!!!</h1>
+      <p>Aqui está o panorama das suas finanças para este mês.</p>
+    </div>
+
+    <div class="summary-grid">
+      <div class="summary-card">
+        <div class="summary-label green">Total de Receitas</div>
+        <div class="summary-value">R$ 12.450,00</div>
+        <div class="summary-badge up">
+          <i data-lucide="trending-up"></i>
+          +12% vs mês anterior
+        </div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-label red">Total de Gastos</div>
+        <div class="summary-value">R$ 4.120,50</div>
+        <div class="summary-badge down">
+          <i data-lucide="trending-down"></i>
+          -5% economia ativa
+        </div>
+      </div>
+      <div class="summary-card highlight">
+        <div class="summary-label">Saldo Disponível</div>
+        <div class="summary-value">R$ 8.329,50</div>
+        <div class="summary-badge neutral">
+          <i data-lucide="landmark"></i>
+          Pronto para investir
+        </div>
+      </div>
+    </div>
+
+    <div class="middle-grid">
+      <div class="card">
+        <div class="meta-header">
+          <div>
+            <div class="card-title">Meta de Economia</div>
+            <div class="card-sub">Progresso Mensal</div>
+          </div>
+          <div class="meta-percent">34%</div>
+        </div>
+        <div class="progress-bar"><div class="progress-fill"></div></div>
+        <div class="meta-quote">"Você economizou 34% da sua meta esse mês. Continue assim!"</div>
+      </div>
+
+      <div class="alert-card">
+        <div class="alert-icon-wrap">
+          <i data-lucide="triangle-alert"></i>
+        </div>
+        <div>
+          <div class="alert-title">Alerta de Limite</div>
+          <div class="alert-text">
+            Você gastou <span>80%</span> do seu limite definido para <a>Alimentação</a>.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="charts-grid">
+      <div class="card">
+        <div class="card-title" style="margin-bottom:20px;">Gastos por Categoria</div>
+        <div class="category-list">
+          <div class="category-item">
+            <div class="category-row">
+              <div class="cat-icon food"><i data-lucide="utensils"></i></div>
+              <span class="cat-name">Alimentação</span>
+              <span class="cat-amount">R$ 1.200</span>
+            </div>
+            <div class="cat-bar"><div class="cat-bar-fill food"></div></div>
+          </div>
+          <div class="category-item">
+            <div class="category-row">
+              <div class="cat-icon transport"><i data-lucide="car"></i></div>
+              <span class="cat-name">Transporte</span>
+              <span class="cat-amount">R$ 850</span>
+            </div>
+            <div class="cat-bar"><div class="cat-bar-fill transport"></div></div>
+          </div>
+          <div class="category-item">
+            <div class="category-row">
+              <div class="cat-icon home"><i data-lucide="home"></i></div>
+              <span class="cat-name">Moradia</span>
+              <span class="cat-amount">R$ 1.800</span>
+            </div>
+            <div class="cat-bar"><div class="cat-bar-fill home"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="chart-header">
+          <div class="card-title">Evolução Mensal</div>
+          <div class="chart-filter">
+            Últimos 6 meses
+            <i data-lucide="chevron-down"></i>
+          </div>
+        </div>
+        <div class="bar-chart">
+          <div class="bar-group">
+            <div class="bar inactive" style="height:55px;"></div>
+            <span class="bar-label">JAN</span>
+          </div>
+          <div class="bar-group">
+            <div class="bar inactive" style="height:70px;"></div>
+            <span class="bar-label">FEV</span>
+          </div>
+          <div class="bar-group">
+            <div class="bar inactive" style="height:62px;"></div>
+            <span class="bar-label">MAR</span>
+          </div>
+          <div class="bar-group">
+            <div class="bar inactive" style="height:80px;"></div>
+            <span class="bar-label">ABR</span>
+          </div>
+          <div class="bar-group">
+            <div class="bar inactive" style="height:72px;"></div>
+            <span class="bar-label">MAI</span>
+          </div>
+          <div class="bar-group">
+            <div class="bar active" style="height:105px;"></div>
+            <span class="bar-label">JUN</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card transactions-card">
+      <div class="tx-header">
+        <div class="card-title" style="font-size:16px;">Últimas Transações</div>
+        <a class="tx-link">Ver todas</a>
+      </div>
+      <table class="tx-table">
+        <thead>
+          <tr>
+            <th>Estabelecimento</th>
+            <th class="col-cat">Categoria</th>
+            <th class="col-date">Data</th>
+            <th>Valor</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              <div class="tx-name-cell">
+                <div class="tx-icon"><i data-lucide="shopping-bag"></i></div>
+                <span class="tx-label">Ifood</span>
+              </div>
+            </td>
+            <td class="col-cat"><span class="tx-category">Alimentação</span></td>
+            <td class="col-date"><span class="tx-date">Hoje, 14:32</span></td>
+            <td><span class="tx-amount negative">- R$ 74,90</span></td>
+          </tr>
+          <tr>
+            <td>
+              <div class="tx-name-cell">
+                <div class="tx-icon"><i data-lucide="briefcase"></i></div>
+                <span class="tx-label">Salário</span>
+              </div>
+            </td>
+            <td class="col-cat"><span class="tx-category">Renda Mensal</span></td>
+            <td class="col-date"><span class="tx-date">Ontem, 09:00</span></td>
+            <td><span class="tx-amount positive">+ R$ 12.450,00</span></td>
+          </tr>
+          <tr>
+            <td>
+              <div class="tx-name-cell">
+                <div class="tx-icon"><i data-lucide="fuel"></i></div>
+                <span class="tx-label">Posto Shell</span>
+              </div>
+            </td>
+            <td class="col-cat"><span class="tx-category">Transporte</span></td>
+            <td class="col-date"><span class="tx-date">22 Jun, 18:15</span></td>
+            <td><span class="tx-amount negative">- R$ 240,00</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</main>
+
+<script>
+  lucide.createIcons();
+
+  function openSidebar() {
+    document.getElementById('sidebar').classList.add('open');
+    document.getElementById('overlay').classList.add('open');
+  }
+
+  function closeSidebar() {
+    document.getElementById('sidebar').classList.remove('open');
+    document.getElementById('overlay').classList.remove('open');
+  }
+</script>
+</body>
+</html>

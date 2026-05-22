@@ -3,13 +3,15 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Entrar — Nexum</title>
+  <title>Cadastro — Nexum</title>
 
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet" />
+  <link rel="stylesheet" href="../styles/base/global.css">
+  <link rel="icon" type="image/svg+xml" href="../components/image/nexum-icon.svg">
 
     <!-- GLOBAL -->
     <link rel="stylesheet" href="../styles/base/global.css">
@@ -288,7 +290,9 @@
         </div>
 
         <!-- Submit -->
-        <button class="btn-primary mt-1">Criar Conta</button>
+        <button class="btn-primary mt-1" onclick="window.location.href='cadastro_etapas.html'">
+          Criar Conta
+        </button>
 
         <!-- OR -->
         <div class="or-divider">OU</div>
@@ -317,7 +321,7 @@
         <!-- Cadastro -->
         <p class="text-center text-xs text-gray-500 font-inter">
           Ja possui uma conta?
-          <a href="cadastro.html" style="color:#A78BFA;" class="hover:underline font-medium">Entrar</a>
+          <a href="login.html" style="color:#A78BFA;" class="hover:underline font-medium">Entrar</a>
         </p>
 
       </div>
