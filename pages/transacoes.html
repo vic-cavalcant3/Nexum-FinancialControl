@@ -1,0 +1,1129 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nexum - Transações</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="icon" type="image/svg+xml" href="../components/image/nexum-icon.svg">
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<style>
+  :root {
+    --bg-primary: #0f0f0f;
+    --bg-secondary: #1a1a1a;
+    --bg-card: #1e1e1e;
+    --bg-card-hover: #252525;
+    --accent-purple: #8b5cf6;
+    --accent-purple-light: #a78bfa;
+    --accent-purple-dark: #6d28d9;
+    --accent-green: #22c55e;
+    --accent-red: #ef4444;
+    --accent-yellow: #f59e0b;
+    --accent-blue: #3b82f6;
+    --text-primary: #ffffff;
+    --text-secondary: #9ca3af;
+    --text-muted: #6b7280;
+    --border-color: #2a2a2a;
+    --sidebar-width: 220px;
+    --topbar-height: 65px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    display: flex;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  .sidebar-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    z-index: 99;
+  }
+  .sidebar-overlay.open { display: block; }
+
+  .sidebar {
+    width: var(--sidebar-width);
+    background: var(--bg-secondary);
+    border-right: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 0; left: 0;
+    height: 100vh;
+    z-index: 100;
+    padding: 24px 0;
+    transition: transform 0.25s ease;
+  }
+
+  .sidebar-logo {
+    padding: 0 20px 28px;
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .sidebar-close {
+    display: none;
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    padding: 4px;
+  }
+
+  .sidebar-nav {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 0 12px;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    color: var(--text-secondary);
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.15s ease;
+    text-decoration: none;
+  }
+
+  .nav-item:hover { background: var(--bg-card); color: var(--text-primary); }
+
+  .nav-item.active {
+    background: rgba(139, 92, 246, 0.15);
+    color: var(--accent-purple-light);
+    border-left: 2px solid var(--accent-purple);
+    padding-left: 10px;
+  }
+
+  .nav-item i { width: 18px; height: 18px; flex-shrink: 0; }
+
+  .sidebar-bottom {
+    padding: 16px 12px 0;
+    border-top: 1px solid var(--border-color);
+    margin-top: auto;
+  }
+
+  .support-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    color: var(--text-secondary);
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.15s ease;
+  }
+
+  .support-item:hover { background: var(--bg-card); color: var(--text-primary); }
+
+  .main {
+    margin-left: var(--sidebar-width);
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    min-width: 0;
+  }
+
+  /* TOPBAR */
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 24px;
+    height: var(--topbar-height);
+    border-bottom: 1px solid var(--border-color);
+    background: var(--bg-primary);
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    gap: 16px;
+  }
+
+  .topbar-left {
+    display: none;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .menu-btn {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    padding: 4px;
+  }
+
+  .topbar-brand {
+    font-size: 18px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+  }
+
+  .topbar-search {
+    flex: 1;
+    max-width: 440px;
+    position: relative;
+  }
+
+  .topbar-search input {
+    width: 100%;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    padding: 9px 14px 9px 38px;
+    font-size: 14px;
+    font-family: inherit;
+    color: var(--text-primary);
+    outline: none;
+    transition: border-color 0.15s;
+  }
+
+  .topbar-search input::placeholder { color: var(--text-muted); }
+  .topbar-search input:focus { border-color: var(--accent-purple); }
+
+  .topbar-search .search-icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-muted);
+    width: 16px;
+    height: 16px;
+    pointer-events: none;
+  }
+
+  .topbar-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-left: auto;
+  }
+
+  .topbar-icon {
+    width: 38px; height: 38px;
+    border-radius: 50%;
+    background: var(--bg-card);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    color: var(--text-secondary);
+    transition: all 0.15s ease;
+    position: relative;
+  }
+
+  .topbar-icon:hover { background: var(--bg-card-hover); color: var(--text-primary); }
+
+  .notif-dot {
+    position: absolute; top: 6px; right: 6px;
+    width: 8px; height: 8px;
+    background: var(--accent-purple);
+    border-radius: 50%;
+    border: 2px solid var(--bg-primary);
+  }
+
+  .avatar {
+    width: 38px; height: 38px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent-purple-dark), var(--accent-purple));
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    font-size: 14px; font-weight: 700;
+    color: white;
+    flex-shrink: 0;
+  }
+
+  /* CONTENT */
+  .content { padding: 32px 28px; flex: 1; display: flex; gap: 20px; }
+
+  .content-left { flex: 1; min-width: 0; }
+  .content-right { width: 300px; flex-shrink: 0; }
+
+  /* PAGE HEADER */
+  .page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 28px;
+  }
+
+  .page-header h1 {
+    font-size: 36px;
+    font-weight: 800;
+    letter-spacing: -1.5px;
+    margin-bottom: 6px;
+  }
+
+  .page-header p { font-size: 14px; color: var(--text-secondary); }
+
+  .btn-new-tx {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--accent-purple);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    padding: 12px 20px;
+    font-size: 14px;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    transition: background 0.15s;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .btn-new-tx:hover { background: var(--accent-purple-dark); }
+  .btn-new-tx i { width: 16px; height: 16px; }
+
+  /* FILTERS */
+  .filters-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    padding: 20px 22px;
+    margin-bottom: 16px;
+    display: flex;
+    gap: 32px;
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .filter-group { display: flex; flex-direction: column; gap: 10px; }
+  .filter-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  .filter-select {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 13px;
+    font-family: inherit;
+    color: var(--text-primary);
+    cursor: pointer;
+    min-width: 140px;
+    outline: none;
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: none;
+  }
+
+  .filter-select-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+
+  .filter-select-wrap select {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 8px 32px 8px 12px;
+    font-size: 13px;
+    font-family: inherit;
+    color: var(--text-primary);
+    cursor: pointer;
+    min-width: 140px;
+    outline: none;
+    appearance: none;
+    -webkit-appearance: none;
+    transition: border-color 0.15s;
+  }
+
+  .filter-select-wrap select:focus { border-color: var(--accent-purple); }
+
+  .filter-select-wrap .chevron {
+    position: absolute;
+    right: 10px;
+    color: var(--text-muted);
+    pointer-events: none;
+    width: 14px; height: 14px;
+  }
+
+  .category-tags { display: flex; flex-wrap: wrap; gap: 8px; }
+
+  .cat-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    border: 1px solid var(--border-color);
+    background: var(--bg-secondary);
+    color: var(--text-secondary);
+    transition: all 0.15s;
+  }
+
+  .cat-tag.active {
+    background: rgba(139,92,246,0.2);
+    border-color: var(--accent-purple);
+    color: var(--accent-purple-light);
+  }
+
+  .cat-tag .tag-x {
+    width: 12px; height: 12px;
+    color: var(--accent-purple-light);
+  }
+
+  .flow-toggle {
+    display: flex;
+    gap: 4px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 4px;
+  }
+
+  .flow-btn {
+    padding: 6px 14px;
+    border-radius: 6px;
+    border: none;
+    background: transparent;
+    color: var(--text-secondary);
+    font-size: 13px;
+    font-weight: 500;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .flow-btn.active {
+    background: var(--accent-purple);
+    color: white;
+  }
+
+  /* HISTORY TABLE */
+  .history-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    padding: 24px 22px;
+    margin-bottom: 20px;
+  }
+
+  .history-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+
+  .history-title { font-size: 16px; font-weight: 600; }
+  .history-count { font-size: 13px; color: var(--text-muted); }
+
+  .tx-table { width: 100%; border-collapse: collapse; }
+
+  .tx-table thead th {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    text-align: left;
+    padding: 0 0 14px;
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  .tx-table thead th:last-child { text-align: right; }
+
+  .tx-table tbody tr {
+    border-bottom: 1px solid var(--border-color);
+    transition: background 0.12s;
+  }
+
+  .tx-table tbody tr:last-child { border-bottom: none; }
+  .tx-table tbody tr:hover { background: rgba(255,255,255,0.02); }
+
+  .tx-table tbody td {
+    padding: 18px 0;
+    font-size: 14px;
+    vertical-align: middle;
+  }
+
+  .tx-table tbody td:last-child { text-align: right; }
+
+  .tx-date-cell { font-size: 13px; color: var(--text-secondary); line-height: 1.4; white-space: nowrap; }
+  .tx-date-cell .day { font-size: 14px; font-weight: 600; color: var(--text-primary); }
+
+  .tx-desc { font-weight: 600; font-size: 14px; }
+
+  .cat-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+  }
+
+  .cat-badge.trabalho    { background: rgba(34,197,94,0.15);  color: var(--accent-green); }
+  .cat-badge.alimentacao { background: rgba(245,158,11,0.15); color: var(--accent-yellow); }
+  .cat-badge.assinaturas { background: rgba(139,92,246,0.15); color: var(--accent-purple-light); }
+  .cat-badge.investimentos { background: rgba(59,130,246,0.15); color: var(--accent-blue); }
+
+  .tx-amount { font-size: 14px; font-weight: 700; }
+  .tx-amount.positive { color: var(--accent-green); }
+  .tx-amount.negative { color: var(--accent-red); }
+
+  .tx-actions { display: flex; justify-content: flex-end; }
+
+  .action-btn {
+    width: 30px; height: 30px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    background: transparent;
+    color: var(--text-muted);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .action-btn:hover { background: var(--bg-card-hover); color: var(--text-primary); }
+  .action-btn i { width: 14px; height: 14px; }
+
+  /* BOTTOM SUMMARY */
+  .bottom-summary {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+  }
+
+  .summary-mini {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    padding: 18px 20px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .summary-mini-icon {
+    width: 42px; height: 42px;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .summary-mini-icon.green { background: rgba(34,197,94,0.1); color: var(--accent-green); }
+  .summary-mini-icon.red   { background: rgba(239,68,68,0.1);  color: var(--accent-red); }
+  .summary-mini-icon.purple { background: rgba(139,92,246,0.1); color: var(--accent-purple-light); }
+  .summary-mini-icon i { width: 20px; height: 20px; }
+
+  .summary-mini-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+  }
+
+  .summary-mini-value { font-size: 18px; font-weight: 700; letter-spacing: -0.5px; }
+
+  .summary-mini-bar {
+    height: 3px;
+    border-radius: 99px;
+    margin-top: 8px;
+    width: 100%;
+  }
+
+  .summary-mini-bar.green  { background: var(--accent-green); }
+  .summary-mini-bar.red    { background: var(--accent-red); }
+  .summary-mini-bar.purple { background: var(--accent-purple); }
+
+  /* RIGHT PANEL */
+  .panel-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    padding: 22px;
+  }
+
+  .panel-title { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
+  .panel-sub   { font-size: 13px; color: var(--text-muted); margin-bottom: 22px; }
+
+  /* Toggle */
+  .type-toggle {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+
+  .type-btn {
+    flex: 1;
+    padding: 9px;
+    border-radius: 8px;
+    border: none;
+    font-size: 13px;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.15s;
+    background: var(--bg-secondary);
+    color: var(--text-secondary);
+  }
+
+  .type-btn.active.receita { background: var(--accent-purple); color: white; }
+  .type-btn.active.despesa { background: var(--accent-red); color: white; }
+
+  .form-group { margin-bottom: 14px; }
+
+  .form-label {
+    display: block;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+  }
+
+  .form-input {
+    width: 100%;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    padding: 11px 14px;
+    font-size: 14px;
+    font-family: inherit;
+    color: var(--text-primary);
+    outline: none;
+    transition: border-color 0.15s;
+  }
+
+  .form-input::placeholder { color: var(--text-muted); }
+  .form-input:focus { border-color: var(--accent-purple); }
+
+  .form-input.valor {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--text-muted);
+    letter-spacing: -0.5px;
+  }
+
+  .form-select-wrap {
+    position: relative;
+  }
+
+  .form-select-wrap select {
+    width: 100%;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    padding: 11px 36px 11px 14px;
+    font-size: 14px;
+    font-family: inherit;
+    color: var(--text-primary);
+    outline: none;
+    appearance: none;
+    -webkit-appearance: none;
+    cursor: pointer;
+    transition: border-color 0.15s;
+  }
+
+  .form-select-wrap select:focus { border-color: var(--accent-purple); }
+  .form-select-wrap .chevron {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-muted);
+    pointer-events: none;
+    width: 16px; height: 16px;
+  }
+
+  .recorrente-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+
+  .recorrente-label { display: flex; flex-direction: column; gap: 2px; }
+  .recorrente-label span { font-size: 14px; font-weight: 500; }
+  .recorrente-label small { font-size: 12px; color: var(--text-muted); }
+
+  .toggle-switch {
+    position: relative;
+    width: 42px; height: 24px;
+  }
+
+  .toggle-switch input { opacity: 0; width: 0; height: 0; }
+
+  .toggle-slider {
+    position: absolute;
+    inset: 0;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 99px;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+
+  .toggle-slider::before {
+    content: '';
+    position: absolute;
+    width: 18px; height: 18px;
+    left: 2px; top: 50%;
+    transform: translateY(-50%);
+    background: var(--text-muted);
+    border-radius: 50%;
+    transition: all 0.2s;
+  }
+
+  .toggle-switch input:checked + .toggle-slider { background: var(--accent-purple); border-color: var(--accent-purple); }
+  .toggle-switch input:checked + .toggle-slider::before { transform: translateY(-50%) translateX(18px); background: white; }
+
+  .btn-salvar {
+    width: 100%;
+    background: var(--accent-purple);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    padding: 13px;
+    font-size: 14px;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    transition: background 0.15s;
+    margin-bottom: 12px;
+  }
+
+  .btn-salvar:hover { background: var(--accent-purple-dark); }
+
+  /* Upgrade banner */
+  .upgrade-banner {
+    position: fixed;
+    bottom: 24px;
+    left: calc(var(--sidebar-width) - 200px);
+    width: 180px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    padding: 14px 16px;
+    z-index: 40;
+  }
+
+  .upgrade-text {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-bottom: 10px;
+    font-weight: 500;
+  }
+
+  .btn-upgrade {
+    width: 100%;
+    background: var(--accent-purple);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+  }
+
+  /* Responsive */
+  @media (max-width: 1280px) {
+    .content { flex-direction: column; }
+    .content-right { width: 100%; max-width: 480px; }
+    .bottom-summary { grid-template-columns: repeat(3, 1fr); }
+  }
+
+  @media (max-width: 1024px) {
+    .bottom-summary { grid-template-columns: 1fr; }
+  }
+
+  @media (max-width: 768px) {
+    .sidebar { transform: translateX(-100%); box-shadow: 4px 0 24px rgba(0,0,0,0.5); }
+    .sidebar.open { transform: translateX(0); }
+    .sidebar-close { display: flex; }
+    .topbar-left { display: flex; }
+    .main { margin-left: 0; }
+    .content { padding: 20px 16px; flex-direction: column; }
+    .content-right { width: 100%; }
+    .page-header h1 { font-size: 28px; }
+    .topbar-search { display: none; }
+    .col-cat, .col-actions { display: none; }
+    .upgrade-banner { display: none; }
+    .bottom-summary { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="sidebar-overlay" id="overlay" onclick="closeSidebar()"></div>
+
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-logo">
+    NEXUM
+    <button class="sidebar-close" onclick="closeSidebar()">
+      <i data-lucide="x" style="width:20px;height:20px;"></i>
+    </button>
+  </div>
+  <nav class="sidebar-nav">
+    <a class="nav-item" href="inicial.html">
+      <i data-lucide="layout-dashboard"></i>
+      Dashboard
+    </a>
+    <a class="nav-item active" href="transacoes.html">
+      <i data-lucide="arrow-left-right"></i>
+      Transações
+    </a>
+    <a class="nav-item">
+      <i data-lucide="calendar-days"></i>
+      Planejamento
+    </a>
+    <a class="nav-item">
+      <i data-lucide="target"></i>
+      Metas
+    </a>
+    <a class="nav-item">
+      <i data-lucide="bar-chart-2"></i>
+      Relatórios
+    </a>
+    <a class="nav-item">
+      <i data-lucide="bot"></i>
+      Consultor IA
+    </a>
+    <a class="nav-item">
+      <i data-lucide="settings"></i>
+      Configurações
+    </a>
+  </nav>
+  <div class="sidebar-bottom">
+    <div class="support-item">
+      <i data-lucide="help-circle"></i>
+      Suporte
+    </div>
+  </div>
+</aside>
+
+<main class="main">
+  <header class="topbar">
+    <div class="topbar-left">
+      <button class="menu-btn" onclick="openSidebar()">
+        <i data-lucide="menu" style="width:22px;height:22px;"></i>
+      </button>
+      <span class="topbar-brand">NEXUM</span>
+    </div>
+
+    <div class="topbar-search">
+      <i data-lucide="search" class="search-icon"></i>
+      <input type="text" placeholder="Pesquisar transações...">
+    </div>
+
+    <div class="topbar-right">
+      <div class="topbar-icon">
+        <i data-lucide="bell" style="width:18px;height:18px;"></i>
+        <span class="notif-dot"></span>
+      </div>
+      <div class="avatar">JP</div>
+    </div>
+  </header>
+
+  <div class="content">
+    <div class="content-left">
+
+      <!-- Page Header -->
+      <div class="page-header">
+        <div>
+          <h1>Transações</h1>
+          <p>Gerencie seu fluxo de caixa com precisão editorial.</p>
+        </div>
+        <button class="btn-new-tx">
+          <i data-lucide="plus-circle"></i>
+          Nova transação
+        </button>
+      </div>
+
+      <!-- Filters -->
+      <div class="filters-card">
+        <div class="filter-group">
+          <div class="filter-label">Período</div>
+          <div class="filter-select-wrap">
+            <select>
+              <option>Março 2024</option>
+              <option>Fevereiro 2024</option>
+              <option>Janeiro 2024</option>
+            </select>
+            <i data-lucide="chevron-down" class="chevron"></i>
+          </div>
+        </div>
+
+        <div class="filter-group">
+          <div class="filter-label">Categorias</div>
+          <div class="category-tags">
+            <div class="cat-tag active">Alimentação</div>
+            <div class="cat-tag">Lazer</div>
+            <div class="cat-tag">Assinaturas</div>
+            <div class="cat-tag active">Todas <i data-lucide="x" class="tag-x"></i></div>
+          </div>
+        </div>
+
+        <div class="filter-group">
+          <div class="filter-label">Fluxo</div>
+          <div class="flow-toggle">
+            <button class="flow-btn active">Todas</button>
+            <button class="flow-btn">Receita</button>
+            <button class="flow-btn">Despesa</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- History Table -->
+      <div class="history-card">
+        <div class="history-header">
+          <div class="history-title">Histórico de Movimentações</div>
+          <div class="history-count">24 transações encontradas</div>
+        </div>
+
+        <table class="tx-table">
+          <thead>
+            <tr>
+              <th>Data</th>
+              <th>Descrição</th>
+              <th class="col-cat">Categoria</th>
+              <th>Valor</th>
+              <th class="col-actions">Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>
+                <div class="tx-date-cell">
+                  <div class="day">12</div>
+                  Mar,<br>2024
+                </div>
+              </td>
+              <td><span class="tx-desc">Salário Mensal - TechCorp</span></td>
+              <td class="col-cat"><span class="cat-badge trabalho">Trabalho</span></td>
+              <td><span class="tx-amount positive">+ R$ 12.500,00</span></td>
+              <td class="col-actions">
+                <div class="tx-actions">
+                  <button class="action-btn"><i data-lucide="more-horizontal"></i></button>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <div class="tx-date-cell">
+                  <div class="day">10</div>
+                  Mar,<br>2024
+                </div>
+              </td>
+              <td><span class="tx-desc">Supermercado Verdemar</span></td>
+              <td class="col-cat"><span class="cat-badge alimentacao">Alimentação</span></td>
+              <td><span class="tx-amount negative">- R$ 452,30</span></td>
+              <td class="col-actions">
+                <div class="tx-actions">
+                  <button class="action-btn"><i data-lucide="more-horizontal"></i></button>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <div class="tx-date-cell">
+                  <div class="day">08</div>
+                  Mar,<br>2024
+                </div>
+              </td>
+              <td><span class="tx-desc">Netflix Premium</span></td>
+              <td class="col-cat"><span class="cat-badge assinaturas">Assinaturas</span></td>
+              <td><span class="tx-amount negative">- R$ 55,90</span></td>
+              <td class="col-actions">
+                <div class="tx-actions">
+                  <button class="action-btn"><i data-lucide="more-horizontal"></i></button>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <div class="tx-date-cell">
+                  <div class="day">05</div>
+                  Mar,<br>2024
+                </div>
+              </td>
+              <td><span class="tx-desc">Venda de Criptoassets</span></td>
+              <td class="col-cat"><span class="cat-badge investimentos">Investimentos</span></td>
+              <td><span class="tx-amount positive">+ R$ 2.100,00</span></td>
+              <td class="col-actions">
+                <div class="tx-actions">
+                  <button class="action-btn"><i data-lucide="more-horizontal"></i></button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Bottom Summary -->
+      <div class="bottom-summary">
+        <div class="summary-mini">
+          <div class="summary-mini-icon green">
+            <i data-lucide="trending-up"></i>
+          </div>
+          <div style="flex:1;">
+            <div class="summary-mini-label">Entradas Totais</div>
+            <div class="summary-mini-value">R$ 14.600,00</div>
+            <div class="summary-mini-bar green"></div>
+          </div>
+        </div>
+        <div class="summary-mini">
+          <div class="summary-mini-icon red">
+            <i data-lucide="trending-down"></i>
+          </div>
+          <div style="flex:1;">
+            <div class="summary-mini-label">Saídas Totais</div>
+            <div class="summary-mini-value">R$ 5.120,45</div>
+            <div class="summary-mini-bar red"></div>
+          </div>
+        </div>
+        <div class="summary-mini">
+          <div class="summary-mini-icon purple">
+            <i data-lucide="wallet"></i>
+          </div>
+          <div style="flex:1;">
+            <div class="summary-mini-label">Saldo do Mês</div>
+            <div class="summary-mini-value">R$ 9.479,55</div>
+            <div class="summary-mini-bar purple"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Panel -->
+    <div class="content-right">
+      <div class="panel-card">
+        <div class="panel-title">Nova Transação</div>
+        <div class="panel-sub" style="margin-bottom:16px;"></div>
+
+        <div class="type-toggle">
+          <button class="type-btn active receita" onclick="setType('receita', this)">Receita</button>
+          <button class="type-btn despesa" onclick="setType('despesa', this)">Despesa</button>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Valor (R$)</label>
+          <input type="text" class="form-input valor" placeholder="0,00">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Descrição</label>
+          <input type="text" class="form-input" placeholder="Ex: Aluguel Março">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Categoria</label>
+          <div class="form-select-wrap">
+            <select>
+              <option value="">Selecione...</option>
+              <option>Alimentação</option>
+              <option>Transporte</option>
+              <option>Moradia</option>
+              <option>Lazer</option>
+              <option>Assinaturas</option>
+              <option>Investimentos</option>
+              <option>Trabalho</option>
+            </select>
+            <i data-lucide="chevron-down" class="chevron"></i>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Data</label>
+          <input type="date" class="form-input">
+        </div>
+
+        <div class="recorrente-row">
+          <div class="recorrente-label">
+            <span>Recorrente</span>
+            <small>Repetir mensalmente</small>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+
+        <button class="btn-salvar">Salvar Transação</button>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- Upgrade Banner -->
+<div class="upgrade-banner">
+  <div class="upgrade-text">Maximize seu controle</div>
+  <button class="btn-upgrade">Upgrade to Pro</button>
+</div>
+
+<script>
+  lucide.createIcons();
+
+  function openSidebar() {
+    document.getElementById('sidebar').classList.add('open');
+    document.getElementById('overlay').classList.add('open');
+  }
+
+  function closeSidebar() {
+    document.getElementById('sidebar').classList.remove('open');
+    document.getElementById('overlay').classList.remove('open');
+  }
+
+  function setType(type, btn) {
+    document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  }
+
+  document.querySelectorAll('.flow-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.flow-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    });
+  });
+
+  document.querySelectorAll('.cat-tag').forEach(tag => {
+    tag.addEventListener('click', () => tag.classList.toggle('active'));
+  });
+</script>
+</body>
+</html>
