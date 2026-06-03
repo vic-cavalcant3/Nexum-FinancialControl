@@ -10,23 +10,26 @@
 <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
 <style>
   :root {
-    --bg-primary: #0f0f0f;
-    --bg-secondary: #1a1a1a;
-    --bg-card: #1e1e1e;
-    --bg-card-hover: #252525;
-    --accent-purple: #8b5cf6;
-    --accent-purple-light: #a78bfa;
-    --accent-purple-dark: #6d28d9;
-    --accent-green: #22c55e;
-    --accent-red: #ef4444;
-    --accent-yellow: #f59e0b;
-    --accent-blue: #3b82f6;
-    --text-primary: #ffffff;
-    --text-secondary: #9ca3af;
-    --text-muted: #6b7280;
-    --border-color: #2a2a2a;
-    --sidebar-width: 220px;
-    --topbar-height: 65px;
+    --bg-primary:          #000000;
+    --bg-secondary:        #0a0a0a;
+    --bg-card:             #141414;
+    --bg-input:            #1c1c1c;
+    --accent-purple:       #4A0789;
+    --accent-purple-light: #6d28d9;
+    --accent-purple-bright:#7c3aed;
+    --accent-purple-dark:  #4A0789;
+    --accent-green:        #22c55e;
+    --accent-red:          #ef4444;
+    --accent-yellow:       #f59e0b;
+    --accent-orange:       #f97316;
+    --accent-blue:         #3b82f6;
+    --text-primary:        #ffffff;
+    --text-secondary:      #9ca3af;
+    --text-muted:          #6b7280;
+    --border-color:        #1f1f1f;
+    --bg-card-hover:       #1c1c1c;
+    --sidebar-width:       220px;
+    --topbar-height:       65px;
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -108,10 +111,10 @@
   .nav-item:hover { background: var(--bg-card); color: var(--text-primary); }
 
   .nav-item.active {
-    background: rgba(139, 92, 246, 0.15);
-    color: var(--accent-purple-light);
-    border-left: 2px solid var(--accent-purple);
-    padding-left: 10px;
+    background: rgba(74, 7, 137, 0.2);
+    color: #a855f7;
+    border-left: 3px solid #4A0789;
+    padding-left: 9px;
   }
 
   .nav-item i { width: 18px; height: 18px; flex-shrink: 0; }
@@ -251,7 +254,7 @@
   .summary-card:hover { border-color: #3a3a3a; }
 
   .summary-card.highlight {
-    background: linear-gradient(135deg, #5b21b6 0%, #7c3aed 50%, #8b5cf6 100%);
+    background: linear-gradient(135deg, #4A0789 0%, var(--accent-purple-bright) 50%, var(--accent-purple-light) 100%);
     border-color: transparent;
   }
 
@@ -376,7 +379,7 @@
     flex-shrink: 0;
   }
 
-  .cat-icon.food      { background: rgba(139,92,246,0.2);  color: var(--accent-purple-light); }
+  .cat-icon.food      { background: rgba(74,7,137,0.2);  color: var(--accent-purple-light); }
   .cat-icon.transport { background: rgba(245,158,11,0.15); color: var(--accent-yellow); }
   .cat-icon.home      { background: rgba(59,130,246,0.15); color: var(--accent-blue); }
   .cat-icon i { width: 18px; height: 18px; }
@@ -538,52 +541,7 @@
 </head>
 <body>
 
-<div class="sidebar-overlay" id="overlay" onclick="closeSidebar()"></div>
-
-<aside class="sidebar" id="sidebar">
-  <div class="sidebar-logo">
-    NEXUM
-    <button class="sidebar-close" onclick="closeSidebar()">
-      <i data-lucide="x" style="width:20px;height:20px;"></i>
-    </button>
-  </div>
-  <nav class="sidebar-nav">
-    <a href="inicial.html" class="nav-item active">
-      <i data-lucide="layout-dashboard"></i>
-      Home
-    </a>
-    <a href="transacoes.html" class="nav-item">
-      <i data-lucide="arrow-left-right"></i>
-      Transações
-    </a>
-    <a class="nav-item">
-      <i data-lucide="calendar-days"></i>
-      Planejamento
-    </a>
-    <a class="nav-item">
-      <i data-lucide="target"></i>
-      Metas
-    </a>
-    <a class="nav-item">
-      <i data-lucide="bar-chart-2"></i>
-      Relatórios
-    </a>
-    <a class="nav-item">
-      <i data-lucide="bot"></i>
-      Consultor IA
-    </a>
-    <a class="nav-item">
-      <i data-lucide="settings"></i>
-      Configurações
-    </a>
-  </nav>
-  <div class="sidebar-bottom">
-    <div class="support-item">
-      <i data-lucide="help-circle"></i>
-      Suporte
-    </div>
-  </div>
-</aside>
+<div id="sidebar-container"></div>
 
 <main class="main">
   <header class="topbar">
@@ -785,6 +743,19 @@
 
 <script>
   lucide.createIcons();
+
+  const CURRENT_PAGE = 'inicial';
+
+  fetch('../components/layout/sidebar.html')
+    .then(r => r.text())
+    .then(html => {
+      document.getElementById('sidebar-container').innerHTML = html;
+      lucide.createIcons();
+      document.querySelectorAll('.nav-item').forEach(item => {
+        const href = item.getAttribute('href') || '';
+        if (href.includes(CURRENT_PAGE)) item.classList.add('active');
+      });
+    });
 
   function openSidebar() {
     document.getElementById('sidebar').classList.add('open');

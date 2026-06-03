@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nexum - Configurações</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="icon" type="image/svg+xml" href="../components/image/nexum-icon.svg">
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<style>
+  :root {
+    --bg-primary:          #000000;
+    --bg-secondary:        #0a0a0a;
+    --bg-card:             #141414;
+    --bg-input:            #1c1c1c;
+    --accent-purple:       #4A0789;
+    --accent-purple-light: #6d28d9;
+    --accent-purple-bright:#7c3aed;
+    --accent-purple-dark:  #4A0789;
+    --accent-green:        #22c55e;
+    --accent-red:          #ef4444;
+    --accent-yellow:       #f59e0b;
+    --accent-orange:       #f97316;
+    --accent-blue:         #3b82f6;
+    --text-primary:        #ffffff;
+    --text-secondary:      #9ca3af;
+    --text-muted:          #6b7280;
+    --border-color:        #1f1f1f;
+    --sidebar-width:       220px;
+    --topbar-height:       65px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    display: flex;
+    min-height: 100vh;
+  }
+
+  .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 99; }
+  .sidebar-overlay.open { display: block; }
+
+  .sidebar {
+    width: var(--sidebar-width);
+    background: var(--bg-secondary);
+    border-right: 1px solid var(--border-color);
+    display: flex; flex-direction: column;
+    position: fixed; top: 0; left: 0;
+    height: 100vh; z-index: 100;
+    padding: 24px 0;
+    transition: transform 0.25s ease;
+  }
+
+  .sidebar-logo { padding: 0 20px 28px; font-size: 22px; font-weight: 800; letter-spacing: -0.5px; display: flex; align-items: center; justify-content: space-between; }
+  .sidebar-close { display: none; background: none; border: none; color: var(--text-secondary); cursor: pointer; padding: 4px; }
+  .sidebar-nav { flex: 1; display: flex; flex-direction: column; gap: 2px; padding: 0 12px; }
+  .nav-item { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 8px; cursor: pointer; color: var(--text-secondary); font-size: 14px; font-weight: 500; text-decoration: none; transition: all 0.15s ease; }
+  .nav-item:hover { background: var(--bg-card); color: var(--text-primary); }
+  .nav-item.active { background: rgba(74, 7, 137, 0.2); color: #a855f7; border-left: 3px solid #4A0789; padding-left: 9px; }
+  .nav-item i { width: 18px; height: 18px; flex-shrink: 0; }
+
+  .sidebar-bottom {
+    padding: 12px 12px 0;
+    border-top: 1px solid var(--border-color);
+    margin-top: 8px;
+    display: flex; flex-direction: column; gap: 2px;
+  }
+
+  .sidebar-bottom .nav-item { color: var(--text-muted); }
+  .sidebar-bottom .nav-item.active { background: rgba(74,7,137,0.15); color: var(--accent-purple-light); }
+
+  .nav-item.logout { color: var(--text-muted); }
+  .nav-item.logout:hover { color: var(--accent-red); background: rgba(239,68,68,0.08); }
+
+  .main { margin-left: var(--sidebar-width); flex: 1; display: flex; flex-direction: column; }
+
+  /* TOPBAR */
+  .topbar {
+    height: var(--topbar-height);
+    background: var(--bg-primary);
+    border-bottom: 1px solid var(--border-color);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 28px; position: sticky; top: 0; z-index: 50;
+  }
+
+  .topbar-left { display: flex; align-items: center; gap: 12px; }
+  .topbar-brand { font-weight: 800; font-size: 20px; letter-spacing: -0.5px; }
+  .menu-btn { display: none; background: none; border: none; color: var(--text-primary); cursor: pointer; padding: 4px; align-items: center; }
+
+  .topbar-center {
+    position: absolute; left: 50%; transform: translateX(-50%);
+    font-size: 17px; font-weight: 700; color: var(--accent-purple-light);
+  }
+
+  .topbar-right { display: flex; align-items: center; gap: 12px; }
+
+  .topbar-search {
+    position: relative; width: 240px;
+  }
+  .topbar-search input {
+    width: 100%; background: var(--bg-card); border: 1px solid var(--border-color);
+    border-radius: 99px; padding: 8px 14px 8px 36px; color: var(--text-primary);
+    font-size: 13px; font-family: inherit; outline: none;
+  }
+  .topbar-search input::placeholder { color: var(--text-muted); }
+  .search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); width: 14px; height: 14px; color: var(--text-muted); }
+
+  .topbar-icon { position: relative; width: 36px; height: 36px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text-secondary); }
+  .notif-dot { position: absolute; top: 6px; right: 7px; width: 6px; height: 6px; background: var(--accent-purple); border-radius: 50%; }
+  .avatar { width: 34px; height: 34px; background: linear-gradient(135deg, var(--accent-purple-dark), var(--accent-purple)); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; cursor: pointer; }
+
+  /* CONTENT */
+  .content { padding: 32px 28px; flex: 1; display: flex; flex-direction: column; gap: 20px; max-width: 800px; }
+
+  /* EDIT PROFILE */
+  .section-header { margin-bottom: 20px; }
+  .section-title { font-size: 24px; font-weight: 800; letter-spacing: -0.3px; }
+  .section-sub { font-size: 13px; color: var(--text-secondary); margin-top: 5px; }
+
+  .profile-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    padding: 24px;
+    display: flex; flex-direction: column; gap: 18px;
+  }
+
+  .form-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+  .field-group { display: flex; flex-direction: column; gap: 7px; }
+  .field-label { font-size: 11px; font-weight: 700; color: var(--accent-purple-light); text-transform: uppercase; letter-spacing: 0.08em; }
+  .field-label.gray { color: var(--text-muted); }
+
+  .field-input {
+    background: var(--bg-input);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 12px 14px;
+    color: var(--text-primary);
+    font-size: 14px;
+    font-family: inherit;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .field-input::placeholder { color: var(--text-muted); }
+  .field-input:focus { border-color: var(--accent-purple); }
+
+  .section-label { font-size: 14px; font-weight: 600; color: var(--text-primary); }
+
+  .btn-salvar {
+    align-self: flex-end;
+    background: var(--accent-purple);
+    color: white; border: none;
+    border-radius: 99px; padding: 12px 28px;
+    font-size: 14px; font-weight: 700; font-family: inherit;
+    cursor: pointer; transition: all 0.2s;
+    box-shadow: 0 0 20px rgba(74,7,137,0.3);
+  }
+  .btn-salvar:hover { background: var(--accent-purple-light); box-shadow: 0 0 30px rgba(74,7,137,0.5); }
+
+  /* MID ROW */
+  .mid-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+  /* NOTIFICATIONS */
+  .notif-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    padding: 22px;
+  }
+
+  .card-title-row { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; }
+  .card-title-row i { width: 20px; height: 20px; color: var(--accent-purple-light); }
+  .card-title { font-size: 17px; font-weight: 700; }
+
+  .notif-item { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
+  .notif-item:last-child { border-bottom: none; }
+  .notif-info {}
+  .notif-name { font-size: 14px; font-weight: 600; margin-bottom: 3px; }
+  .notif-desc { font-size: 12px; color: var(--text-muted); }
+
+  /* TOGGLE */
+  .toggle { position: relative; width: 44px; height: 24px; flex-shrink: 0; }
+  .toggle input { opacity: 0; width: 0; height: 0; }
+  .toggle-track {
+    position: absolute; inset: 0;
+    background: #333;
+    border-radius: 99px;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .toggle input:checked + .toggle-track { background: var(--accent-purple); }
+  .toggle-thumb {
+    position: absolute;
+    width: 18px; height: 18px;
+    background: white; border-radius: 50%;
+    top: 3px; left: 3px;
+    pointer-events: none;
+    transition: transform 0.2s;
+  }
+  .toggle input:checked ~ .toggle-thumb { transform: translateX(20px); }
+
+  /* OBJETIVO */
+  .objetivo-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    padding: 22px;
+    display: flex; flex-direction: column; gap: 16px;
+  }
+
+  .objetivo-current {
+    background: var(--bg-input);
+    border-left: 3px solid var(--accent-purple);
+    border-radius: 8px;
+    padding: 16px;
+  }
+  .objetivo-label { font-size: 10px; font-weight: 700; color: var(--accent-purple-light); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 6px; }
+  .objetivo-value { font-size: 20px; font-weight: 700; }
+
+  .btn-alterar {
+    width: 100%;
+    background: var(--bg-input);
+    border: 1px solid var(--border-color);
+    border-radius: 99px;
+    padding: 12px;
+    font-size: 13px; font-weight: 600;
+    color: var(--text-primary); font-family: inherit;
+    cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
+    transition: all 0.2s;
+  }
+  .btn-alterar:hover { border-color: var(--accent-purple); color: var(--accent-purple-light); }
+  .btn-alterar i { width: 14px; height: 14px; }
+
+  /* CATEGORIAS */
+  .cat-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    padding: 22px;
+  }
+
+  .cat-card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+  .cat-add { font-size: 13px; font-weight: 600; color: var(--accent-purple-light); cursor: pointer; }
+  .cat-add:hover { color: var(--accent-purple-light); text-decoration: underline; }
+
+  .cat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+
+  .cat-item {
+    display: flex; align-items: center; justify-content: space-between;
+    background: var(--bg-input);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 11px 12px;
+    font-size: 13px; font-weight: 600;
+    transition: border-color 0.2s;
+    cursor: pointer;
+  }
+  .cat-item:hover { border-color: var(--accent-purple); }
+  .cat-item-left { display: flex; align-items: center; gap: 8px; }
+  .cat-item-left i { width: 15px; height: 15px; color: var(--text-muted); }
+  .cat-item-edit { color: var(--text-muted); }
+  .cat-item-edit i { width: 14px; height: 14px; }
+
+  /* PLAN BANNER */
+  .plan-banner {
+    background: var(--bg-card);
+    border: 1px solid rgba(74,7,137,0.3);
+    border-radius: 14px;
+    padding: 24px 28px;
+    display: flex; align-items: center; gap: 20px;
+  }
+
+  .plan-icon {
+    width: 50px; height: 50px;
+    background: rgba(74,7,137,0.12);
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--accent-purple-light);
+    flex-shrink: 0;
+  }
+  .plan-icon i { width: 22px; height: 22px; }
+
+  .plan-info { flex: 1; }
+  .plan-tag { font-size: 10px; font-weight: 700; color: var(--accent-purple-light); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 4px; }
+  .plan-name { font-size: 22px; font-weight: 800; }
+  .plan-desc { font-size: 13px; color: var(--text-secondary); margin-top: 3px; }
+
+  .btn-upgrade {
+    background: var(--accent-purple);
+    color: white; border: none;
+    border-radius: 99px; padding: 13px 28px;
+    font-size: 15px; font-weight: 800; font-family: inherit;
+    cursor: pointer; white-space: nowrap;
+    box-shadow: 0 0 24px rgba(74,7,137,0.35);
+    transition: all 0.2s;
+  }
+  .btn-upgrade:hover { background: var(--accent-purple-light); box-shadow: 0 0 36px rgba(74,7,137,0.5); }
+
+  /* LOGOUT LINK */
+  .logout-link {
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    color: var(--accent-red); font-size: 14px; font-weight: 600;
+    cursor: pointer; padding: 8px;
+    transition: opacity 0.2s;
+  }
+  .logout-link:hover { opacity: 0.75; }
+  .logout-link i { width: 16px; height: 16px; }
+
+  @media (max-width: 900px) {
+    .mid-row { grid-template-columns: 1fr; }
+    .cat-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 768px) {
+    .sidebar { transform: translateX(-100%); box-shadow: 4px 0 24px rgba(0,0,0,0.5); }
+    .sidebar.open { transform: translateX(0); }
+    .sidebar-close { display: flex; }
+    .menu-btn { display: flex; }
+    .main { margin-left: 0; }
+    .content { padding: 16px; max-width: 100%; }
+    .topbar-center { display: none; }
+    .topbar-search { display: none; }
+    .form-row-2 { grid-template-columns: 1fr; }
+    .cat-grid { grid-template-columns: 1fr 1fr; }
+    .plan-banner { flex-direction: column; align-items: flex-start; }
+  }
+</style>
+</head>
+<body>
+
+<div id="sidebar-container"></div>
+
+<main class="main">
+  <header class="topbar">
+    <div class="topbar-left">
+      <button class="menu-btn" onclick="openSidebar()"><i data-lucide="menu" style="width:22px;height:22px;"></i></button>
+      <span class="topbar-brand">NEXUM</span>
+    </div>
+
+    <div class="topbar-center">Settings</div>
+
+    <div class="topbar-right">
+      <div class="topbar-search">
+        <i data-lucide="search" class="search-icon"></i>
+        <input type="text" placeholder="Search settings...">
+      </div>
+      <div class="topbar-icon">
+        <i data-lucide="bell" style="width:18px;height:18px;"></i>
+        <span class="notif-dot"></span>
+      </div>
+      <div class="avatar">JP</div>
+    </div>
+  </header>
+
+  <div class="content">
+
+    <!-- EDIT PROFILE -->
+    <div class="section-header">
+      <div class="section-title">Editar Perfil</div>
+      <div class="section-sub">Gerencie suas informações pessoais e credenciais de acesso.</div>
+    </div>
+
+    <div class="profile-card">
+      <div class="form-row-2">
+        <div class="field-group">
+          <label class="field-label">Nome</label>
+          <input class="field-input" type="text" value="Eduardo">
+        </div>
+        <div class="field-group">
+          <label class="field-label">E-mail</label>
+          <input class="field-input" type="email" value="eduardo@email.com">
+        </div>
+      </div>
+
+      <div class="section-label">Alterar Senha</div>
+
+      <div class="form-row-2">
+        <input class="field-input" type="password" placeholder="Nova senha">
+        <input class="field-input" type="password" placeholder="Confirmar nova senha">
+      </div>
+
+      <button class="btn-salvar">Salvar Alterações</button>
+    </div>
+
+    <!-- MID ROW -->
+    <div class="mid-row">
+
+      <!-- NOTIFICAÇÕES -->
+      <div class="notif-card">
+        <div class="card-title-row">
+          <i data-lucide="bell"></i>
+          <span class="card-title">Notificações</span>
+        </div>
+
+        <div class="notif-item">
+          <div class="notif-info">
+            <div class="notif-name">Alertas de Gastos</div>
+            <div class="notif-desc">Receba avisos ao atingir 80% do limite</div>
+          </div>
+          <label class="toggle">
+            <input type="checkbox" checked>
+            <div class="toggle-track"></div>
+            <div class="toggle-thumb"></div>
+          </label>
+        </div>
+
+        <div class="notif-item">
+          <div class="notif-info">
+            <div class="notif-name">Relatórios Semanais</div>
+            <div class="notif-desc">Resumo do seu desempenho financeiro</div>
+          </div>
+          <label class="toggle">
+            <input type="checkbox" checked>
+            <div class="toggle-track"></div>
+            <div class="toggle-thumb"></div>
+          </label>
+        </div>
+
+        <div class="notif-item">
+          <div class="notif-info">
+            <div class="notif-name">Dicas de Investimento</div>
+            <div class="notif-desc">Sugestões personalizadas por IA</div>
+          </div>
+          <label class="toggle">
+            <input type="checkbox">
+            <div class="toggle-track"></div>
+            <div class="toggle-thumb"></div>
+          </label>
+        </div>
+      </div>
+
+      <!-- OBJETIVO FINANCEIRO -->
+      <div class="objetivo-card">
+        <div class="card-title-row">
+          <i data-lucide="target" style="width:20px;height:20px;color:var(--accent-purple-light)"></i>
+          <span class="card-title">Objetivo Financeiro</span>
+        </div>
+
+        <div class="objetivo-current">
+          <div class="objetivo-label">Objetivo Atual</div>
+          <div class="objetivo-value">Economizar dinheiro</div>
+        </div>
+
+        <button class="btn-alterar">
+          <i data-lucide="pencil"></i>
+          Alterar Objetivo
+        </button>
+      </div>
+
+    </div>
+
+    <!-- GERENCIAR CATEGORIAS -->
+    <div class="cat-card">
+      <div class="cat-card-header">
+        <div class="card-title-row" style="margin-bottom:0">
+          <i data-lucide="layout-grid" style="width:20px;height:20px;color:var(--accent-purple-light)"></i>
+          <span class="card-title">Gerenciar Categorias</span>
+        </div>
+        <span class="cat-add">+ Adicionar Nova</span>
+      </div>
+
+      <div class="cat-grid">
+        <div class="cat-item">
+          <div class="cat-item-left"><i data-lucide="utensils"></i>Alimentação</div>
+          <div class="cat-item-edit"><i data-lucide="square-pen"></i></div>
+        </div>
+        <div class="cat-item">
+          <div class="cat-item-left"><i data-lucide="car"></i>Transporte</div>
+          <div class="cat-item-edit"><i data-lucide="square-pen"></i></div>
+        </div>
+        <div class="cat-item">
+          <div class="cat-item-left"><i data-lucide="house"></i>Moradia</div>
+          <div class="cat-item-edit"><i data-lucide="square-pen"></i></div>
+        </div>
+        <div class="cat-item">
+          <div class="cat-item-left"><i data-lucide="shopping-bag"></i>Compras</div>
+          <div class="cat-item-edit"><i data-lucide="square-pen"></i></div>
+        </div>
+        <div class="cat-item">
+          <div class="cat-item-left"><i data-lucide="heart-pulse"></i>Saúde</div>
+          <div class="cat-item-edit"><i data-lucide="square-pen"></i></div>
+        </div>
+        <div class="cat-item">
+          <div class="cat-item-left"><i data-lucide="gamepad-2"></i>Lazer</div>
+          <div class="cat-item-edit"><i data-lucide="square-pen"></i></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PLAN BANNER -->
+    <div class="plan-banner">
+      <div class="plan-icon"><i data-lucide="shield"></i></div>
+      <div class="plan-info">
+        <div class="plan-tag">Plano Atual</div>
+        <div class="plan-name">Free Plan</div>
+        <div class="plan-desc">Acesse ferramentas básicas de controle financeiro.</div>
+      </div>
+      <button class="btn-upgrade">Upgrade to Pro</button>
+    </div>
+
+    <!-- LOGOUT LINK -->
+    <div class="logout-link">
+      <i data-lucide="log-out"></i>
+      Sair da conta Nexum
+    </div>
+
+  </div>
+</main>
+
+<script>
+  lucide.createIcons();
+
+  const CURRENT_PAGE = 'configuracao';
+
+  fetch('../components/layout/sidebar.html')
+    .then(r => r.text())
+    .then(html => {
+      document.getElementById('sidebar-container').innerHTML = html;
+      lucide.createIcons();
+      document.querySelectorAll('.nav-item').forEach(item => {
+        const href = item.getAttribute('href') || '';
+        if (href.includes(CURRENT_PAGE)) item.classList.add('active');
+      });
+    });
+
+  function openSidebar() {
+    document.getElementById('sidebar').classList.add('open');
+    document.getElementById('overlay').classList.add('open');
+  }
+  function closeSidebar() {
+    document.getElementById('sidebar').classList.remove('open');
+    document.getElementById('overlay').classList.remove('open');
+  }
+</script>
+</body>
+</html>

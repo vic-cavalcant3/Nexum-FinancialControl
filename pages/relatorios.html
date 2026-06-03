@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nexum - Relatórios</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="icon" type="image/svg+xml" href="../components/image/nexum-icon.svg">
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<style>
+  :root {
+    --bg-primary:          #000000;
+    --bg-secondary:        #0a0a0a;
+    --bg-card:             #141414;
+    --bg-input:            #1c1c1c;
+    --bg-card2:            #1c1c1c;
+    --accent-purple:       #4A0789;
+    --accent-purple-light: #6d28d9;
+    --accent-purple-bright:#7c3aed;
+    --accent-purple-dark:  #4A0789;
+    --accent-green:        #22c55e;
+    --accent-red:          #ef4444;
+    --accent-yellow:       #f59e0b;
+    --accent-orange:       #f97316;
+    --accent-blue:         #3b82f6;
+    --text-primary:        #ffffff;
+    --text-secondary:      #9ca3af;
+    --text-muted:          #6b7280;
+    --border-color:        #1f1f1f;
+    --sidebar-width:       220px;
+    --topbar-height:       65px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    display: flex;
+    min-height: 100vh;
+  }
+
+  .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 99; }
+  .sidebar-overlay.open { display: block; }
+
+  .sidebar {
+    width: var(--sidebar-width);
+    background: var(--bg-secondary);
+    border-right: 1px solid var(--border-color);
+    display: flex; flex-direction: column;
+    position: fixed; top: 0; left: 0;
+    height: 100vh; z-index: 100;
+    padding: 24px 0;
+    transition: transform 0.25s ease;
+  }
+
+  .sidebar-logo { padding: 0 20px 28px; font-size: 22px; font-weight: 800; letter-spacing: -0.5px; display: flex; align-items: center; justify-content: space-between; }
+  .sidebar-close { display: none; background: none; border: none; color: var(--text-secondary); cursor: pointer; padding: 4px; }
+  .sidebar-nav { flex: 1; display: flex; flex-direction: column; gap: 2px; padding: 0 12px; }
+  .nav-item { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 8px; cursor: pointer; color: var(--text-secondary); font-size: 14px; font-weight: 500; text-decoration: none; transition: all 0.15s ease; }
+  .nav-item:hover { background: var(--bg-card); color: var(--text-primary); }
+  .nav-item.active { background: rgba(74, 7, 137, 0.2); color: #a855f7; border-left: 3px solid #4A0789; padding-left: 9px; }
+  .nav-item i { width: 18px; height: 18px; flex-shrink: 0; }
+  .sidebar-bottom { padding: 16px 12px 0; border-top: 1px solid var(--border-color); margin-top: 8px; }
+  .support-item { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 8px; cursor: pointer; color: var(--text-muted); font-size: 14px; font-weight: 500; }
+  .support-item i { width: 18px; height: 18px; }
+
+  .main { margin-left: var(--sidebar-width); flex: 1; display: flex; flex-direction: column; }
+
+  /* TOPBAR — this page has a different topbar style (centered title) */
+  .topbar {
+    height: var(--topbar-height);
+    background: var(--bg-primary);
+    border-bottom: 1px solid var(--border-color);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 28px; position: sticky; top: 0; z-index: 50;
+  }
+
+  .topbar-left { display: flex; align-items: center; gap: 12px; }
+  .topbar-brand-mobile { display: none; font-weight: 800; font-size: 18px; letter-spacing: -0.5px; }
+  .menu-btn { display: none; background: none; border: none; color: var(--text-primary); cursor: pointer; padding: 4px; align-items: center; }
+
+  .topbar-center {
+    position: absolute; left: 50%; transform: translateX(-50%);
+    display: flex; align-items: center; gap: 14px;
+  }
+
+  .topbar-title { font-size: 18px; font-weight: 700; }
+
+  .period-selector {
+    display: flex; align-items: center; gap: 7px;
+    background: var(--bg-card); border: 1px solid var(--border-color);
+    border-radius: 8px; padding: 7px 12px;
+    font-size: 13px; font-weight: 600; cursor: pointer;
+    color: var(--text-primary); transition: border-color 0.2s;
+  }
+  .period-selector:hover { border-color: var(--accent-purple); }
+  .period-selector i { width: 14px; height: 14px; color: var(--text-muted); }
+
+  .topbar-right { display: flex; align-items: center; gap: 12px; }
+
+  .btn-export {
+    display: flex; align-items: center; gap: 8px;
+    background: var(--accent-purple); color: white;
+    border: none; border-radius: 99px; padding: 9px 18px;
+    font-size: 13px; font-weight: 700; font-family: inherit;
+    cursor: pointer; transition: all 0.2s;
+    box-shadow: 0 0 20px rgba(74,7,137,0.3);
+  }
+  .btn-export:hover { background: var(--accent-purple-light); }
+  .btn-export i { width: 14px; height: 14px; }
+
+  .topbar-icon { position: relative; width: 36px; height: 36px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text-secondary); }
+  .notif-dot { position: absolute; top: 6px; right: 7px; width: 6px; height: 6px; background: var(--accent-purple); border-radius: 50%; }
+  .avatar { width: 34px; height: 34px; background: linear-gradient(135deg, var(--accent-purple-dark), var(--accent-purple)); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; cursor: pointer; }
+
+  /* CONTENT */
+  .content { padding: 28px; flex: 1; display: flex; flex-direction: column; gap: 20px; }
+
+  /* SUMMARY CARDS */
+  .summary-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+
+  .summary-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    padding: 22px;
+    display: flex; flex-direction: column; gap: 10px;
+    position: relative; overflow: hidden;
+  }
+
+  .summary-card.liquid {
+    background: linear-gradient(135deg, #1a1030 0%, #130d2a 100%);
+    border-color: rgba(74,7,137,0.3);
+  }
+
+  .card-label { font-size: 13px; color: var(--text-secondary); font-weight: 500; }
+  .card-label.liquid-label { color: var(--accent-purple-light); font-weight: 700; }
+
+  .card-amount { font-size: 30px; font-weight: 800; letter-spacing: -0.5px; }
+  .card-amount.liquid-amount { color: var(--accent-purple-light); }
+
+  .card-trend {
+    display: flex; align-items: center; gap: 6px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 6px; padding: 6px 10px;
+    font-size: 12px; font-weight: 600;
+    width: fit-content;
+  }
+  .card-trend.up { color: var(--accent-green); }
+  .card-trend.down { color: var(--accent-red); }
+  .card-trend i { width: 13px; height: 13px; }
+
+  .card-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: rgba(74,7,137,0.15);
+    border: 1px solid rgba(74,7,137,0.3);
+    border-radius: 6px; padding: 5px 10px;
+    font-size: 12px; font-weight: 600;
+    color: var(--accent-purple-light);
+    width: fit-content;
+  }
+  .card-badge i { width: 12px; height: 12px; }
+
+  .card-trend-icon {
+    position: absolute; top: 20px; right: 20px;
+    opacity: 0.5;
+  }
+  .card-trend-icon i { width: 28px; height: 28px; }
+  .trend-up-icon { color: var(--accent-green); }
+  .trend-down-icon { color: var(--accent-red); }
+
+  /* MIDDLE ROW */
+  .middle-row { display: grid; grid-template-columns: 1fr 340px; gap: 16px; }
+
+  /* CHART CARD */
+  .chart-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    padding: 24px;
+  }
+
+  .chart-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 24px; }
+  .chart-title { font-size: 18px; font-weight: 700; }
+  .chart-sub { font-size: 13px; color: var(--text-muted); margin-top: 3px; }
+
+  .chart-legend { display: flex; align-items: center; gap: 16px; }
+  .legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-secondary); }
+  .legend-dot { width: 8px; height: 8px; border-radius: 50%; }
+
+  /* BAR CHART */
+  .bar-chart {
+    display: flex; align-items: flex-end; justify-content: space-between;
+    height: 200px; gap: 8px; padding: 0 4px;
+  }
+
+  .bar-group { display: flex; flex-direction: column; align-items: center; gap: 6px; flex: 1; }
+
+  .bars { display: flex; align-items: flex-end; gap: 4px; height: 180px; }
+
+  .bar {
+    width: 28px;
+    border-radius: 6px 6px 0 0;
+    transition: opacity 0.2s;
+  }
+  .bar:hover { opacity: 0.8; }
+  .bar.receita { background: var(--accent-purple); }
+  .bar.despesa { background: #3a3a3a; }
+  .bar.active-receita { background: var(--accent-purple); box-shadow: 0 0 16px rgba(74,7,137,0.5); }
+  .bar.active-despesa { background: #555; }
+
+  .bar-label { font-size: 11px; color: var(--text-muted); font-weight: 600; letter-spacing: 0.05em; }
+  .bar-label.active { color: var(--accent-purple-light); }
+
+  /* BREAKDOWN CARD */
+  .breakdown-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    padding: 24px;
+    display: flex; flex-direction: column; gap: 20px;
+  }
+
+  .breakdown-header {}
+  .breakdown-title { font-size: 18px; font-weight: 700; }
+  .breakdown-sub { font-size: 13px; color: var(--text-muted); margin-top: 3px; }
+
+  .breakdown-list { display: flex; flex-direction: column; gap: 16px; }
+
+  .breakdown-item {}
+  .breakdown-item-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+  .breakdown-item-left { display: flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 600; }
+  .breakdown-item-left i { width: 16px; height: 16px; }
+  .breakdown-pct { font-size: 14px; font-weight: 700; color: var(--text-secondary); }
+
+  .breakdown-bar { width: 100%; height: 5px; background: rgba(255,255,255,0.06); border-radius: 99px; overflow: hidden; }
+  .breakdown-fill { height: 100%; border-radius: 99px; }
+
+  .breakdown-cta {
+    font-size: 13px; font-weight: 600; color: var(--accent-purple-light);
+    cursor: pointer; display: flex; align-items: center; gap: 4px;
+    margin-top: 4px;
+  }
+  .breakdown-cta i { width: 14px; height: 14px; }
+
+  /* INSIGHT BANNER */
+  .insight-banner {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    padding: 24px 28px;
+    display: flex; align-items: center; gap: 22px;
+  }
+
+  .insight-ico-wrap {
+    width: 52px; height: 52px;
+    background: rgba(74,7,137,0.15);
+    border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    color: var(--accent-purple-light);
+  }
+  .insight-ico-wrap i { width: 24px; height: 24px; }
+
+  .insight-body { flex: 1; }
+  .insight-title { font-size: 16px; font-weight: 700; margin-bottom: 6px; }
+  .insight-text { font-size: 13px; color: var(--text-secondary); line-height: 1.7; }
+  .insight-text .hl { color: var(--accent-purple-light); font-weight: 700; }
+
+  .btn-ajustar {
+    background: var(--bg-card2);
+    border: 1px solid var(--border-color);
+    border-radius: 99px;
+    padding: 11px 20px;
+    font-size: 13px; font-weight: 600;
+    color: var(--text-primary); font-family: inherit;
+    cursor: pointer; white-space: nowrap;
+    transition: all 0.2s;
+  }
+  .btn-ajustar:hover { border-color: var(--accent-purple); color: var(--accent-purple-light); }
+
+  /* UPGRADE */
+  .upgrade-banner { position: fixed; bottom: 24px; left: calc(var(--sidebar-width) - 200px); width: 180px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 14px; padding: 14px 16px; z-index: 40; }
+  .upgrade-text { font-size: 12px; color: var(--text-secondary); margin-bottom: 10px; font-weight: 500; }
+  .btn-upgrade { width: 100%; background: var(--accent-purple); color: white; border: none; border-radius: 8px; padding: 8px; font-size: 12px; font-weight: 600; font-family: inherit; cursor: pointer; }
+
+  @media (max-width: 1100px) {
+    .middle-row { grid-template-columns: 1fr; }
+    .summary-row { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 768px) {
+    .sidebar { transform: translateX(-100%); box-shadow: 4px 0 24px rgba(0,0,0,0.5); }
+    .sidebar.open { transform: translateX(0); }
+    .sidebar-close { display: flex; }
+    .menu-btn { display: flex; }
+    .topbar-brand-mobile { display: block; }
+    .topbar-center { display: none; }
+    .main { margin-left: 0; }
+    .content { padding: 16px; }
+    .summary-row { grid-template-columns: 1fr; }
+    .upgrade-banner { display: none; }
+    .insight-banner { flex-direction: column; align-items: flex-start; }
+  }
+</style>
+</head>
+<body>
+
+<div id="sidebar-container"></div>
+
+<main class="main">
+  <header class="topbar">
+    <div class="topbar-left">
+      <button class="menu-btn" onclick="openSidebar()"><i data-lucide="menu" style="width:22px;height:22px;"></i></button>
+      <span class="topbar-brand-mobile">NEXUM</span>
+    </div>
+
+    <div class="topbar-center">
+      <span class="topbar-title">Relatórios</span>
+      <div class="period-selector">
+        <i data-lucide="calendar"></i>
+        Junho 2024
+        <i data-lucide="chevron-down"></i>
+      </div>
+    </div>
+
+    <div class="topbar-right">
+      <button class="btn-export"><i data-lucide="file-text"></i>Exportar PDF</button>
+      <div class="topbar-icon">
+        <i data-lucide="bell" style="width:18px;height:18px;"></i>
+        <span class="notif-dot"></span>
+      </div>
+      <div class="avatar">JP</div>
+    </div>
+  </header>
+
+  <div class="content">
+
+    <!-- SUMMARY CARDS -->
+    <div class="summary-row">
+
+      <div class="summary-card">
+        <div class="card-trend-icon trend-up-icon"><i data-lucide="trending-up"></i></div>
+        <div class="card-label">Receitas</div>
+        <div class="card-amount">R$ 12.450,00</div>
+        <div class="card-trend up">
+          <i data-lucide="arrow-up"></i>
+          12% a mais que o mês anterior
+        </div>
+      </div>
+
+      <div class="summary-card">
+        <div class="card-trend-icon trend-down-icon"><i data-lucide="trending-down"></i></div>
+        <div class="card-label">Despesas</div>
+        <div class="card-amount">R$ 5.120,00</div>
+        <div class="card-trend down">
+          <i data-lucide="arrow-down"></i>
+          4% a menos que o mês anterior
+        </div>
+      </div>
+
+      <div class="summary-card liquid">
+        <div class="card-label liquid-label">Saldo Líquido</div>
+        <div class="card-amount liquid-amount">R$ 7.330,00</div>
+        <div class="card-badge">
+          <i data-lucide="zap"></i>
+          Performance Ótima
+        </div>
+      </div>
+
+    </div>
+
+    <!-- MIDDLE ROW -->
+    <div class="middle-row">
+
+      <!-- CHART -->
+      <div class="chart-card">
+        <div class="chart-header">
+          <div>
+            <div class="chart-title">Evolução de Fluxo</div>
+            <div class="chart-sub">Comparativo de 6 meses</div>
+          </div>
+          <div class="chart-legend">
+            <div class="legend-item">
+              <div class="legend-dot" style="background:var(--accent-purple)"></div>
+              Receitas
+            </div>
+            <div class="legend-item">
+              <div class="legend-dot" style="background:#555"></div>
+              Despesas
+            </div>
+          </div>
+        </div>
+
+        <div class="bar-chart">
+          <!-- JAN -->
+          <div class="bar-group">
+            <div class="bars">
+              <div class="bar despesa" style="height:90px"></div>
+              <div class="bar receita" style="height:110px"></div>
+            </div>
+            <div class="bar-label">JAN</div>
+          </div>
+          <!-- FEV -->
+          <div class="bar-group">
+            <div class="bars">
+              <div class="bar despesa" style="height:80px"></div>
+              <div class="bar receita" style="height:130px"></div>
+            </div>
+            <div class="bar-label">FEV</div>
+          </div>
+          <!-- MAR -->
+          <div class="bar-group">
+            <div class="bars">
+              <div class="bar despesa" style="height:100px"></div>
+              <div class="bar receita" style="height:75px"></div>
+            </div>
+            <div class="bar-label">MAR</div>
+          </div>
+          <!-- ABR -->
+          <div class="bar-group">
+            <div class="bars">
+              <div class="bar despesa" style="height:85px"></div>
+              <div class="bar receita" style="height:140px"></div>
+            </div>
+            <div class="bar-label">ABR</div>
+          </div>
+          <!-- MAI -->
+          <div class="bar-group">
+            <div class="bars">
+              <div class="bar despesa" style="height:95px"></div>
+              <div class="bar receita" style="height:120px"></div>
+            </div>
+            <div class="bar-label">MAI</div>
+          </div>
+          <!-- JUN — active -->
+          <div class="bar-group">
+            <div class="bars">
+              <div class="bar active-despesa" style="height:78px"></div>
+              <div class="bar active-receita" style="height:170px"></div>
+            </div>
+            <div class="bar-label active">JUN</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- BREAKDOWN -->
+      <div class="breakdown-card">
+        <div class="breakdown-header">
+          <div class="breakdown-title">Breakdown</div>
+          <div class="breakdown-sub">Maiores gastos por categoria</div>
+        </div>
+
+        <div class="breakdown-list">
+
+          <div class="breakdown-item">
+            <div class="breakdown-item-top">
+              <div class="breakdown-item-left">
+                <i data-lucide="utensils" style="color:#f97316"></i>
+                Alimentação
+              </div>
+              <div class="breakdown-pct">35%</div>
+            </div>
+            <div class="breakdown-bar">
+              <div class="breakdown-fill" style="width:35%;background:#f97316"></div>
+            </div>
+          </div>
+
+          <div class="breakdown-item">
+            <div class="breakdown-item-top">
+              <div class="breakdown-item-left">
+                <i data-lucide="house" style="color:#f59e0b"></i>
+                Moradia
+              </div>
+              <div class="breakdown-pct">28%</div>
+            </div>
+            <div class="breakdown-bar">
+              <div class="breakdown-fill" style="width:28%;background:#f59e0b"></div>
+            </div>
+          </div>
+
+          <div class="breakdown-item">
+            <div class="breakdown-item-top">
+              <div class="breakdown-item-left">
+                <i data-lucide="car" style="color:#3b82f6"></i>
+                Transporte
+              </div>
+              <div class="breakdown-pct">15%</div>
+            </div>
+            <div class="breakdown-bar">
+              <div class="breakdown-fill" style="width:15%;background:#3b82f6"></div>
+            </div>
+          </div>
+
+          <div class="breakdown-item">
+            <div class="breakdown-item-top">
+              <div class="breakdown-item-left">
+                <i data-lucide="clapperboard" style="color:#ef4444"></i>
+                Lazer
+              </div>
+              <div class="breakdown-pct">12%</div>
+            </div>
+            <div class="breakdown-bar">
+              <div class="breakdown-fill" style="width:12%;background:#ef4444"></div>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="breakdown-cta">
+          Ver detalhes por categoria
+          <i data-lucide="chevron-right"></i>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- INSIGHT BANNER -->
+    <div class="insight-banner">
+      <div class="insight-ico-wrap">
+        <i data-lucide="bot"></i>
+      </div>
+      <div class="insight-body">
+        <div class="insight-title">Insight do Consultor Nexum</div>
+        <div class="insight-text">
+          Suas despesas com <span class="hl">Alimentação</span> aumentaram 8% nesta quinzena. Se mantiver o ritmo atual, você poderá ultrapassar sua meta mensal em R$ 450,00. Sugerimos priorizar refeições em casa nos próximos 10 dias.
+        </div>
+      </div>
+      <button class="btn-ajustar">Ajustar Planejamento</button>
+    </div>
+
+  </div>
+</main>
+
+<div class="upgrade-banner">
+  <div class="upgrade-text">Maximize seu controle</div>
+  <button class="btn-upgrade">Upgrade to Pro</button>
+</div>
+
+<script>
+  lucide.createIcons();
+
+  const CURRENT_PAGE = 'relatorios';
+
+  fetch('../components/layout/sidebar.html')
+    .then(r => r.text())
+    .then(html => {
+      document.getElementById('sidebar-container').innerHTML = html;
+      lucide.createIcons();
+      document.querySelectorAll('.nav-item').forEach(item => {
+        const href = item.getAttribute('href') || '';
+        if (href.includes(CURRENT_PAGE)) item.classList.add('active');
+      });
+    });
+
+  function openSidebar() {
+    document.getElementById('sidebar').classList.add('open');
+    document.getElementById('overlay').classList.add('open');
+  }
+  function closeSidebar() {
+    document.getElementById('sidebar').classList.remove('open');
+    document.getElementById('overlay').classList.remove('open');
+  }
+</script>
+</body>
+</html>

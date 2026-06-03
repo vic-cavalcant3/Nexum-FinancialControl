@@ -1,0 +1,138 @@
+<style>
+  .sidebar-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    z-index: 99;
+  }
+  .sidebar-overlay.open { display: block; }
+
+  .sidebar {
+    width: 220px;
+    background: var(--bg-secondary);
+    border-right: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 0; left: 0;
+    height: 100vh;
+    z-index: 100;
+    padding: 24px 0;
+    transition: transform 0.25s ease;
+  }
+
+  .sidebar-logo {
+    padding: 0 20px 28px;
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .sidebar-close {
+    display: none;
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    padding: 4px;
+  }
+
+  .sidebar-nav {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 0 12px;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    color: var(--text-secondary);
+    font-size: 14px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: all 0.15s ease;
+  }
+
+  .nav-item:hover { background: var(--bg-card); color: var(--text-primary); }
+
+  .nav-item.active {
+    background: rgba(74, 7, 137, 0.2);
+    color: #a855f7;
+    border-left: 3px solid #4A0789;
+    padding-left: 9px;
+  }
+
+  .nav-item i { width: 18px; height: 18px; flex-shrink: 0; }
+
+  .sidebar-bottom {
+    padding: 16px 12px 0;
+    border-top: 1px solid var(--border-color);
+    margin-top: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .nav-item.logout { color: var(--text-muted); }
+  .nav-item.logout:hover { color: var(--accent-red); background: rgba(239,68,68,0.08); }
+
+  @media (max-width: 768px) {
+    .sidebar { transform: translateX(-100%); box-shadow: 4px 0 24px rgba(0,0,0,0.5); }
+    .sidebar.open { transform: translateX(0); }
+    .sidebar-close { display: flex; }
+  }
+</style>
+
+<div class="sidebar-overlay" id="overlay" onclick="closeSidebar()"></div>
+
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-logo">
+    NEXUM
+    <button class="sidebar-close" onclick="closeSidebar()">
+      <i data-lucide="x" style="width:20px;height:20px;"></i>
+    </button>
+  </div>
+  <nav class="sidebar-nav">
+    <a href="../../pages/inicial.html" class="nav-item">
+      <i data-lucide="layout-dashboard"></i>
+      Dashboard
+    </a>
+    <a href="../../pages/transacoes.html" class="nav-item">
+      <i data-lucide="arrow-left-right"></i>
+      Transações
+    </a>
+    <a href="../../pages/planejamento.html" class="nav-item">
+      <i data-lucide="calendar-days"></i>
+      Planejamento
+    </a>
+    <a href="../../pages/metas.html" class="nav-item">
+      <i data-lucide="target"></i>
+      Metas
+    </a>
+    <a href="../../pages/relatorios.html" class="nav-item">
+      <i data-lucide="bar-chart-2"></i>
+      Relatórios
+    </a>
+  </nav>
+  <div class="sidebar-bottom">
+    <a href="../../pages/configuracao.html" class="nav-item">
+      <i data-lucide="settings"></i>
+      Configurações
+    </a>
+    <a href="../../pages/login.html" class="nav-item logout">
+      <i data-lucide="log-out"></i>
+      Logout
+    </a>
+  </div>
+</aside>

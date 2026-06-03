@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Nexum — Gestão Financeira</title>
+  <title>Nexum</title>
   <link rel="icon" type="image/svg+xml" href="components/image/nexum-icon.svg">
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -31,7 +31,7 @@
               700: '#6d28d9',
             },
             nexum: {
-              purple: '#8B5CF6',
+              purple: '#4A0789',
               'purple-bright': '#A78BFA',
               'purple-deep': '#6D28D9',
               dark: '#0A0A0A',
@@ -133,7 +133,7 @@
 
     /* Botão primário */
     .btn-primary {
-      background: linear-gradient(135deg, #8B5CF6, #6D28D9);
+      background: linear-gradient(135deg, #4A0789, #6D28D9);
       color: white;
       padding: 12px 28px;
       border-radius: 13px;
@@ -324,7 +324,7 @@
 
     <!-- Nav links -->
     <nav class="hidden md:flex items-center gap-8">
-        <a href="#como-funciona" class="nav-link">Como funciona</a>
+      <a href="#como-funciona" class="nav-link">Como funciona</a>
       <a href="#funcionalidades" class="nav-link">Funcionalidades</a>
       <a href="#depoimentos" class="nav-link">Depoimentos</a>
     </nav>
@@ -341,7 +341,7 @@
 <!-- ══════════════════════════════════════
      HERO
 ══════════════════════════════════════ -->
-<section class="relative min-h-[90vh] flex flex-col items-center justify-center text-center px-6 pt-16 pb-16 overflow-hidden">
+<section class="relative min-h-[90vh] flex flex-col items-center justify-center text-center mt-8 px-6 pt-16 pb-16 overflow-hidden">
   <!-- Glow de fundo -->
   <div class="hero-glow animate-glow-pulse"></div>
 
@@ -369,8 +369,7 @@
 <!-- CTAs -->
 <div class="reveal flex flex-col sm:flex-row items-center gap-3 mt-2" style="transition-delay:0.3s">
     <button class="btn-primary">Começar grátis</button>
-    <a href="#como-funciona" class="flex items-center gap-2 text-gray-400 text-sm font-inter hover:text-white transition-colors duration-200">
-      Como funciona
+<a href="#como-funciona" class="flex items-center gap-2 text-gray-400 text-sm font-inter hover:text-white transition-colors duration-200 whitespace-nowrap">      Como funciona
       <span class="material-icons-round" style="font-size:16px;">arrow_forward</span>
     </a>
   </div>

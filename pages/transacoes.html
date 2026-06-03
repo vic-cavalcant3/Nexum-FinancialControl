@@ -10,23 +10,26 @@
 <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
 <style>
   :root {
-    --bg-primary: #0f0f0f;
-    --bg-secondary: #1a1a1a;
-    --bg-card: #1e1e1e;
-    --bg-card-hover: #252525;
-    --accent-purple: #8b5cf6;
-    --accent-purple-light: #a78bfa;
-    --accent-purple-dark: #6d28d9;
-    --accent-green: #22c55e;
-    --accent-red: #ef4444;
-    --accent-yellow: #f59e0b;
-    --accent-blue: #3b82f6;
-    --text-primary: #ffffff;
-    --text-secondary: #9ca3af;
-    --text-muted: #6b7280;
-    --border-color: #2a2a2a;
-    --sidebar-width: 220px;
-    --topbar-height: 65px;
+    --bg-primary:          #000000;
+    --bg-secondary:        #0a0a0a;
+    --bg-card:             #141414;
+    --bg-input:            #1c1c1c;
+    --accent-purple:       #4A0789;
+    --accent-purple-light: #6d28d9;
+    --accent-purple-bright:#7c3aed;
+    --accent-purple-dark:  #4A0789;
+    --accent-green:        #22c55e;
+    --accent-red:          #ef4444;
+    --accent-yellow:       #f59e0b;
+    --accent-orange:       #f97316;
+    --accent-blue:         #3b82f6;
+    --text-primary:        #ffffff;
+    --text-secondary:      #9ca3af;
+    --text-muted:          #6b7280;
+    --border-color:        #1f1f1f;
+    --bg-card-hover:       #1c1c1c;
+    --sidebar-width:       220px;
+    --topbar-height:       65px;
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -108,10 +111,10 @@
   .nav-item:hover { background: var(--bg-card); color: var(--text-primary); }
 
   .nav-item.active {
-    background: rgba(139, 92, 246, 0.15);
-    color: var(--accent-purple-light);
-    border-left: 2px solid var(--accent-purple);
-    padding-left: 10px;
+    background: rgba(74, 7, 137, 0.2);
+    color: #a855f7;
+    border-left: 3px solid #4A0789;
+    padding-left: 9px;
   }
 
   .nav-item i { width: 18px; height: 18px; flex-shrink: 0; }
@@ -342,15 +345,16 @@
 
   .filter-select-wrap {
     position: relative;
-    display: flex;
+    display: inline-flex;
     align-items: center;
+    width: fit-content;
   }
 
   .filter-select-wrap select {
     background: var(--bg-secondary);
     border: 1px solid var(--border-color);
     border-radius: 8px;
-    padding: 8px 32px 8px 12px;
+    padding: 8px 36px 8px 12px;
     font-size: 13px;
     font-family: inherit;
     color: var(--text-primary);
@@ -367,38 +371,40 @@
   .filter-select-wrap .chevron {
     position: absolute;
     right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
     color: var(--text-muted);
     pointer-events: none;
-    width: 14px; height: 14px;
+    width: 14px;
+    height: 14px;
   }
 
   .category-tags { display: flex; flex-wrap: wrap; gap: 8px; }
 
   .cat-tag {
-    display: inline-flex;
+    display: flex;
     align-items: center;
     gap: 6px;
-    padding: 6px 12px;
-    border-radius: 20px;
+    padding: 5px 12px;
+    border-radius: 99px;
     font-size: 12px;
-    font-weight: 500;
+    font-weight: 600;
     cursor: pointer;
-    border: 1px solid var(--border-color);
-    background: var(--bg-secondary);
+    border: 1px solid #2a2a2a;
+    background: transparent;
     color: var(--text-secondary);
-    transition: all 0.15s;
+    transition: all 0.2s ease;
+    user-select: none;
   }
 
   .cat-tag.active {
-    background: rgba(139,92,246,0.2);
-    border-color: var(--accent-purple);
-    color: var(--accent-purple-light);
+    background: rgba(74, 7, 137, 0.25);
+    border-color: #4A0789;
+    color: #a855f7;
   }
 
-  .cat-tag .tag-x {
-    width: 12px; height: 12px;
-    color: var(--accent-purple-light);
-  }
+  .tag-x { display: none; }
+  .cat-tag.active .tag-x { display: inline; }
 
   .flow-toggle {
     display: flex;
@@ -477,8 +483,7 @@
 
   .tx-table tbody td:last-child { text-align: right; }
 
-  .tx-date-cell { font-size: 13px; color: var(--text-secondary); line-height: 1.4; white-space: nowrap; }
-  .tx-date-cell .day { font-size: 14px; font-weight: 600; color: var(--text-primary); }
+  .tx-date-cell { font-size: 13px; font-weight: 600; color: var(--text-secondary); }
 
   .tx-desc { font-weight: 600; font-size: 14px; }
 
@@ -494,7 +499,7 @@
 
   .cat-badge.trabalho    { background: rgba(34,197,94,0.15);  color: var(--accent-green); }
   .cat-badge.alimentacao { background: rgba(245,158,11,0.15); color: var(--accent-yellow); }
-  .cat-badge.assinaturas { background: rgba(139,92,246,0.15); color: var(--accent-purple-light); }
+  .cat-badge.assinaturas { background: rgba(74,7,137,0.15); color: var(--accent-purple-light); }
   .cat-badge.investimentos { background: rgba(59,130,246,0.15); color: var(--accent-blue); }
 
   .tx-amount { font-size: 14px; font-weight: 700; }
@@ -543,7 +548,7 @@
 
   .summary-mini-icon.green { background: rgba(34,197,94,0.1); color: var(--accent-green); }
   .summary-mini-icon.red   { background: rgba(239,68,68,0.1);  color: var(--accent-red); }
-  .summary-mini-icon.purple { background: rgba(139,92,246,0.1); color: var(--accent-purple-light); }
+  .summary-mini-icon.purple { background: rgba(74,7,137,0.1); color: var(--accent-purple-light); }
   .summary-mini-icon i { width: 20px; height: 20px; }
 
   .summary-mini-label {
@@ -761,6 +766,106 @@
     cursor: pointer;
   }
 
+  .dropdown-menu {
+    position: absolute;
+    right: 0;
+    top: 32px;
+    background: #1e1e1e;
+    border: 1px solid #2a2a2a;
+    border-radius: 8px;
+    padding: 4px;
+    z-index: 100;
+    min-width: 130px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+    display: none;
+  }
+
+  .dropdown-menu.open { display: block; }
+
+  .dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    color: #d1d5db;
+    transition: background 0.15s;
+  }
+
+  .dropdown-item:hover { background: #2a2a2a; }
+
+  .dropdown-item.remove { color: #ef4444; }
+  .dropdown-item.remove:hover { background: rgba(239,68,68,0.08); }
+
+  .action-btn { position: relative; }
+
+  /* MODALS */
+  .modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.6);
+    z-index: 200;
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.2s;
+  }
+  .modal-overlay.open { opacity: 1; pointer-events: all; }
+
+  .modal {
+    background: #1a1a1a;
+    border: 1px solid #2a2a2a;
+    border-radius: 16px;
+    padding: 20px;
+    width: calc(100% - 32px);
+    max-width: 400px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .modal-title { font-size: 18px; font-weight: 700; }
+
+  .modal-field { display: flex; flex-direction: column; gap: 6px; }
+  .modal-label { font-size: 11px; font-weight: 700; color: #6b7280; text-transform: uppercase; letter-spacing: 0.08em; }
+  .modal-input, .modal-select {
+    background: #222;
+    border: 1px solid #2a2a2a;
+    border-radius: 8px;
+    padding: 10px 12px;
+    color: #fff;
+    font-size: 14px;
+    font-family: inherit;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .modal-input:focus, .modal-select:focus { border-color: #4A0789; }
+  .modal-select option { background: #1a1a1a; }
+
+  .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 4px; }
+
+  .btn-modal-cancel {
+    background: #222; border: 1px solid #2a2a2a;
+    border-radius: 8px; padding: 10px 20px;
+    color: #9ca3af; font-size: 13px; font-weight: 600;
+    font-family: inherit; cursor: pointer;
+  }
+
+  .btn-modal-save {
+    background: #4A0789; border: none;
+    border-radius: 8px; padding: 10px 20px;
+    color: #fff; font-size: 13px; font-weight: 700;
+    font-family: inherit; cursor: pointer;
+  }
+
+  .btn-modal-remove {
+    background: #ef4444; border: none;
+    border-radius: 8px; padding: 10px 20px;
+    color: #fff; font-size: 13px; font-weight: 700;
+    font-family: inherit; cursor: pointer;
+  }
+
   /* Responsive */
   @media (max-width: 1280px) {
     .content { flex-direction: column; }
@@ -778,64 +883,43 @@
     .sidebar-close { display: flex; }
     .topbar-left { display: flex; }
     .main { margin-left: 0; }
-    .content { padding: 20px 16px; flex-direction: column; }
-    .content-right { width: 100%; }
-    .page-header h1 { font-size: 28px; }
-    .topbar-search { display: none; }
-    .col-cat, .col-actions { display: none; }
     .upgrade-banner { display: none; }
+    .content-right { width: 100%; }
+    .content { padding: 16px; flex-direction: column; }
+    .page-header { flex-direction: column; align-items: flex-start; gap: 12px; }
+    .page-header h1 { font-size: 24px; }
+    .btn-new-tx { width: 100%; justify-content: center; padding: 10px 16px; font-size: 13px; }
+    .filters-card { padding: 16px; gap: 16px; }
+    .filter-group { width: 100%; }
+    .category-tags { flex-wrap: wrap; gap: 6px; }
+    .cat-tag { font-size: 11px; padding: 4px 9px; gap: 4px; }
+    .history-card { padding: 14px 12px; overflow: hidden; }
+    .tx-table { width: 100%; table-layout: fixed; }
+    .tx-table th:nth-child(1), .tx-table td:nth-child(1) { width: 52px; }
+    .tx-table th:nth-child(3), .tx-table td:nth-child(3) { width: 80px; text-align: right; }
+    .tx-desc { font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; max-width: 160px; }
+    .tx-amount { font-size: 12px; white-space: nowrap; }
+    .tx-table th, .tx-table td { padding: 10px 8px; font-size: 12px; }
+    .col-cat, .col-actions { display: none; }
     .bottom-summary { grid-template-columns: 1fr; }
+    .summary-mini { padding: 14px; gap: 10px; }
+    .summary-mini-value { font-size: 15px; }
+    .summary-mini-icon { width: 36px; height: 36px; }
+    .topbar-search { display: none; }
+    .modal { padding: 16px; gap: 10px; border-radius: 14px; }
+    .modal-title { font-size: 15px; }
+    .modal-label { font-size: 10px; }
+    .modal-field { gap: 4px; }
+    #mv-data, #mv-cat, #mv-tipo { font-size: 13px !important; padding: 8px 10px !important; }
+    #mv-valor { font-size: 18px !important; padding: 8px 10px !important; }
+    .modal-actions { gap: 8px; margin-top: 2px; }
+    .btn-modal-cancel, .btn-modal-save, .btn-modal-remove { padding: 9px 14px; font-size: 12px; }
   }
 </style>
 </head>
 <body>
 
-<div class="sidebar-overlay" id="overlay" onclick="closeSidebar()"></div>
-
-<aside class="sidebar" id="sidebar">
-  <div class="sidebar-logo">
-    NEXUM
-    <button class="sidebar-close" onclick="closeSidebar()">
-      <i data-lucide="x" style="width:20px;height:20px;"></i>
-    </button>
-  </div>
-  <nav class="sidebar-nav">
-    <a class="nav-item" href="inicial.html">
-      <i data-lucide="layout-dashboard"></i>
-      Dashboard
-    </a>
-    <a class="nav-item active" href="transacoes.html">
-      <i data-lucide="arrow-left-right"></i>
-      Transações
-    </a>
-    <a class="nav-item">
-      <i data-lucide="calendar-days"></i>
-      Planejamento
-    </a>
-    <a class="nav-item">
-      <i data-lucide="target"></i>
-      Metas
-    </a>
-    <a class="nav-item">
-      <i data-lucide="bar-chart-2"></i>
-      Relatórios
-    </a>
-    <a class="nav-item">
-      <i data-lucide="bot"></i>
-      Consultor IA
-    </a>
-    <a class="nav-item">
-      <i data-lucide="settings"></i>
-      Configurações
-    </a>
-  </nav>
-  <div class="sidebar-bottom">
-    <div class="support-item">
-      <i data-lucide="help-circle"></i>
-      Suporte
-    </div>
-  </div>
-</aside>
+<div id="sidebar-container"></div>
 
 <main class="main">
   <header class="topbar">
@@ -881,9 +965,9 @@
           <div class="filter-label">Período</div>
           <div class="filter-select-wrap">
             <select>
-              <option>Março 2024</option>
-              <option>Fevereiro 2024</option>
-              <option>Janeiro 2024</option>
+              <option>Janeiro 2026</option>
+              <option>Fevereiro 2026</option>
+              <option>Março 2026</option>
             </select>
             <i data-lucide="chevron-down" class="chevron"></i>
           </div>
@@ -892,10 +976,9 @@
         <div class="filter-group">
           <div class="filter-label">Categorias</div>
           <div class="category-tags">
-            <div class="cat-tag active">Alimentação</div>
-            <div class="cat-tag">Lazer</div>
-            <div class="cat-tag">Assinaturas</div>
-            <div class="cat-tag active">Todas <i data-lucide="x" class="tag-x"></i></div>
+            <div class="cat-tag active">Alimentação <span class="tag-x">×</span></div>
+            <div class="cat-tag active">Lazer <span class="tag-x">×</span></div>
+            <div class="cat-tag active">Assinaturas <span class="tag-x">×</span></div>
           </div>
         </div>
 
@@ -926,72 +1009,7 @@
               <th class="col-actions">Ações</th>
             </tr>
           </thead>
-          <tbody>
-            <tr>
-              <td>
-                <div class="tx-date-cell">
-                  <div class="day">12</div>
-                  Mar,<br>2024
-                </div>
-              </td>
-              <td><span class="tx-desc">Salário Mensal - TechCorp</span></td>
-              <td class="col-cat"><span class="cat-badge trabalho">Trabalho</span></td>
-              <td><span class="tx-amount positive">+ R$ 12.500,00</span></td>
-              <td class="col-actions">
-                <div class="tx-actions">
-                  <button class="action-btn"><i data-lucide="more-horizontal"></i></button>
-                </div>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <div class="tx-date-cell">
-                  <div class="day">10</div>
-                  Mar,<br>2024
-                </div>
-              </td>
-              <td><span class="tx-desc">Supermercado Verdemar</span></td>
-              <td class="col-cat"><span class="cat-badge alimentacao">Alimentação</span></td>
-              <td><span class="tx-amount negative">- R$ 452,30</span></td>
-              <td class="col-actions">
-                <div class="tx-actions">
-                  <button class="action-btn"><i data-lucide="more-horizontal"></i></button>
-                </div>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <div class="tx-date-cell">
-                  <div class="day">08</div>
-                  Mar,<br>2024
-                </div>
-              </td>
-              <td><span class="tx-desc">Netflix Premium</span></td>
-              <td class="col-cat"><span class="cat-badge assinaturas">Assinaturas</span></td>
-              <td><span class="tx-amount negative">- R$ 55,90</span></td>
-              <td class="col-actions">
-                <div class="tx-actions">
-                  <button class="action-btn"><i data-lucide="more-horizontal"></i></button>
-                </div>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <div class="tx-date-cell">
-                  <div class="day">05</div>
-                  Mar,<br>2024
-                </div>
-              </td>
-              <td><span class="tx-desc">Venda de Criptoassets</span></td>
-              <td class="col-cat"><span class="cat-badge investimentos">Investimentos</span></td>
-              <td><span class="tx-amount positive">+ R$ 2.100,00</span></td>
-              <td class="col-actions">
-                <div class="tx-actions">
-                  <button class="action-btn"><i data-lucide="more-horizontal"></i></button>
-                </div>
-              </td>
-            </tr>
-          </tbody>
+          <tbody></tbody>
         </table>
       </div>
 
@@ -1031,62 +1049,7 @@
     </div>
 
     <!-- Right Panel -->
-    <div class="content-right">
-      <div class="panel-card">
-        <div class="panel-title">Nova Transação</div>
-        <div class="panel-sub" style="margin-bottom:16px;"></div>
-
-        <div class="type-toggle">
-          <button class="type-btn active receita" onclick="setType('receita', this)">Receita</button>
-          <button class="type-btn despesa" onclick="setType('despesa', this)">Despesa</button>
-        </div>
-
-        <div class="form-group">
-          <label class="form-label">Valor (R$)</label>
-          <input type="text" class="form-input valor" placeholder="0,00">
-        </div>
-
-        <div class="form-group">
-          <label class="form-label">Descrição</label>
-          <input type="text" class="form-input" placeholder="Ex: Aluguel Março">
-        </div>
-
-        <div class="form-group">
-          <label class="form-label">Categoria</label>
-          <div class="form-select-wrap">
-            <select>
-              <option value="">Selecione...</option>
-              <option>Alimentação</option>
-              <option>Transporte</option>
-              <option>Moradia</option>
-              <option>Lazer</option>
-              <option>Assinaturas</option>
-              <option>Investimentos</option>
-              <option>Trabalho</option>
-            </select>
-            <i data-lucide="chevron-down" class="chevron"></i>
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label class="form-label">Data</label>
-          <input type="date" class="form-input">
-        </div>
-
-        <div class="recorrente-row">
-          <div class="recorrente-label">
-            <span>Recorrente</span>
-            <small>Repetir mensalmente</small>
-          </div>
-          <label class="toggle-switch">
-            <input type="checkbox">
-            <span class="toggle-slider"></span>
-          </label>
-        </div>
-
-        <button class="btn-salvar">Salvar Transação</button>
-      </div>
-    </div>
+   
   </div>
 </main>
 
@@ -1096,8 +1059,110 @@
   <button class="btn-upgrade">Upgrade to Pro</button>
 </div>
 
+<!-- Modal: Adicionar / Editar -->
+<div class="modal-overlay" id="modal-form">
+  <div class="modal">
+    <div class="modal-title" id="modal-form-title">Nova Transação</div>
+    <div class="modal-field">
+      <label class="modal-label">Data</label>
+      <input class="modal-input" id="mf-data" type="text" placeholder="dd/mm">
+    </div>
+    <div class="modal-field">
+      <label class="modal-label">Descrição</label>
+      <input class="modal-input" id="mf-desc" type="text" placeholder="Ex: Aluguel Março">
+    </div>
+    <div class="modal-field">
+      <label class="modal-label">Categoria</label>
+      <select class="modal-select" id="mf-cat">
+        <option value="trabalho">Trabalho</option>
+        <option value="alimentacao">Alimentação</option>
+        <option value="assinaturas">Assinaturas</option>
+        <option value="investimentos">Investimentos</option>
+        <option value="lazer">Lazer</option>
+        <option value="saude">Saúde</option>
+        <option value="transporte">Transporte</option>
+        <option value="moradia">Moradia</option>
+      </select>
+    </div>
+    <div class="modal-field">
+      <label class="modal-label">Valor (R$)</label>
+      <input class="modal-input" id="mf-valor" type="number" step="0.01" min="0" placeholder="0,00">
+    </div>
+    <div class="modal-field">
+      <label class="modal-label">Tipo</label>
+      <select class="modal-select" id="mf-tipo">
+        <option value="receita">Receita</option>
+        <option value="despesa">Despesa</option>
+      </select>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-modal-cancel" id="mf-cancel">Cancelar</button>
+      <button class="btn-modal-save" id="mf-save">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Visualizar transação -->
+<div class="modal-overlay" id="modal-view">
+  <div class="modal">
+    <div style="display:flex;align-items:center;justify-content:space-between;">
+      <div class="modal-title" id="mv-titulo"></div>
+      <button id="mv-close" style="background:none;border:none;color:#6b7280;cursor:pointer;padding:4px;">
+        <i data-lucide="x" style="width:18px;height:18px;"></i>
+      </button>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:12px;margin-top:4px;">
+      <div class="modal-field">
+        <div class="modal-label">Data</div>
+        <div id="mv-data" style="font-size:15px;font-weight:600;color:#fff;padding:10px 12px;background:#222;border-radius:8px;"></div>
+      </div>
+      <div class="modal-field">
+        <div class="modal-label">Categoria</div>
+        <div id="mv-cat" style="font-size:15px;font-weight:600;color:#fff;padding:10px 12px;background:#222;border-radius:8px;"></div>
+      </div>
+      <div class="modal-field">
+        <div class="modal-label">Tipo</div>
+        <div id="mv-tipo" style="font-size:15px;font-weight:600;padding:10px 12px;background:#222;border-radius:8px;"></div>
+      </div>
+      <div class="modal-field">
+        <div class="modal-label">Valor</div>
+        <div id="mv-valor" style="font-size:22px;font-weight:800;letter-spacing:-0.5px;padding:10px 12px;background:#222;border-radius:8px;"></div>
+      </div>
+    </div>
+    <div class="modal-actions" style="margin-top:4px;">
+      <button class="btn-modal-cancel" id="mv-edit"> Editar</button>
+      <button class="btn-modal-remove" id="mv-delete"> Remover</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Confirmar remoção -->
+<div class="modal-overlay" id="modal-confirm">
+  <div class="modal">
+    <div class="modal-title">Remover Transação</div>
+    <p style="font-size:14px;color:#9ca3af;line-height:1.6;">Tem certeza que deseja remover esta transação? Esta ação não pode ser desfeita.</p>
+    <div class="modal-actions">
+      <button class="btn-modal-cancel" id="mc-cancel">Cancelar</button>
+      <button class="btn-modal-remove" id="mc-confirm">Remover</button>
+    </div>
+  </div>
+</div>
+
 <script>
   lucide.createIcons();
+
+  const CURRENT_PAGE = 'transacoes';
+
+  fetch('../components/layout/sidebar.html')
+    .then(r => r.text())
+    .then(html => {
+      document.getElementById('sidebar-container').innerHTML = html;
+      lucide.createIcons();
+      document.querySelectorAll('.nav-item').forEach(item => {
+        const href = item.getAttribute('href') || '';
+        if (href.includes(CURRENT_PAGE)) item.classList.add('active');
+      });
+    });
 
   function openSidebar() {
     document.getElementById('sidebar').classList.add('open');
@@ -1122,8 +1187,236 @@
   });
 
   document.querySelectorAll('.cat-tag').forEach(tag => {
-    tag.addEventListener('click', () => tag.classList.toggle('active'));
+    tag.addEventListener('click', () => {
+      tag.classList.toggle('active');
+      const x = tag.querySelector('.tag-x');
+      if (x) x.style.display = tag.classList.contains('active') ? 'inline' : 'none';
+    });
   });
+
+  // --- DADOS ---
+  let transacoes = [
+    { id: 1, data: '12/03', descricao: 'Salário Mensal - TechCorp',    categoria: 'trabalho',      valor: 12500.00, tipo: 'receita' },
+    { id: 2, data: '10/03', descricao: 'Supermercado Verdemar',         categoria: 'alimentacao',   valor: 452.30,   tipo: 'despesa' },
+    { id: 3, data: '08/03', descricao: 'Netflix Premium',               categoria: 'assinaturas',   valor: 55.90,    tipo: 'despesa' },
+    { id: 4, data: '05/03', descricao: 'Venda de Criptoassets',         categoria: 'investimentos', valor: 2100.00,  tipo: 'receita' },
+  ];
+  let nextId = 5;
+  let filtroAtual = '';
+
+  const catLabels = {
+    trabalho: 'Trabalho', alimentacao: 'Alimentação', assinaturas: 'Assinaturas',
+    investimentos: 'Investimentos', lazer: 'Lazer', saude: 'Saúde',
+    transporte: 'Transporte', moradia: 'Moradia',
+  };
+
+  function formatValor(v) {
+    return v.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  function renderTable() {
+    const lista = transacoes.filter(t => t.descricao.toLowerCase().includes(filtroAtual));
+    const tbody = document.querySelector('.tx-table tbody');
+    tbody.innerHTML = '';
+
+    lista.forEach(t => {
+      const tr = document.createElement('tr');
+      tr.style.cursor = 'pointer';
+      tr.addEventListener('click', (e) => {
+        if (e.target.closest('.action-btn')) return;
+        openViewModal(t.id);
+      });
+      const isReceita = t.tipo === 'receita';
+      tr.innerHTML = `
+        <td><div class="tx-date-cell">${t.data}</div></td>
+        <td><span class="tx-desc">${t.descricao}</span></td>
+        <td class="col-cat"><span class="cat-badge ${t.categoria}">${catLabels[t.categoria] || t.categoria}</span></td>
+        <td><span class="tx-amount ${isReceita ? 'positive' : 'negative'}">${isReceita ? '+' : '-'} R$ ${formatValor(t.valor)}</span></td>
+        <td class="col-actions">
+          <div class="tx-actions">
+            <button class="action-btn" data-id="${t.id}"><i data-lucide="more-horizontal"></i></button>
+          </div>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+
+    lucide.createIcons();
+    document.querySelector('.history-count').textContent = `${lista.length} transações encontradas`;
+
+    tbody.querySelectorAll('.action-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        document.querySelectorAll('.dropdown-menu').forEach(d => d.classList.remove('open'));
+
+        let menu = btn.querySelector('.dropdown-menu');
+        if (!menu) {
+          const id = parseInt(btn.dataset.id);
+          menu = document.createElement('div');
+          menu.className = 'dropdown-menu';
+          menu.innerHTML = `
+            <div class="dropdown-item edit">
+              <i data-lucide="pencil" style="width:14px;height:14px;"></i> Editar
+            </div>
+            <div class="dropdown-item remove">
+              <i data-lucide="trash-2" style="width:14px;height:14px;"></i> Remover
+            </div>
+          `;
+          menu.querySelector('.edit').addEventListener('click', (ev) => {
+            ev.stopPropagation();
+            menu.classList.remove('open');
+            openEditModal(id);
+          });
+          menu.querySelector('.remove').addEventListener('click', (ev) => {
+            ev.stopPropagation();
+            menu.classList.remove('open');
+            openConfirmModal(id);
+          });
+          btn.appendChild(menu);
+          lucide.createIcons();
+        }
+
+        menu.classList.toggle('open');
+      });
+    });
+  }
+
+  document.addEventListener('click', () => {
+    document.querySelectorAll('.dropdown-menu').forEach(d => d.classList.remove('open'));
+  });
+
+  // --- BUSCA ---
+  const searchInput = document.querySelector('.topbar-search input');
+  searchInput.addEventListener('input', () => {
+    filtroAtual = searchInput.value.toLowerCase().trim();
+    renderTable();
+  });
+
+  // --- MODAL VISUALIZAR ---
+  function openViewModal(id) {
+    const tx = transacoes.find(t => t.id === id);
+    if (!tx) return;
+
+    document.getElementById('mv-titulo').textContent = tx.descricao;
+    document.getElementById('mv-data').textContent = tx.data;
+    document.getElementById('mv-cat').textContent = catLabels[tx.categoria] || tx.categoria;
+
+    const tipoEl = document.getElementById('mv-tipo');
+    tipoEl.textContent = tx.tipo === 'receita' ? 'Receita' : 'Despesa';
+    tipoEl.style.color = tx.tipo === 'receita' ? '#22c55e' : '#ef4444';
+
+    const valorEl = document.getElementById('mv-valor');
+    valorEl.textContent = (tx.tipo === 'receita' ? '+ R$ ' : '- R$ ') + formatValor(tx.valor);
+    valorEl.style.color = tx.tipo === 'receita' ? '#22c55e' : '#ef4444';
+
+    document.getElementById('mv-edit').onclick = () => {
+      closeViewModal();
+      openEditModal(id);
+    };
+
+    document.getElementById('mv-delete').onclick = () => {
+      closeViewModal();
+      openConfirmModal(id);
+    };
+
+    document.getElementById('modal-view').classList.add('open');
+  }
+
+  function closeViewModal() {
+    document.getElementById('modal-view').classList.remove('open');
+  }
+
+  document.getElementById('mv-close').addEventListener('click', closeViewModal);
+  document.getElementById('modal-view').addEventListener('click', (e) => {
+    if (e.target === document.getElementById('modal-view')) closeViewModal();
+  });
+
+  // --- MODAL FORM (ADICIONAR / EDITAR) ---
+  let editingId = null;
+
+  function openAddModal() {
+    editingId = null;
+    document.getElementById('modal-form-title').textContent = 'Nova Transação';
+    document.getElementById('mf-data').value = '';
+    document.getElementById('mf-desc').value = '';
+    document.getElementById('mf-cat').value = 'trabalho';
+    document.getElementById('mf-valor').value = '';
+    document.getElementById('mf-tipo').value = 'receita';
+    document.getElementById('modal-form').classList.add('open');
+  }
+
+  function openEditModal(id) {
+    const tx = transacoes.find(t => t.id === id);
+    if (!tx) return;
+    editingId = id;
+    document.getElementById('modal-form-title').textContent = 'Editar Transação';
+    document.getElementById('mf-data').value = tx.data;
+    document.getElementById('mf-desc').value = tx.descricao;
+    document.getElementById('mf-cat').value = tx.categoria;
+    document.getElementById('mf-valor').value = tx.valor;
+    document.getElementById('mf-tipo').value = tx.tipo;
+    document.getElementById('modal-form').classList.add('open');
+  }
+
+  function closeFormModal() {
+    document.getElementById('modal-form').classList.remove('open');
+  }
+
+  document.getElementById('mf-cancel').addEventListener('click', closeFormModal);
+  document.getElementById('modal-form').addEventListener('click', (e) => {
+    if (e.target === document.getElementById('modal-form')) closeFormModal();
+  });
+
+  document.getElementById('mf-save').addEventListener('click', () => {
+    const data      = document.getElementById('mf-data').value.trim();
+    const descricao = document.getElementById('mf-desc').value.trim();
+    const categoria = document.getElementById('mf-cat').value;
+    const valor     = parseFloat(document.getElementById('mf-valor').value);
+    const tipo      = document.getElementById('mf-tipo').value;
+
+    if (!data || !descricao || isNaN(valor) || valor <= 0) return;
+
+    if (editingId === null) {
+      // TODO: substituir por POST /api/transacoes quando API estiver pronta
+      transacoes.push({ id: nextId++, data, descricao, categoria, valor, tipo });
+    } else {
+      // TODO: substituir por PUT /api/transacoes/:id quando API estiver pronta
+      const idx = transacoes.findIndex(t => t.id === editingId);
+      if (idx !== -1) transacoes[idx] = { id: editingId, data, descricao, categoria, valor, tipo };
+    }
+
+    closeFormModal();
+    renderTable();
+  });
+
+  document.querySelector('.btn-new-tx').addEventListener('click', openAddModal);
+
+  // --- MODAL CONFIRMAR REMOÇÃO ---
+  let deletingId = null;
+
+  function openConfirmModal(id) {
+    deletingId = id;
+    document.getElementById('modal-confirm').classList.add('open');
+  }
+
+  function closeConfirmModal() {
+    document.getElementById('modal-confirm').classList.remove('open');
+  }
+
+  document.getElementById('mc-cancel').addEventListener('click', closeConfirmModal);
+  document.getElementById('modal-confirm').addEventListener('click', (e) => {
+    if (e.target === document.getElementById('modal-confirm')) closeConfirmModal();
+  });
+
+  document.getElementById('mc-confirm').addEventListener('click', () => {
+    // TODO: substituir por DELETE /api/transacoes/:id quando API estiver pronta
+    transacoes = transacoes.filter(t => t.id !== deletingId);
+    closeConfirmModal();
+    renderTable();
+  });
+
+  // --- INIT ---
+  renderTable();
 </script>
 </body>
 </html>

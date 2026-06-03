@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nexum - Metas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="icon" type="image/svg+xml" href="../components/image/nexum-icon.svg">
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<style>
+  :root {
+    --bg-primary:          #000000;
+    --bg-secondary:        #0a0a0a;
+    --bg-card:             #141414;
+    --bg-input:            #1c1c1c;
+    --bg-card2:            #1c1c1c;
+    --accent-purple:       #4A0789;
+    --accent-purple-light: #6d28d9;
+    --accent-purple-bright:#7c3aed;
+    --accent-purple-dark:  #4A0789;
+    --accent-green:        #22c55e;
+    --accent-red:          #ef4444;
+    --accent-yellow:       #f59e0b;
+    --accent-orange:       #f97316;
+    --accent-blue:         #3b82f6;
+    --text-primary:        #ffffff;
+    --text-secondary:      #9ca3af;
+    --text-muted:          #6b7280;
+    --border-color:        #1f1f1f;
+    --sidebar-width:       220px;
+    --topbar-height:       65px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    display: flex;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 99; }
+  .sidebar-overlay.open { display: block; }
+
+  .sidebar {
+    width: var(--sidebar-width);
+    background: var(--bg-secondary);
+    border-right: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 0; left: 0;
+    height: 100vh;
+    z-index: 100;
+    padding: 24px 0;
+    transition: transform 0.25s ease;
+  }
+
+  .sidebar-logo {
+    padding: 0 20px 28px;
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .sidebar-close { display: none; background: none; border: none; color: var(--text-secondary); cursor: pointer; padding: 4px; }
+
+  .sidebar-nav { flex: 1; display: flex; flex-direction: column; gap: 2px; padding: 0 12px; }
+
+  .nav-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 12px; border-radius: 8px; cursor: pointer;
+    color: var(--text-secondary); font-size: 14px; font-weight: 500;
+    text-decoration: none; transition: all 0.15s ease;
+  }
+  .nav-item:hover { background: var(--bg-card); color: var(--text-primary); }
+  .nav-item.active {
+    background: rgba(74, 7, 137, 0.2);
+    color: #a855f7;
+    border-left: 3px solid #4A0789;
+    padding-left: 9px;
+  }
+  .nav-item i { width: 18px; height: 18px; flex-shrink: 0; }
+
+  .sidebar-bottom { padding: 16px 12px 0; border-top: 1px solid var(--border-color); margin-top: 8px; }
+  .support-item { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 8px; cursor: pointer; color: var(--text-muted); font-size: 14px; font-weight: 500; }
+  .support-item i { width: 18px; height: 18px; }
+
+  .main { margin-left: var(--sidebar-width); flex: 1; display: flex; flex-direction: column; overflow-x: hidden; min-width: 0; }
+
+  .topbar {
+    height: var(--topbar-height);
+    background: var(--bg-primary);
+    border-bottom: 1px solid var(--border-color);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 28px; position: sticky; top: 0; z-index: 50;
+  }
+
+  .topbar-left { display: flex; align-items: center; gap: 12px; }
+  .topbar-brand { font-weight: 800; font-size: 18px; letter-spacing: -0.5px; }
+  .menu-btn { background: none; border: none; color: var(--text-primary); cursor: pointer; padding: 4px; display: flex; align-items: center; }
+
+  .topbar-search { position: relative; width: 280px; }
+  .topbar-search input {
+    width: 100%; background: var(--bg-card); border: 1px solid var(--border-color);
+    border-radius: 8px; padding: 9px 14px 9px 36px; color: var(--text-primary);
+    font-size: 13px; font-family: inherit; outline: none;
+  }
+  .topbar-search input::placeholder { color: var(--text-muted); }
+  .search-icon { position: absolute; left: 11px; top: 50%; transform: translateY(-50%); width: 15px; height: 15px; color: var(--text-muted); }
+
+  .topbar-right { display: flex; align-items: center; gap: 14px; }
+  .topbar-icon { position: relative; width: 36px; height: 36px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text-secondary); }
+  .notif-dot { position: absolute; top: 6px; right: 7px; width: 6px; height: 6px; background: var(--accent-purple); border-radius: 50%; }
+  .avatar { width: 34px; height: 34px; background: linear-gradient(135deg, var(--accent-purple-dark), var(--accent-purple)); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; cursor: pointer; }
+
+  /* CONTENT */
+  .content { padding: 32px 28px; flex: 1; display: flex; flex-direction: column; gap: 20px; }
+
+  .page-header { display: flex; align-items: flex-start; justify-content: space-between; }
+  .page-header h1 { font-size: 34px; font-weight: 800; letter-spacing: -0.5px; }
+  .page-header p { color: var(--text-secondary); font-size: 14px; margin-top: 6px; }
+
+  .btn-nova-meta {
+    display: flex; align-items: center; gap: 8px;
+    background: var(--accent-purple); color: white;
+    border: none; border-radius: 99px; padding: 13px 24px;
+    font-size: 14px; font-weight: 700; font-family: inherit;
+    cursor: pointer; white-space: nowrap;
+    box-shadow: 0 0 24px rgba(74,7,137,0.35);
+    transition: all 0.2s;
+  }
+  .btn-nova-meta:hover { background: var(--accent-purple-light); box-shadow: 0 0 36px rgba(74,7,137,0.5); transform: translateY(-1px); }
+  .btn-nova-meta i { width: 16px; height: 16px; }
+
+  /* TWO COLUMN LAYOUT */
+  .two-col { display: grid; grid-template-columns: 1fr 360px; gap: 20px; align-items: start; min-width: 0; }
+
+  .goals-list { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+
+  /* GOAL CARD */
+  .goal-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    min-width: 0;
+    overflow: hidden;
+  }
+
+  .goal-actions { display: flex; gap: 8px; margin-top: 4px; }
+  .btn-goal-edit {
+    display: flex; align-items: center; gap: 6px;
+    background: #1c1c1c; border: 1px solid #2a2a2a;
+    border-radius: 8px; padding: 8px 14px;
+    color: #9ca3af; font-size: 12px; font-weight: 600; font-family: inherit; cursor: pointer;
+    transition: all 0.15s;
+  }
+  .btn-goal-edit:hover { border-color: #4A0789; color: #a855f7; }
+  .btn-goal-edit i { width: 13px; height: 13px; }
+  .btn-goal-remove {
+    display: flex; align-items: center; gap: 6px;
+    background: #1c1c1c; border: 1px solid #2a2a2a;
+    border-radius: 8px; padding: 8px 14px;
+    color: #9ca3af; font-size: 12px; font-weight: 600; font-family: inherit; cursor: pointer;
+    transition: all 0.15s;
+  }
+  .btn-goal-remove:hover { border-color: #ef4444; color: #ef4444; }
+  .btn-goal-remove i { width: 13px; height: 13px; }
+
+  .goal-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+
+  .goal-title-block {}
+  .goal-title { font-size: 20px; font-weight: 800; letter-spacing: -0.3px; }
+  .goal-tag {
+    display: inline-block;
+    margin-top: 5px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    color: var(--accent-purple-light);
+    text-transform: uppercase;
+  }
+
+  .goal-deadline { text-align: right; }
+  .deadline-label { font-size: 10px; font-weight: 700; letter-spacing: 0.1em; color: var(--text-muted); text-transform: uppercase; }
+  .deadline-value { font-size: 16px; font-weight: 700; margin-top: 3px; }
+
+  .goal-progress {}
+  .progress-label-row { font-size: 11px; font-weight: 700; letter-spacing: 0.08em; color: var(--text-muted); text-transform: uppercase; margin-bottom: 6px; }
+
+  .progress-amounts { display: flex; align-items: baseline; gap: 8px; margin-bottom: 14px; }
+  .prog-current { font-size: 28px; font-weight: 800; letter-spacing: -0.5px; }
+  .prog-total { font-size: 15px; color: var(--text-secondary); }
+
+  .progress-bar-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+  .prog-pct { font-size: 13px; font-weight: 700; color: var(--accent-purple-light); }
+  .prog-remaining { font-size: 13px; color: var(--text-secondary); font-weight: 500; }
+
+  .progress-bar { width: 100%; height: 7px; background: rgba(255,255,255,0.07); border-radius: 99px; overflow: hidden; }
+  .progress-fill { height: 100%; border-radius: 99px; background: var(--accent-purple); }
+
+  .goal-insight {
+    display: flex; align-items: center; gap: 12px;
+    background: rgba(255,255,255,0.04);
+    border-radius: 10px;
+    padding: 13px 16px;
+  }
+  .insight-ico { color: var(--accent-purple); flex-shrink: 0; }
+  .insight-ico i { width: 18px; height: 18px; }
+  .insight-txt { font-size: 13px; color: var(--text-secondary); }
+
+  /* RIGHT COLUMN */
+  .right-col { display: flex; flex-direction: column; gap: 16px; }
+
+  /* ADD FORM CARD */
+  .form-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    padding: 22px;
+  }
+
+  .form-card-header { display: flex; align-items: center; gap: 14px; margin-bottom: 22px; }
+  .form-card-icon {
+    width: 44px; height: 44px;
+    background: rgba(74,7,137,0.15);
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--accent-purple-light);
+    flex-shrink: 0;
+  }
+  .form-card-icon i { width: 20px; height: 20px; }
+  .form-card-title { font-size: 17px; font-weight: 800; }
+  .form-card-sub { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; margin-top: 2px; font-weight: 600; }
+
+  .form-group { margin-bottom: 16px; }
+  .form-label { font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px; display: block; }
+
+  .form-input {
+    width: 100%;
+    background: var(--bg-card2);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 11px 14px;
+    color: var(--text-primary);
+    font-size: 13px;
+    font-family: inherit;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .form-input::placeholder { color: var(--text-muted); }
+  .form-input:focus { border-color: var(--accent-purple); }
+
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+
+  .input-prefix {
+    display: flex; align-items: center;
+    background: var(--bg-card2);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+  .input-prefix:focus-within { border-color: var(--accent-purple); }
+  .prefix-label { padding: 11px 10px 11px 14px; color: var(--text-muted); font-size: 13px; font-weight: 600; }
+  .prefix-input {
+    flex: 1; background: none; border: none; padding: 11px 14px 11px 4px;
+    color: var(--text-primary); font-size: 13px; font-family: inherit; outline: none;
+  }
+  .prefix-input::placeholder { color: var(--text-muted); }
+
+  .date-input-wrap {
+    display: flex; align-items: center;
+    background: var(--bg-card2);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 11px 14px;
+    gap: 10px;
+    transition: border-color 0.2s;
+  }
+  .date-input-wrap:focus-within { border-color: var(--accent-purple); }
+  .date-input-wrap i { width: 15px; height: 15px; color: var(--text-muted); flex-shrink: 0; }
+  .date-input-wrap input {
+    flex: 1; background: none; border: none; color: var(--text-primary);
+    font-size: 13px; font-family: inherit; outline: none;
+  }
+  .date-input-wrap input::placeholder { color: var(--text-muted); }
+
+  .btn-salvar {
+    width: 100%;
+    background: var(--accent-purple);
+    color: white; border: none;
+    border-radius: 8px; padding: 13px;
+    font-size: 13px; font-weight: 800;
+    letter-spacing: 0.05em; text-transform: uppercase;
+    font-family: inherit; cursor: pointer;
+    margin-bottom: 14px;
+    box-shadow: 0 0 20px rgba(74,7,137,0.3);
+    transition: all 0.2s;
+  }
+  .btn-salvar:hover { background: var(--accent-purple-light); box-shadow: 0 0 30px rgba(74,7,137,0.5); }
+
+  .form-disclaimer { font-size: 11px; color: var(--text-muted); text-align: center; line-height: 1.6; }
+
+  /* DICA CARD */
+  .dica-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    padding: 22px;
+  }
+
+  .dica-header { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; color: var(--text-secondary); font-size: 14px; font-weight: 700; }
+  .dica-header i { width: 16px; height: 16px; color: var(--accent-purple-light); }
+
+  .dica-text { font-size: 13px; color: var(--text-secondary); line-height: 1.7; }
+  .dica-text strong { color: var(--text-primary); }
+
+  /* UPGRADE */
+  .upgrade-banner {
+    position: fixed; bottom: 24px;
+    left: calc(var(--sidebar-width) - 200px);
+    width: 180px;
+    background: var(--bg-card); border: 1px solid var(--border-color);
+    border-radius: 14px; padding: 14px 16px; z-index: 40;
+  }
+  .upgrade-text { font-size: 12px; color: var(--text-secondary); margin-bottom: 10px; font-weight: 500; }
+  .btn-upgrade { width: 100%; background: var(--accent-purple); color: white; border: none; border-radius: 8px; padding: 8px; font-size: 12px; font-weight: 600; font-family: inherit; cursor: pointer; }
+  .btn-upgrade:hover { background: var(--accent-purple-dark); }
+
+  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 200; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.2s; }
+  .modal-overlay.open { opacity: 1; pointer-events: all; }
+  .modal-meta { background: #141414; border: 1px solid #2a2a2a; border-radius: 16px; padding: 24px; width: calc(100% - 32px); max-width: 400px; display: flex; flex-direction: column; gap: 14px; }
+  .modal-meta-title { font-size: 17px; font-weight: 700; }
+  .modal-meta-actions { display: flex; gap: 10px; justify-content: flex-end; }
+  .btn-mmeta-cancel { background: #222; border: 1px solid #2a2a2a; border-radius: 8px; padding: 10px 18px; color: #9ca3af; font-size: 13px; font-weight: 600; font-family: inherit; cursor: pointer; }
+  .btn-mmeta-remove { background: #ef4444; border: none; border-radius: 8px; padding: 10px 18px; color: #fff; font-size: 13px; font-weight: 700; font-family: inherit; cursor: pointer; }
+
+  @media (max-width: 1100px) {
+    .two-col { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 768px) {
+    .sidebar { transform: translateX(-100%); box-shadow: 4px 0 24px rgba(0,0,0,0.5); }
+    .sidebar.open { transform: translateX(0); }
+    .sidebar-close { display: flex; }
+    .main { margin-left: 0; overflow-x: hidden; }
+    .upgrade-banner { display: none; }
+
+    body { overflow-x: hidden; }
+
+    .topbar { padding: 0 16px; }
+
+    .content { padding: 14px; gap: 14px; }
+
+    /* PAGE HEADER */
+    .page-header { flex-direction: column; align-items: flex-start; gap: 10px; }
+    .page-header h1 { font-size: 20px; letter-spacing: -0.3px; }
+    .page-header p { font-size: 12px; }
+    .btn-nova-meta { width: 100%; justify-content: center; padding: 10px 14px; font-size: 13px; border-radius: 8px; }
+
+    /* TWO COL */
+    .two-col { grid-template-columns: 1fr; gap: 14px; }
+
+    /* GOAL CARDS */
+    .goals-list { gap: 12px; }
+    .goal-card { padding: 14px; gap: 12px; border-radius: 12px; overflow: hidden; }
+
+    .goal-top { flex-direction: column; gap: 8px; }
+    .goal-title { font-size: 15px; letter-spacing: -0.2px; }
+    .goal-tag { font-size: 9px; }
+
+    .goal-deadline { text-align: left; }
+    .deadline-label { font-size: 9px; }
+    .deadline-value { font-size: 13px; }
+
+    .progress-label-row { font-size: 10px; margin-bottom: 4px; }
+    .progress-amounts { gap: 6px; margin-bottom: 10px; }
+    .prog-current { font-size: 18px; }
+    .prog-total { font-size: 12px; }
+
+    .progress-bar-row { flex-direction: column; align-items: flex-start; gap: 2px; margin-bottom: 6px; }
+    .prog-pct { font-size: 11px; }
+    .prog-remaining { font-size: 11px; }
+
+    .progress-bar { height: 5px; }
+
+    .goal-insight { padding: 10px 12px; gap: 8px; }
+    .insight-ico i { width: 15px; height: 15px; }
+    .insight-txt { font-size: 11px; line-height: 1.5; }
+
+    .goal-actions { gap: 8px; }
+    .btn-goal-edit, .btn-goal-remove { flex: 1; justify-content: center; padding: 8px 10px; font-size: 11px; }
+    .btn-goal-edit i, .btn-goal-remove i { width: 12px; height: 12px; }
+
+    /* FORM CARD */
+    .right-col { gap: 12px; }
+    .form-card { padding: 14px; }
+    .form-card-header { gap: 10px; margin-bottom: 14px; }
+    .form-card-icon { width: 36px; height: 36px; border-radius: 10px; }
+    .form-card-icon i { width: 16px; height: 16px; }
+    .form-card-title { font-size: 14px; }
+    .form-card-sub { font-size: 10px; }
+
+    .form-group { margin-bottom: 12px; }
+    .form-label { font-size: 10px; margin-bottom: 6px; }
+    .form-input { font-size: 13px; padding: 9px 12px; }
+    .form-row { grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
+    .prefix-label { font-size: 12px; padding: 9px 8px 9px 10px; }
+    .prefix-input { font-size: 13px; padding: 9px 10px 9px 2px; }
+    .date-input-wrap { padding: 9px 12px; }
+    .date-input-wrap input { font-size: 13px; }
+
+    .btn-salvar { padding: 11px; font-size: 12px; margin-bottom: 10px; }
+    .form-disclaimer { font-size: 10px; }
+
+    /* DICA CARD */
+    .dica-card { padding: 14px; }
+    .dica-header { font-size: 13px; }
+    .dica-text { font-size: 12px; }
+
+    /* MODAL */
+    .modal-meta { padding: 16px; gap: 12px; }
+    .modal-meta-title { font-size: 15px; }
+    .btn-mmeta-cancel, .btn-mmeta-remove { padding: 9px 14px; font-size: 12px; }
+  }
+</style>
+</head>
+<body>
+
+<div id="sidebar-container"></div>
+
+<main class="main">
+  <header class="topbar">
+    <div class="topbar-left">
+      <button class="menu-btn" onclick="openSidebar()"><i data-lucide="menu" style="width:22px;height:22px;"></i></button>
+      <span class="topbar-brand">NEXUM</span>
+    </div>
+    <div class="topbar-right">
+      <div class="topbar-icon">
+        <i data-lucide="bell" style="width:18px;height:18px;"></i>
+        <span class="notif-dot"></span>
+      </div>
+      <div class="avatar">JP</div>
+    </div>
+  </header>
+
+  <div class="content">
+
+    <div class="page-header">
+      <div>
+        <h1>Metas Financeiras</h1>
+        <p>Transformando ambição em patrimônio líquido.</p>
+      </div>
+      <button class="btn-nova-meta"><i data-lucide="plus"></i>Nova meta</button>
+    </div>
+
+    <div class="two-col">
+
+      <!-- GOALS LIST -->
+      <div class="goals-list" id="goals-list"></div>
+
+      <!-- RIGHT COLUMN -->
+      <div class="right-col">
+
+        <!-- Add Form -->
+        <div class="form-card">
+          <div class="form-card-header">
+            <div class="form-card-icon"><i data-lucide="target"></i></div>
+            <div>
+              <div class="form-card-title">Adicionar Nova Meta</div>
+              <div class="form-card-sub">Configuração de Objetivo</div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Nome da Meta</label>
+            <input class="form-input" id="f-nome" type="text" placeholder="Ex: Aposentadoria, Casamento...">
+          </div>
+
+          <div class="form-row">
+            <div>
+              <label class="form-label">Valor Total</label>
+              <div class="input-prefix">
+                <span class="prefix-label">R$</span>
+                <input class="prefix-input" id="f-total" type="number" placeholder="0">
+              </div>
+            </div>
+            <div>
+              <label class="form-label">Já Guardado</label>
+              <div class="input-prefix">
+                <span class="prefix-label">R$</span>
+                <input class="prefix-input" id="f-atual" type="number" placeholder="0">
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Prazo Final (Deadline)</label>
+            <div class="date-input-wrap">
+              <i data-lucide="calendar"></i>
+              <input id="f-deadline" type="text" placeholder="Ex: Dezembro, 2025">
+            </div>
+          </div>
+
+          <button class="btn-salvar" id="btn-salvar-meta">Salvar Nova Meta</button>
+          <div class="form-disclaimer">Ao criar uma meta, o Nexum AI começará a monitorar suas transações para sugerir ajustes automáticos de aporte.</div>
+        </div>
+
+        <!-- Dica Estratégica -->
+        <div class="dica-card">
+          <div class="dica-header">
+            <i data-lucide="map-pin"></i>
+            Dica Estratégica
+          </div>
+          <div class="dica-text">
+            Dividir grandes metas em marcos mensais aumenta a probabilidade de sucesso em <strong>40%</strong>. O Nexum recomenda focar na sua <strong>Reserva de Emergência</strong> primeiro.
+          </div>
+        </div>
+
+      </div><!-- .right-col -->
+
+    </div><!-- .two-col -->
+
+  </div><!-- .content -->
+</main>
+
+<div class="upgrade-banner">
+  <div class="upgrade-text">Maximize seu controle</div>
+  <button class="btn-upgrade">Upgrade to Pro</button>
+</div>
+
+<div class="modal-overlay" id="modal-confirm-meta">
+  <div class="modal-meta">
+    <div class="modal-meta-title">Remover Meta</div>
+    <p style="font-size:13px;color:#9ca3af;line-height:1.6;">Tem certeza que deseja remover esta meta? Esta ação não pode ser desfeita.</p>
+    <div class="modal-meta-actions">
+      <button class="btn-mmeta-cancel" id="mm-cancel">Cancelar</button>
+      <button class="btn-mmeta-remove" id="mm-confirm">Remover</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  lucide.createIcons();
+
+  const CURRENT_PAGE = 'metas';
+
+  fetch('../components/layout/sidebar.html')
+    .then(r => r.text())
+    .then(html => {
+      document.getElementById('sidebar-container').innerHTML = html;
+      lucide.createIcons();
+      document.querySelectorAll('.nav-item').forEach(item => {
+        const href = item.getAttribute('href') || '';
+        if (href.includes(CURRENT_PAGE)) item.classList.add('active');
+      });
+    });
+
+  function openSidebar() {
+    document.getElementById('sidebar').classList.add('open');
+    document.getElementById('overlay').classList.add('open');
+  }
+  function closeSidebar() {
+    document.getElementById('sidebar').classList.remove('open');
+    document.getElementById('overlay').classList.remove('open');
+  }
+
+  // --- DADOS ---
+  let metas = [
+    { id: 1, nome: 'Viagem para Europa',    tag: 'Meta de Experiência',  atual: 18500, total: 35000,  deadline: 'Dezembro, 2024' },
+    { id: 2, nome: 'Reserva de Emergência', tag: 'Segurança Financeira', atual: 42000, total: 50000,  deadline: 'Julho, 2024'    },
+    { id: 3, nome: 'Trocar de Carro',       tag: 'Meta de Patrimônio',   atual: 15000, total: 120000, deadline: 'Março, 2025'    },
+  ];
+  let nextMetaId = 4;
+
+  function formatVal(v) {
+    return v.toLocaleString('pt-BR', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+  }
+
+  function calcMeses(atual, total) {
+    const faltam = total - atual;
+    if (faltam <= 0) return 0;
+    const aporte = atual > 0 ? atual / 6 : 500;
+    return Math.ceil(faltam / aporte);
+  }
+
+  function renderMetas() {
+    const list = document.getElementById('goals-list');
+    list.innerHTML = '';
+
+    metas.forEach(m => {
+      const pct = Math.min((m.atual / m.total) * 100, 100).toFixed(1);
+      const faltam = Math.max(m.total - m.atual, 0);
+      const meses = calcMeses(m.atual, m.total);
+      const card = document.createElement('div');
+      card.className = 'goal-card';
+      card.innerHTML = `
+        <div class="goal-top">
+          <div class="goal-title-block">
+            <div class="goal-title">${m.nome}</div>
+            <div class="goal-tag">${m.tag}</div>
+          </div>
+          <div class="goal-deadline">
+            <div class="deadline-label">Deadline</div>
+            <div class="deadline-value">${m.deadline}</div>
+          </div>
+        </div>
+        <div class="goal-progress">
+          <div class="progress-label-row">Progresso Atual</div>
+          <div class="progress-amounts">
+            <span class="prog-current">R$ ${formatVal(m.atual)}</span>
+            <span class="prog-total">/ R$ ${formatVal(m.total)}</span>
+          </div>
+          <div class="progress-bar-row">
+            <span class="prog-pct">${pct}% Concluído</span>
+            <span class="prog-remaining">Faltam R$ ${formatVal(faltam)}</span>
+          </div>
+          <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
+        </div>
+        <div class="goal-insight">
+          <div class="insight-ico"><i data-lucide="check-circle-2"></i></div>
+          <div class="insight-txt">No seu ritmo atual, você alcança essa meta em ${meses} ${meses === 1 ? 'mês' : 'meses'}.</div>
+        </div>
+        <div class="goal-actions">
+          <button class="btn-goal-edit" data-id="${m.id}"><i data-lucide="pencil"></i> Editar</button>
+          <button class="btn-goal-remove" data-id="${m.id}"><i data-lucide="trash-2"></i> Remover</button>
+        </div>
+      `;
+      card.querySelector('.btn-goal-edit').addEventListener('click', () => openEditMetaModal(m.id));
+      card.querySelector('.btn-goal-remove').addEventListener('click', () => openConfirmModal(m.id));
+      list.appendChild(card);
+    });
+
+    lucide.createIcons();
+  }
+
+  // --- FORMULÁRIO LATERAL ---
+  let editingMetaId = null;
+
+  document.getElementById('btn-salvar-meta').addEventListener('click', () => {
+    const nome     = document.getElementById('f-nome').value.trim();
+    const total    = parseFloat(document.getElementById('f-total').value);
+    const atual    = parseFloat(document.getElementById('f-atual').value) || 0;
+    const deadline = document.getElementById('f-deadline').value.trim();
+    if (!nome || isNaN(total) || total <= 0 || !deadline) return;
+
+    if (editingMetaId === null) {
+      metas.push({ id: nextMetaId++, nome, tag: 'Meta Personalizada', atual, total, deadline });
+    } else {
+      const idx = metas.findIndex(m => m.id === editingMetaId);
+      if (idx !== -1) metas[idx] = { ...metas[idx], nome, atual, total, deadline };
+      editingMetaId = null;
+      document.getElementById('btn-salvar-meta').textContent = 'Salvar Nova Meta';
+    }
+
+    document.getElementById('f-nome').value = '';
+    document.getElementById('f-total').value = '';
+    document.getElementById('f-atual').value = '';
+    document.getElementById('f-deadline').value = '';
+    renderMetas();
+  });
+
+  document.querySelector('.btn-nova-meta').addEventListener('click', () => {
+    editingMetaId = null;
+    document.getElementById('f-nome').value = '';
+    document.getElementById('f-total').value = '';
+    document.getElementById('f-atual').value = '';
+    document.getElementById('f-deadline').value = '';
+    document.getElementById('btn-salvar-meta').textContent = 'Salvar Nova Meta';
+    document.querySelector('.form-card').scrollIntoView({ behavior: 'smooth' });
+  });
+
+  function openEditMetaModal(id) {
+    const m = metas.find(x => x.id === id);
+    if (!m) return;
+    editingMetaId = id;
+    document.getElementById('f-nome').value = m.nome;
+    document.getElementById('f-total').value = m.total;
+    document.getElementById('f-atual').value = m.atual;
+    document.getElementById('f-deadline').value = m.deadline;
+    document.getElementById('btn-salvar-meta').textContent = 'Atualizar Meta';
+    document.querySelector('.form-card').scrollIntoView({ behavior: 'smooth' });
+  }
+
+  // --- MODAL CONFIRMAR REMOÇÃO ---
+  let deletingMetaId = null;
+
+  function openConfirmModal(id) {
+    deletingMetaId = id;
+    document.getElementById('modal-confirm-meta').classList.add('open');
+  }
+
+  document.getElementById('mm-cancel').addEventListener('click', () => document.getElementById('modal-confirm-meta').classList.remove('open'));
+  document.getElementById('modal-confirm-meta').addEventListener('click', (e) => { if (e.target === document.getElementById('modal-confirm-meta')) document.getElementById('modal-confirm-meta').classList.remove('open'); });
+  document.getElementById('mm-confirm').addEventListener('click', () => {
+    metas = metas.filter(m => m.id !== deletingMetaId);
+    document.getElementById('modal-confirm-meta').classList.remove('open');
+    renderMetas();
+  });
+
+  // --- INIT ---
+  renderMetas();
+</script>
+</body>
+</html>
