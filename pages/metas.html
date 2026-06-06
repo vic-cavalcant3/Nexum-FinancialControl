@@ -156,6 +156,8 @@
     gap: 18px;
     min-width: 0;
     overflow: hidden;
+    width: 100%;
+    box-sizing: border-box;
   }
 
   .goal-actions { display: flex; gap: 8px; margin-top: 4px; }
@@ -221,7 +223,7 @@
   .insight-txt { font-size: 13px; color: var(--text-secondary); }
 
   /* RIGHT COLUMN */
-  .right-col { display: flex; flex-direction: column; gap: 16px; }
+  .right-col { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
 
   /* ADD FORM CARD */
   .form-card {
@@ -229,6 +231,9 @@
     border: 1px solid var(--border-color);
     border-radius: 16px;
     padding: 22px;
+    box-sizing: border-box;
+    width: 100%;
+    overflow: hidden;
   }
 
   .form-card-header { display: flex; align-items: center; gap: 14px; margin-bottom: 22px; }
@@ -249,6 +254,7 @@
 
   .form-input {
     width: 100%;
+    box-sizing: border-box;
     background: var(--bg-card2);
     border: 1px solid var(--border-color);
     border-radius: 8px;
@@ -262,7 +268,7 @@
   .form-input::placeholder { color: var(--text-muted); }
   .form-input:focus { border-color: var(--accent-purple); }
 
-  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; box-sizing: border-box; width: 100%; }
 
   .input-prefix {
     display: flex; align-items: center;
@@ -271,12 +277,16 @@
     border-radius: 8px;
     overflow: hidden;
     transition: border-color 0.2s;
+    box-sizing: border-box;
+    width: 100%;
+    min-width: 0;
   }
   .input-prefix:focus-within { border-color: var(--accent-purple); }
   .prefix-label { padding: 11px 10px 11px 14px; color: var(--text-muted); font-size: 13px; font-weight: 600; }
   .prefix-input {
     flex: 1; background: none; border: none; padding: 11px 14px 11px 4px;
     color: var(--text-primary); font-size: 13px; font-family: inherit; outline: none;
+    min-width: 0; width: 100%;
   }
   .prefix-input::placeholder { color: var(--text-muted); }
 
@@ -288,12 +298,15 @@
     padding: 11px 14px;
     gap: 10px;
     transition: border-color 0.2s;
+    box-sizing: border-box;
+    width: 100%;
   }
   .date-input-wrap:focus-within { border-color: var(--accent-purple); }
   .date-input-wrap i { width: 15px; height: 15px; color: var(--text-muted); flex-shrink: 0; }
   .date-input-wrap input {
     flex: 1; background: none; border: none; color: var(--text-primary);
     font-size: 13px; font-family: inherit; outline: none;
+    min-width: 0; width: 100%;
   }
   .date-input-wrap input::placeholder { color: var(--text-muted); }
 
@@ -347,93 +360,154 @@
   .btn-mmeta-cancel { background: #222; border: 1px solid #2a2a2a; border-radius: 8px; padding: 10px 18px; color: #9ca3af; font-size: 13px; font-weight: 600; font-family: inherit; cursor: pointer; }
   .btn-mmeta-remove { background: #ef4444; border: none; border-radius: 8px; padding: 10px 18px; color: #fff; font-size: 13px; font-weight: 700; font-family: inherit; cursor: pointer; }
 
-  @media (max-width: 1100px) {
-    .two-col { grid-template-columns: 1fr; }
+  @media (max-width: 1600px) {
+    .two-col {
+      grid-template-columns: 1fr;
+      width: 100%;
+    }
+    .right-col {
+      width: 100%;
+      max-width: 100%;
+    }
+    .menu-btn{display:none}
   }
+
   @media (max-width: 768px) {
     .sidebar { transform: translateX(-100%); box-shadow: 4px 0 24px rgba(0,0,0,0.5); }
     .sidebar.open { transform: translateX(0); }
     .sidebar-close { display: flex; }
     .main { margin-left: 0; overflow-x: hidden; }
     .upgrade-banner { display: none; }
-
     body { overflow-x: hidden; }
 
     .topbar { padding: 0 16px; }
 
-    .content { padding: 14px; gap: 14px; }
+    .content {
+      padding: 14px;
+      box-sizing: border-box;
+      width: 100%;
+      max-width: 100%;
+      overflow: hidden;
+    }
 
-    /* PAGE HEADER */
-    .page-header { flex-direction: column; align-items: flex-start; gap: 10px; }
-    .page-header h1 { font-size: 20px; letter-spacing: -0.3px; }
-    .page-header p { font-size: 12px; }
-    .btn-nova-meta { width: 100%; justify-content: center; padding: 10px 14px; font-size: 13px; border-radius: 8px; }
+    .two-col {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      gap: 14px;
+    }
 
-    /* TWO COL */
-    .two-col { grid-template-columns: 1fr; gap: 14px; }
+    .goals-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      width: 100%;
+    }
 
-    /* GOAL CARDS */
-    .goals-list { gap: 12px; }
-    .goal-card { padding: 14px; gap: 12px; border-radius: 12px; overflow: hidden; }
+    .goal-card {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 14px;
+      gap: 12px;
+      border-radius: 12px;
+    }
 
-    .goal-top { flex-direction: column; gap: 8px; }
-    .goal-title { font-size: 15px; letter-spacing: -0.2px; }
-    .goal-tag { font-size: 9px; }
+    .right-col {
+      width: 100%;
+      box-sizing: border-box;
+    }
 
-    .goal-deadline { text-align: left; }
-    .deadline-label { font-size: 9px; }
-    .deadline-value { font-size: 13px; }
+    .page-header { flex-direction: row; align-items: center; justify-content: space-between; gap: 10px; }
+    .page-header h1 { font-size: 20px; }
+    .page-header p { font-size: 12px; margin-top: 3px; }
+    .btn-nova-meta { width: auto; padding: 9px 16px; font-size: 12px; border-radius: 8px; flex-shrink: 0; }
 
-    .progress-label-row { font-size: 10px; margin-bottom: 4px; }
-    .progress-amounts { gap: 6px; margin-bottom: 10px; }
-    .prog-current { font-size: 18px; }
+    .goal-top { flex-direction: row; align-items: flex-start; justify-content: space-between; gap: 10px; margin-bottom: 12px; }
+    .goal-title-block { flex: 1; min-width: 0; }
+    .goal-title { font-size: 15px; word-break: break-word; line-height: 1.3; }
+    .goal-tag { font-size: 9px; margin-top: 4px; }
+
+    .goal-deadline {
+      background: rgba(74,7,137,0.15);
+      border: 1px solid rgba(74,7,137,0.3);
+      border-radius: 8px;
+      padding: 5px 8px;
+      text-align: center;
+      flex-shrink: 0;
+      max-width: 100px;
+    }
+    .deadline-label { font-size: 8px; color: #a855f7; letter-spacing: 0.06em; }
+    .deadline-value { font-size: 10px; font-weight: 700; margin-top: 1px; word-break: break-word; }
+
+    .goal-progress { margin-bottom: 10px; }
+    .progress-label-row { font-size: 9px; margin-bottom: 5px; }
+    .progress-amounts { gap: 5px; margin-bottom: 8px; }
+    .prog-current { font-size: 20px; }
     .prog-total { font-size: 12px; }
-
-    .progress-bar-row { flex-direction: column; align-items: flex-start; gap: 2px; margin-bottom: 6px; }
+    .progress-bar-row { flex-direction: row; align-items: center; justify-content: space-between; margin-bottom: 6px; }
     .prog-pct { font-size: 11px; }
     .prog-remaining { font-size: 11px; }
+    .progress-bar { height: 5px; margin-bottom: 0; }
 
-    .progress-bar { height: 5px; }
-
-    .goal-insight { padding: 10px 12px; gap: 8px; }
-    .insight-ico i { width: 15px; height: 15px; }
+    .goal-insight { padding: 9px 11px; gap: 7px; margin-bottom: 10px; }
+    .insight-ico i { width: 14px; height: 14px; }
     .insight-txt { font-size: 11px; line-height: 1.5; }
 
     .goal-actions { gap: 8px; }
-    .btn-goal-edit, .btn-goal-remove { flex: 1; justify-content: center; padding: 8px 10px; font-size: 11px; }
+    .btn-goal-edit { flex: none; justify-content: center; padding: 8px; font-size: 11px; width: 50%; }
+    .btn-goal-remove { width: 50%; flex: none; justify-content: center;  padding: 8px; }
     .btn-goal-edit i, .btn-goal-remove i { width: 12px; height: 12px; }
 
-    /* FORM CARD */
-    .right-col { gap: 12px; }
-    .form-card { padding: 14px; }
+    .form-card { padding: 14px; box-sizing: border-box; width: 100%; }
     .form-card-header { gap: 10px; margin-bottom: 14px; }
-    .form-card-icon { width: 36px; height: 36px; border-radius: 10px; }
+    .form-card-icon { width: 36px; height: 36px; }
     .form-card-icon i { width: 16px; height: 16px; }
     .form-card-title { font-size: 14px; }
     .form-card-sub { font-size: 10px; }
-
     .form-group { margin-bottom: 12px; }
     .form-label { font-size: 10px; margin-bottom: 6px; }
     .form-input { font-size: 13px; padding: 9px 12px; }
-    .form-row { grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
+    .form-row { gap: 8px; margin-bottom: 12px; }
     .prefix-label { font-size: 12px; padding: 9px 8px 9px 10px; }
-    .prefix-input { font-size: 13px; padding: 9px 10px 9px 2px; }
+    .prefix-input { font-size: 13px; padding: 9px 8px 9px 2px; }
     .date-input-wrap { padding: 9px 12px; }
     .date-input-wrap input { font-size: 13px; }
-
     .btn-salvar { padding: 11px; font-size: 12px; margin-bottom: 10px; }
     .form-disclaimer { font-size: 10px; }
 
-    /* DICA CARD */
-    .dica-card { padding: 14px; }
+    .dica-card { padding: 14px; box-sizing: border-box; width: 100%; }
     .dica-header { font-size: 13px; }
     .dica-text { font-size: 12px; }
 
-    /* MODAL */
     .modal-meta { padding: 16px; gap: 12px; }
     .modal-meta-title { font-size: 15px; }
     .btn-mmeta-cancel, .btn-mmeta-remove { padding: 9px 14px; font-size: 12px; }
   }
+
+  /* NOTIF PANEL */
+  .notif-panel { position: fixed; top: var(--topbar-height); right: 16px; width: 320px; background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 14px; z-index: 300; box-shadow: 0 16px 48px rgba(0,0,0,0.6); transform: translateY(-8px); opacity: 0; pointer-events: none; transition: all 0.2s ease; }
+  .notif-panel.open { transform: translateY(0); opacity: 1; pointer-events: all; }
+  .notif-overlay { display: none; position: fixed; inset: 0; z-index: 299; }
+  .notif-overlay.open { display: block; }
+  .notif-panel-header { display: flex; align-items: center; justify-content: space-between; padding: 16px 18px 12px; border-bottom: 1px solid #2a2a2a; }
+  .notif-panel-title { font-size: 15px; font-weight: 700; }
+  .notif-panel-close { background: none; border: none; color: #6b7280; cursor: pointer; font-size: 16px; padding: 2px 6px; border-radius: 6px; transition: background 0.15s; }
+  .notif-panel-close:hover { background: #2a2a2a; color: #fff; }
+  .notif-panel-list { display: flex; flex-direction: column; }
+  .notif-panel-item { display: flex; align-items: flex-start; gap: 12px; padding: 14px 18px; border-bottom: 1px solid rgba(255,255,255,0.04); transition: background 0.15s; cursor: pointer; }
+  .notif-panel-item:hover { background: rgba(255,255,255,0.03); }
+  .notif-panel-item:last-child { border-bottom: none; }
+  .notif-panel-item.unread { background: rgba(74,7,137,0.06); }
+  .notif-panel-icon { width: 34px; height: 34px; border-radius: 9px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .notif-panel-icon.warning { background: rgba(245,158,11,0.15); color: #f59e0b; }
+  .notif-panel-icon.purple  { background: rgba(74,7,137,0.2); color: #a855f7; }
+  .notif-panel-icon.green   { background: rgba(34,197,94,0.15); color: #22c55e; }
+  .notif-panel-msg { font-size: 13px; color: #d1d5db; line-height: 1.5; }
+  .notif-panel-msg strong { color: #fff; }
+  .notif-panel-time { font-size: 11px; color: #6b7280; margin-top: 3px; }
+  .notif-panel-footer { padding: 12px 18px; font-size: 12px; font-weight: 600; color: #a855f7; text-align: center; border-top: 1px solid #2a2a2a; cursor: pointer; transition: background 0.15s; border-radius: 0 0 14px 14px; }
+  .notif-panel-footer:hover { background: rgba(74,7,137,0.08); }
+  @media (max-width: 768px) { .notif-panel { width: calc(100vw - 24px); right: 12px; } }
 </style>
 </head>
 <body>
@@ -451,7 +525,7 @@
         <i data-lucide="bell" style="width:18px;height:18px;"></i>
         <span class="notif-dot"></span>
       </div>
-      <div class="avatar">JP</div>
+      <div class="avatar" onclick="window.location.href='configuracao.html'" style="cursor:pointer;" title="Configurações">JP</div>
     </div>
   </header>
 
@@ -509,7 +583,7 @@
             <label class="form-label">Prazo Final (Deadline)</label>
             <div class="date-input-wrap">
               <i data-lucide="calendar"></i>
-              <input id="f-deadline" type="text" placeholder="Ex: Dezembro, 2025">
+              <input id="f-deadline" type="text" placeholder="Ex: Dezembro, 2026">
             </div>
           </div>
 
@@ -578,9 +652,9 @@
 
   // --- DADOS ---
   let metas = [
-    { id: 1, nome: 'Viagem para Europa',    tag: 'Meta de Experiência',  atual: 18500, total: 35000,  deadline: 'Dezembro, 2024' },
-    { id: 2, nome: 'Reserva de Emergência', tag: 'Segurança Financeira', atual: 42000, total: 50000,  deadline: 'Julho, 2024'    },
-    { id: 3, nome: 'Trocar de Carro',       tag: 'Meta de Patrimônio',   atual: 15000, total: 120000, deadline: 'Março, 2025'    },
+    { id: 1, nome: 'Viagem para Europa',    tag: 'Meta de Experiência',  atual: 18500, total: 35000,  deadline: 'Dezembro, 2026' },
+    { id: 2, nome: 'Reserva de Emergência', tag: 'Segurança Financeira', atual: 42000, total: 50000,  deadline: 'Julho, 2026'    },
+    { id: 3, nome: 'Trocar de Carro',       tag: 'Meta de Patrimônio',   atual: 15000, total: 120000, deadline: 'Março, 2026'    },
   ];
   let nextMetaId = 4;
 
@@ -637,8 +711,15 @@
           <button class="btn-goal-remove" data-id="${m.id}"><i data-lucide="trash-2"></i> Remover</button>
         </div>
       `;
-      card.querySelector('.btn-goal-edit').addEventListener('click', () => openEditMetaModal(m.id));
-      card.querySelector('.btn-goal-remove').addEventListener('click', () => openConfirmModal(m.id));
+      const metaId = m.id;
+      card.querySelector('.btn-goal-edit').addEventListener('click', (e) => {
+        e.stopPropagation();
+        openEditMetaModal(metaId);
+      });
+      card.querySelector('.btn-goal-remove').addEventListener('click', (e) => {
+        e.stopPropagation();
+        openConfirmModal(metaId);
+      });
       list.appendChild(card);
     });
 
@@ -689,8 +770,21 @@
     document.getElementById('f-total').value = m.total;
     document.getElementById('f-atual').value = m.atual;
     document.getElementById('f-deadline').value = m.deadline;
-    document.getElementById('btn-salvar-meta').textContent = 'Atualizar Meta';
-    document.querySelector('.form-card').scrollIntoView({ behavior: 'smooth' });
+    const btn = document.getElementById('btn-salvar-meta');
+    btn.textContent = 'Atualizar Meta';
+    btn.style.background = '#6d28d9';
+
+    // Scroll para o form
+    const formCard = document.querySelector('.form-card');
+    formCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+    // Highlight visual no form
+    formCard.style.border = '1px solid #4A0789';
+    formCard.style.boxShadow = '0 0 20px rgba(74,7,137,0.3)';
+    setTimeout(() => {
+      formCard.style.border = '';
+      formCard.style.boxShadow = '';
+    }, 2000);
   }
 
   // --- MODAL CONFIRMAR REMOÇÃO ---
@@ -711,6 +805,51 @@
 
   // --- INIT ---
   renderMetas();
+</script>
+
+<!-- Painel de Notificações -->
+<div class="notif-panel" id="notif-panel">
+  <div class="notif-panel-header">
+    <span class="notif-panel-title">Notificações</span>
+    <button class="notif-panel-close" onclick="fecharNotif()">✕</button>
+  </div>
+  <div class="notif-panel-list">
+    <div class="notif-panel-item unread">
+      <div class="notif-panel-icon warning"><i data-lucide="triangle-alert" style="width:16px;height:16px;"></i></div>
+      <div class="notif-panel-body"><div class="notif-panel-msg">Você atingiu <strong>80%</strong> do limite em Alimentação.</div><div class="notif-panel-time">Há 2 horas</div></div>
+    </div>
+    <div class="notif-panel-item unread">
+      <div class="notif-panel-icon purple"><i data-lucide="target" style="width:16px;height:16px;"></i></div>
+      <div class="notif-panel-body"><div class="notif-panel-msg">Meta <strong>Reserva de Emergência</strong> está 84% concluída!</div><div class="notif-panel-time">Há 5 horas</div></div>
+    </div>
+    <div class="notif-panel-item">
+      <div class="notif-panel-icon green"><i data-lucide="trending-up" style="width:16px;height:16px;"></i></div>
+      <div class="notif-panel-body"><div class="notif-panel-msg">Seu saldo este mês é <strong>R$ 7.330,00</strong> — acima da média.</div><div class="notif-panel-time">Ontem</div></div>
+    </div>
+    <div class="notif-panel-item">
+      <div class="notif-panel-icon purple"><i data-lucide="sparkles" style="width:16px;height:16px;"></i></div>
+      <div class="notif-panel-body"><div class="notif-panel-msg">Novo insight do Consultor IA disponível para você.</div><div class="notif-panel-time">2 dias atrás</div></div>
+    </div>
+  </div>
+  <div class="notif-panel-footer" onclick="marcarLidas()">Marcar todas como lidas</div>
+</div>
+<div class="notif-overlay" id="notif-overlay" onclick="fecharNotif()"></div>
+<script>
+  function abrirNotif() {
+    document.getElementById('notif-panel').classList.add('open');
+    document.getElementById('notif-overlay').classList.add('open');
+    const dot = document.querySelector('.notif-dot');
+    if (dot) dot.style.display = 'none';
+    lucide.createIcons();
+  }
+  function fecharNotif() {
+    document.getElementById('notif-panel').classList.remove('open');
+    document.getElementById('notif-overlay').classList.remove('open');
+  }
+  function marcarLidas() {
+    document.querySelectorAll('.notif-panel-item.unread').forEach(i => i.classList.remove('unread'));
+  }
+  document.querySelector('.topbar-icon').addEventListener('click', abrirNotif);
 </script>
 </body>
 </html>

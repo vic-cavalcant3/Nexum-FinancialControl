@@ -40,6 +40,7 @@
     color: var(--text-primary);
     display: flex;
     min-height: 100vh;
+    overflow-x: hidden;
   }
 
   .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 99; }
@@ -83,8 +84,11 @@
   .menu-btn { display: none; background: none; border: none; color: var(--text-primary); cursor: pointer; padding: 4px; align-items: center; }
 
   .topbar-center {
-    position: absolute; left: 50%; transform: translateX(-50%);
-    display: flex; align-items: center; gap: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+    justify-content: center;
   }
 
   .topbar-title { font-size: 18px; font-weight: 700; }
@@ -287,6 +291,28 @@
   .upgrade-text { font-size: 12px; color: var(--text-secondary); margin-bottom: 10px; font-weight: 500; }
   .btn-upgrade { width: 100%; background: var(--accent-purple); color: white; border: none; border-radius: 8px; padding: 8px; font-size: 12px; font-weight: 600; font-family: inherit; cursor: pointer; }
 
+  .period-dropdown {
+    display: none;
+    position: absolute;
+    top: 44px; left: 50%; transform: translateX(-50%);
+    background: #1e1e1e;
+    border: 1px solid #2a2a2a;
+    border-radius: 10px;
+    padding: 4px;
+    z-index: 200;
+    min-width: 140px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  }
+  .period-dropdown.open { display: block; }
+  .period-opt {
+    padding: 8px 14px;
+    font-size: 13px; font-weight: 600;
+    color: #d1d5db; border-radius: 6px;
+    cursor: pointer; transition: background 0.15s;
+    text-align: center;
+  }
+  .period-opt:hover { background: #2a2a2a; color: #a855f7; }
+
   @media (max-width: 1100px) {
     .middle-row { grid-template-columns: 1fr; }
     .summary-row { grid-template-columns: 1fr 1fr; }
@@ -296,14 +322,83 @@
     .sidebar.open { transform: translateX(0); }
     .sidebar-close { display: flex; }
     .menu-btn { display: flex; }
-    .topbar-brand-mobile { display: block; }
-    .topbar-center { display: none; }
     .main { margin-left: 0; }
-    .content { padding: 16px; }
-    .summary-row { grid-template-columns: 1fr; }
     .upgrade-banner { display: none; }
-    .insight-banner { flex-direction: column; align-items: flex-start; }
+    body { overflow-x: hidden; }
+
+    .topbar { padding: 0 12px; gap: 0; }
+    .topbar-center { display: flex; flex: 1; justify-content: center; gap: 8px; }
+    .topbar-title { font-size: 13px; font-weight: 700; white-space: nowrap; }
+    .period-selector { padding: 5px 8px; font-size: 11px; gap: 4px; border-radius: 6px; }
+    .period-selector i { width: 11px; height: 11px; }
+    .topbar-brand-mobile { display: none; }
+    .btn-export { padding: 5px 8px; font-size: 11px; gap: 4px; border-radius: 6px; box-shadow: none; }
+    .btn-export i { width: 12px; height: 12px; display: block; }
+    #btn-export-txt { display: none; }
+    .topbar-icon { width: 30px; height: 30px; }
+    .avatar { width: 28px; height: 28px; font-size: 10px; }
+    .topbar-right { gap: 6px; }
+    .topbar-left { flex-shrink: 0; }
+
+    .content { padding: 14px; gap: 14px; }
+
+    .summary-row { grid-template-columns: 1fr; gap: 10px; }
+    .summary-card { padding: 16px; gap: 8px; }
+    .card-amount { font-size: 22px; }
+    .card-label { font-size: 12px; }
+    .card-trend { font-size: 11px; padding: 5px 8px; }
+
+    .middle-row { grid-template-columns: 1fr; gap: 12px; }
+
+    .chart-card { padding: 16px; }
+    .chart-title { font-size: 15px; }
+    .chart-sub { font-size: 12px; }
+    .chart-legend { gap: 10px; }
+    .legend-item { font-size: 11px; }
+
+    .bar-chart { height: 160px; gap: 4px; padding: 0; }
+    .bars { height: 140px; gap: 2px; }
+    .bar { width: 18px; border-radius: 4px 4px 0 0; }
+    .bar-label { font-size: 9px; }
+
+    .breakdown-card { padding: 16px; gap: 14px; }
+    .breakdown-title { font-size: 15px; }
+    .breakdown-sub { font-size: 12px; }
+    .breakdown-item-left { font-size: 13px; gap: 8px; }
+    .breakdown-pct { font-size: 13px; }
+
+    .insight-banner { padding: 16px; gap: 14px; flex-direction: column; align-items: flex-start; }
+    .insight-ico-wrap { width: 40px; height: 40px; border-radius: 10px; }
+    .insight-ico-wrap i { width: 18px; height: 18px; }
+    .insight-title { font-size: 14px; }
+    .insight-text { font-size: 12px; line-height: 1.6; }
+    .btn-ajustar { width: 100%; text-align: center; justify-content: center; padding: 10px; font-size: 13px; }
   }
+
+  /* NOTIF PANEL */
+  .notif-panel { position: fixed; top: var(--topbar-height); right: 16px; width: 320px; background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 14px; z-index: 300; box-shadow: 0 16px 48px rgba(0,0,0,0.6); transform: translateY(-8px); opacity: 0; pointer-events: none; transition: all 0.2s ease; }
+  .notif-panel.open { transform: translateY(0); opacity: 1; pointer-events: all; }
+  .notif-overlay { display: none; position: fixed; inset: 0; z-index: 299; }
+  .notif-overlay.open { display: block; }
+  .notif-panel-header { display: flex; align-items: center; justify-content: space-between; padding: 16px 18px 12px; border-bottom: 1px solid #2a2a2a; }
+  .notif-panel-title { font-size: 15px; font-weight: 700; }
+  .notif-panel-close { background: none; border: none; color: #6b7280; cursor: pointer; font-size: 16px; padding: 2px 6px; border-radius: 6px; transition: background 0.15s; }
+  .notif-panel-close:hover { background: #2a2a2a; color: #fff; }
+  .notif-panel-list { display: flex; flex-direction: column; }
+  .notif-panel-item { display: flex; align-items: flex-start; gap: 12px; padding: 14px 18px; border-bottom: 1px solid rgba(255,255,255,0.04); transition: background 0.15s; cursor: pointer; }
+  .notif-panel-item:hover { background: rgba(255,255,255,0.03); }
+  .notif-panel-item:last-child { border-bottom: none; }
+  .notif-panel-item.unread { background: rgba(74,7,137,0.06); }
+  .notif-panel-icon { width: 34px; height: 34px; border-radius: 9px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .notif-panel-icon.warning { background: rgba(245,158,11,0.15); color: #f59e0b; }
+  .notif-panel-icon.purple  { background: rgba(74,7,137,0.2); color: #a855f7; }
+  .notif-panel-icon.green   { background: rgba(34,197,94,0.15); color: #22c55e; }
+  .notif-panel-msg { font-size: 13px; color: #d1d5db; line-height: 1.5; }
+  .notif-panel-msg strong { color: #fff; }
+  .notif-panel-time { font-size: 11px; color: #6b7280; margin-top: 3px; }
+  .notif-panel-footer { padding: 12px 18px; font-size: 12px; font-weight: 600; color: #a855f7; text-align: center; border-top: 1px solid #2a2a2a; cursor: pointer; transition: background 0.15s; border-radius: 0 0 14px 14px; }
+  .notif-panel-footer:hover { background: rgba(74,7,137,0.08); }
+  @media (max-width: 768px) { .notif-panel { width: calc(100vw - 24px); right: 12px; } }
 </style>
 </head>
 <body>
@@ -313,26 +408,41 @@
 <main class="main">
   <header class="topbar">
     <div class="topbar-left">
-      <button class="menu-btn" onclick="openSidebar()"><i data-lucide="menu" style="width:22px;height:22px;"></i></button>
+      <button class="menu-btn" onclick="openSidebar()">
+        <i data-lucide="menu" style="width:22px;height:22px;"></i>
+      </button>
       <span class="topbar-brand-mobile">NEXUM</span>
     </div>
 
     <div class="topbar-center">
-      <span class="topbar-title">Relatórios</span>
-      <div class="period-selector">
-        <i data-lucide="calendar"></i>
-        Junho 2024
-        <i data-lucide="chevron-down"></i>
+    
+      <div style="position:relative;">
+        <div class="period-selector" id="period-selector" onclick="togglePeriodDropdown()">
+          <i data-lucide="calendar"></i>
+          <span id="period-label">JUN 2026</span>
+          <i data-lucide="chevron-down"></i>
+        </div>
+        <div class="period-dropdown" id="period-dropdown">
+          <div class="period-opt" onclick="selecionarMes('JAN')">JAN 2026</div>
+          <div class="period-opt" onclick="selecionarMes('FEV')">FEV 2026</div>
+          <div class="period-opt" onclick="selecionarMes('MAR')">MAR 2026</div>
+          <div class="period-opt" onclick="selecionarMes('ABR')">ABR 2026</div>
+          <div class="period-opt" onclick="selecionarMes('MAI')">MAI 2026</div>
+          <div class="period-opt" onclick="selecionarMes('JUN')">JUN 2026</div>
+        </div>
       </div>
     </div>
 
     <div class="topbar-right">
-      <button class="btn-export"><i data-lucide="file-text"></i>Exportar PDF</button>
+      <button class="btn-export" onclick="exportarPDF()">
+        <i data-lucide="file-text"></i>
+        <span id="btn-export-txt">Exportar PDF</span>
+      </button>
       <div class="topbar-icon">
         <i data-lucide="bell" style="width:18px;height:18px;"></i>
         <span class="notif-dot"></span>
       </div>
-      <div class="avatar">JP</div>
+      <div class="avatar" onclick="window.location.href='configuracao.html'" style="cursor:pointer;" title="Configurações">JP</div>
     </div>
   </header>
 
@@ -344,29 +454,29 @@
       <div class="summary-card">
         <div class="card-trend-icon trend-up-icon"><i data-lucide="trending-up"></i></div>
         <div class="card-label">Receitas</div>
-        <div class="card-amount">R$ 12.450,00</div>
+        <div class="card-amount" id="val-receita">R$ 12.450,00</div>
         <div class="card-trend up">
           <i data-lucide="arrow-up"></i>
-          12% a mais que o mês anterior
+          <span id="trend-receita">12% em relação ao mês anterior</span>
         </div>
       </div>
 
       <div class="summary-card">
         <div class="card-trend-icon trend-down-icon"><i data-lucide="trending-down"></i></div>
         <div class="card-label">Despesas</div>
-        <div class="card-amount">R$ 5.120,00</div>
+        <div class="card-amount" id="val-despesa">R$ 5.120,00</div>
         <div class="card-trend down">
           <i data-lucide="arrow-down"></i>
-          4% a menos que o mês anterior
+          <span id="trend-despesa">4% em relação ao mês anterior</span>
         </div>
       </div>
 
       <div class="summary-card liquid">
         <div class="card-label liquid-label">Saldo Líquido</div>
-        <div class="card-amount liquid-amount">R$ 7.330,00</div>
+        <div class="card-amount liquid-amount" id="val-saldo">R$ 7.330,00</div>
         <div class="card-badge">
           <i data-lucide="zap"></i>
-          Performance Ótima
+          <span id="perf-badge">Performance Ótima</span>
         </div>
       </div>
 
@@ -395,51 +505,45 @@
         </div>
 
         <div class="bar-chart">
-          <!-- JAN -->
-          <div class="bar-group">
+          <div class="bar-group" data-mes="JAN">
             <div class="bars">
-              <div class="bar despesa" style="height:90px"></div>
-              <div class="bar receita" style="height:110px"></div>
+              <div class="bar despesa bar-despesa" style="height:90px"></div>
+              <div class="bar receita bar-receita" style="height:110px"></div>
             </div>
             <div class="bar-label">JAN</div>
           </div>
-          <!-- FEV -->
-          <div class="bar-group">
+          <div class="bar-group" data-mes="FEV">
             <div class="bars">
-              <div class="bar despesa" style="height:80px"></div>
-              <div class="bar receita" style="height:130px"></div>
+              <div class="bar despesa bar-despesa" style="height:80px"></div>
+              <div class="bar receita bar-receita" style="height:130px"></div>
             </div>
             <div class="bar-label">FEV</div>
           </div>
-          <!-- MAR -->
-          <div class="bar-group">
+          <div class="bar-group" data-mes="MAR">
             <div class="bars">
-              <div class="bar despesa" style="height:100px"></div>
-              <div class="bar receita" style="height:75px"></div>
+              <div class="bar despesa bar-despesa" style="height:100px"></div>
+              <div class="bar receita bar-receita" style="height:75px"></div>
             </div>
             <div class="bar-label">MAR</div>
           </div>
-          <!-- ABR -->
-          <div class="bar-group">
+          <div class="bar-group" data-mes="ABR">
             <div class="bars">
-              <div class="bar despesa" style="height:85px"></div>
-              <div class="bar receita" style="height:140px"></div>
+              <div class="bar despesa bar-despesa" style="height:85px"></div>
+              <div class="bar receita bar-receita" style="height:140px"></div>
             </div>
             <div class="bar-label">ABR</div>
           </div>
-          <!-- MAI -->
-          <div class="bar-group">
+          <div class="bar-group" data-mes="MAI">
             <div class="bars">
-              <div class="bar despesa" style="height:95px"></div>
-              <div class="bar receita" style="height:120px"></div>
+              <div class="bar despesa bar-despesa" style="height:95px"></div>
+              <div class="bar receita bar-receita" style="height:120px"></div>
             </div>
             <div class="bar-label">MAI</div>
           </div>
-          <!-- JUN — active -->
-          <div class="bar-group">
+          <div class="bar-group" data-mes="JUN">
             <div class="bars">
-              <div class="bar active-despesa" style="height:78px"></div>
-              <div class="bar active-receita" style="height:170px"></div>
+              <div class="bar active-despesa bar-despesa" style="height:78px"></div>
+              <div class="bar active-receita bar-receita" style="height:170px"></div>
             </div>
             <div class="bar-label active">JUN</div>
           </div>
@@ -540,6 +644,102 @@
 </div>
 
 <script>
+  // --- DADOS ---
+  const dadosMensais = {
+    JAN: { receita: 10200, despesa: 4800 },
+    FEV: { receita: 11500, despesa: 4200 },
+    MAR: { receita: 9800,  despesa: 5100 },
+    ABR: { receita: 12800, despesa: 4500 },
+    MAI: { receita: 11200, despesa: 4900 },
+    JUN: { receita: 12450, despesa: 5120 },
+  };
+
+  let mesSelecionado = 'JUN';
+
+  function atualizarCards(mes) {
+    const d = dadosMensais[mes];
+    const saldo = d.receita - d.despesa;
+    const meses = Object.keys(dadosMensais);
+    const idxAnterior = meses.indexOf(mes) - 1;
+    const anterior = idxAnterior >= 0 ? dadosMensais[meses[idxAnterior]] : null;
+
+    document.getElementById('val-receita').textContent = 'R$ ' + formatMoeda(d.receita);
+    document.getElementById('val-despesa').textContent = 'R$ ' + formatMoeda(d.despesa);
+    document.getElementById('val-saldo').textContent   = 'R$ ' + formatMoeda(saldo);
+
+    if (anterior) {
+      const diffR = ((d.receita - anterior.receita) / anterior.receita * 100).toFixed(0);
+      const diffD = ((d.despesa - anterior.despesa) / anterior.despesa * 100).toFixed(0);
+      const sinalR = diffR >= 0 ? '+' : '';
+      const sinalD = diffD >= 0 ? '+' : '';
+      document.getElementById('trend-receita').textContent = `${sinalR}${diffR}% em relação ao mês anterior`;
+      document.getElementById('trend-despesa').textContent = `${sinalD}${diffD}% em relação ao mês anterior`;
+      document.getElementById('trend-receita').parentElement.className = 'card-trend ' + (diffR >= 0 ? 'up' : 'down');
+      document.getElementById('trend-despesa').parentElement.className = 'card-trend ' + (diffD <= 0 ? 'up' : 'down');
+    }
+
+    const ratio = d.despesa / d.receita;
+    const perf = ratio < 0.5 ? 'Performance Ótima' : ratio < 0.7 ? 'Performance Boa' : 'Atenção aos Gastos';
+    document.getElementById('perf-badge').textContent = perf;
+  }
+
+  function atualizarGrafico() {
+    const maxVal = Math.max(...Object.values(dadosMensais).flatMap(d => [d.receita, d.despesa]));
+    const alturaMax = 160;
+
+    Object.entries(dadosMensais).forEach(([mes, d]) => {
+      const grupo = document.querySelector(`.bar-group[data-mes="${mes}"]`);
+      if (!grupo) return;
+      const barR = grupo.querySelector('.bar-receita');
+      const barD = grupo.querySelector('.bar-despesa');
+      if (barR) barR.style.height = Math.round((d.receita / maxVal) * alturaMax) + 'px';
+      if (barD) barD.style.height = Math.round((d.despesa / maxVal) * alturaMax) + 'px';
+
+      const isAtivo = mes === mesSelecionado;
+      grupo.querySelector('.bar-label').className = 'bar-label' + (isAtivo ? ' active' : '');
+      if (barR) barR.className = 'bar bar-receita ' + (isAtivo ? 'active-receita' : 'receita');
+      if (barD) barD.className = 'bar bar-despesa ' + (isAtivo ? 'active-despesa' : 'despesa');
+    });
+  }
+
+  function selecionarMes(mes) {
+    mesSelecionado = mes;
+    document.getElementById('period-label').textContent = mes + ' 2026';
+    atualizarCards(mes);
+    atualizarGrafico();
+  }
+
+  function formatMoeda(v) {
+    return v.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  function togglePeriodDropdown() {
+    document.getElementById('period-dropdown').classList.toggle('open');
+  }
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('#period-selector') && !e.target.closest('#period-dropdown')) {
+      document.getElementById('period-dropdown')?.classList.remove('open');
+    }
+  });
+
+  function exportarPDF() {
+    const btn = document.getElementById('btn-export-txt');
+    btn.textContent = 'Gerando...';
+    setTimeout(() => { btn.textContent = 'Exportar PDF'; }, 2000);
+  }
+
+  // Clique nas barras para selecionar mês
+  document.querySelectorAll('.bar-group').forEach(grupo => {
+    grupo.style.cursor = 'pointer';
+    grupo.addEventListener('click', () => {
+      selecionarMes(grupo.dataset.mes);
+    });
+  });
+
+  // Init
+  atualizarCards('JUN');
+  atualizarGrafico();
+
   lucide.createIcons();
 
   const CURRENT_PAGE = 'relatorios';
@@ -563,6 +763,51 @@
     document.getElementById('sidebar').classList.remove('open');
     document.getElementById('overlay').classList.remove('open');
   }
+</script>
+
+<!-- Painel de Notificações -->
+<div class="notif-panel" id="notif-panel">
+  <div class="notif-panel-header">
+    <span class="notif-panel-title">Notificações</span>
+    <button class="notif-panel-close" onclick="fecharNotif()">✕</button>
+  </div>
+  <div class="notif-panel-list">
+    <div class="notif-panel-item unread">
+      <div class="notif-panel-icon warning"><i data-lucide="triangle-alert" style="width:16px;height:16px;"></i></div>
+      <div class="notif-panel-body"><div class="notif-panel-msg">Você atingiu <strong>80%</strong> do limite em Alimentação.</div><div class="notif-panel-time">Há 2 horas</div></div>
+    </div>
+    <div class="notif-panel-item unread">
+      <div class="notif-panel-icon purple"><i data-lucide="target" style="width:16px;height:16px;"></i></div>
+      <div class="notif-panel-body"><div class="notif-panel-msg">Meta <strong>Reserva de Emergência</strong> está 84% concluída!</div><div class="notif-panel-time">Há 5 horas</div></div>
+    </div>
+    <div class="notif-panel-item">
+      <div class="notif-panel-icon green"><i data-lucide="trending-up" style="width:16px;height:16px;"></i></div>
+      <div class="notif-panel-body"><div class="notif-panel-msg">Seu saldo este mês é <strong>R$ 7.330,00</strong> — acima da média.</div><div class="notif-panel-time">Ontem</div></div>
+    </div>
+    <div class="notif-panel-item">
+      <div class="notif-panel-icon purple"><i data-lucide="sparkles" style="width:16px;height:16px;"></i></div>
+      <div class="notif-panel-body"><div class="notif-panel-msg">Novo insight do Consultor IA disponível para você.</div><div class="notif-panel-time">2 dias atrás</div></div>
+    </div>
+  </div>
+  <div class="notif-panel-footer" onclick="marcarLidas()">Marcar todas como lidas</div>
+</div>
+<div class="notif-overlay" id="notif-overlay" onclick="fecharNotif()"></div>
+<script>
+  function abrirNotif() {
+    document.getElementById('notif-panel').classList.add('open');
+    document.getElementById('notif-overlay').classList.add('open');
+    const dot = document.querySelector('.notif-dot');
+    if (dot) dot.style.display = 'none';
+    lucide.createIcons();
+  }
+  function fecharNotif() {
+    document.getElementById('notif-panel').classList.remove('open');
+    document.getElementById('notif-overlay').classList.remove('open');
+  }
+  function marcarLidas() {
+    document.querySelectorAll('.notif-panel-item.unread').forEach(i => i.classList.remove('unread'));
+  }
+  document.querySelector('.topbar-icon').addEventListener('click', abrirNotif);
 </script>
 </body>
 </html>

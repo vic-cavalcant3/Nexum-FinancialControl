@@ -290,7 +290,7 @@
         </div>
 
         <!-- Submit -->
-        <button class="btn-primary mt-1" onclick="window.location.href='cadastro_etapas.html'">
+        <button id="btn-cadastro" class="btn-primary mt-1" onclick="criarConta(this)">
           Criar Conta
         </button>
 
@@ -329,6 +329,14 @@
   </div>
 
   <script>
+  function criarConta(btn) {
+    btn.textContent = 'Criando conta...';
+    btn.disabled = true;
+    setTimeout(() => {
+      window.location.href = 'login.html';
+    }, 1000);
+  }
+
 function togglePassword(inputId, iconId) {
   const input = document.getElementById(inputId);
   const icon = document.getElementById(iconId);

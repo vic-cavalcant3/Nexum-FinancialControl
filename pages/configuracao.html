@@ -39,42 +39,11 @@
     color: var(--text-primary);
     display: flex;
     min-height: 100vh;
+    overflow-x: hidden;
   }
 
   .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 99; }
   .sidebar-overlay.open { display: block; }
-
-  .sidebar {
-    width: var(--sidebar-width);
-    background: var(--bg-secondary);
-    border-right: 1px solid var(--border-color);
-    display: flex; flex-direction: column;
-    position: fixed; top: 0; left: 0;
-    height: 100vh; z-index: 100;
-    padding: 24px 0;
-    transition: transform 0.25s ease;
-  }
-
-  .sidebar-logo { padding: 0 20px 28px; font-size: 22px; font-weight: 800; letter-spacing: -0.5px; display: flex; align-items: center; justify-content: space-between; }
-  .sidebar-close { display: none; background: none; border: none; color: var(--text-secondary); cursor: pointer; padding: 4px; }
-  .sidebar-nav { flex: 1; display: flex; flex-direction: column; gap: 2px; padding: 0 12px; }
-  .nav-item { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 8px; cursor: pointer; color: var(--text-secondary); font-size: 14px; font-weight: 500; text-decoration: none; transition: all 0.15s ease; }
-  .nav-item:hover { background: var(--bg-card); color: var(--text-primary); }
-  .nav-item.active { background: rgba(74, 7, 137, 0.2); color: #a855f7; border-left: 3px solid #4A0789; padding-left: 9px; }
-  .nav-item i { width: 18px; height: 18px; flex-shrink: 0; }
-
-  .sidebar-bottom {
-    padding: 12px 12px 0;
-    border-top: 1px solid var(--border-color);
-    margin-top: 8px;
-    display: flex; flex-direction: column; gap: 2px;
-  }
-
-  .sidebar-bottom .nav-item { color: var(--text-muted); }
-  .sidebar-bottom .nav-item.active { background: rgba(74,7,137,0.15); color: var(--accent-purple-light); }
-
-  .nav-item.logout { color: var(--text-muted); }
-  .nav-item.logout:hover { color: var(--accent-red); background: rgba(239,68,68,0.08); }
 
   .main { margin-left: var(--sidebar-width); flex: 1; display: flex; flex-direction: column; }
 
@@ -88,13 +57,8 @@
   }
 
   .topbar-left { display: flex; align-items: center; gap: 12px; }
-  .topbar-brand { font-weight: 800; font-size: 20px; letter-spacing: -0.5px; }
+  .topbar-title { font-size: 16px; font-weight: 700; color: var(--accent-purple-light); letter-spacing: -0.3px; }
   .menu-btn { display: none; background: none; border: none; color: var(--text-primary); cursor: pointer; padding: 4px; align-items: center; }
-
-  .topbar-center {
-    position: absolute; left: 50%; transform: translateX(-50%);
-    font-size: 17px; font-weight: 700; color: var(--accent-purple-light);
-  }
 
   .topbar-right { display: flex; align-items: center; gap: 12px; }
 
@@ -114,7 +78,7 @@
   .avatar { width: 34px; height: 34px; background: linear-gradient(135deg, var(--accent-purple-dark), var(--accent-purple)); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; cursor: pointer; }
 
   /* CONTENT */
-  .content { padding: 32px 28px; flex: 1; display: flex; flex-direction: column; gap: 20px; max-width: 800px; }
+  .content { padding: 32px 28px; flex: 1; display: flex; flex-direction: column; gap: 20px; }
 
   /* EDIT PROFILE */
   .section-header { margin-bottom: 20px; }
@@ -321,13 +285,92 @@
     .sidebar-close { display: flex; }
     .menu-btn { display: flex; }
     .main { margin-left: 0; }
-    .content { padding: 16px; max-width: 100%; }
-    .topbar-center { display: none; }
+    body { overflow-x: hidden; }
+
+    /* TOPBAR */
+    .topbar { padding: 0 14px; }
+    .topbar-title { font-size: 15px; }
     .topbar-search { display: none; }
-    .form-row-2 { grid-template-columns: 1fr; }
-    .cat-grid { grid-template-columns: 1fr 1fr; }
-    .plan-banner { flex-direction: column; align-items: flex-start; }
+    .menu-btn { display: flex; }
+    .topbar-icon { width: 32px; height: 32px; }
+    .avatar { width: 30px; height: 30px; font-size: 11px; }
+
+    /* CONTENT */
+    .content { padding: 14px; gap: 14px; }
+
+    /* SECTION HEADER */
+    .section-title { font-size: 20px; }
+    .section-sub { font-size: 12px; }
+
+    /* PROFILE CARD */
+    .profile-card { padding: 16px; gap: 14px; }
+    .form-row-2 { grid-template-columns: 1fr; gap: 10px; }
+    .field-input { font-size: 13px; padding: 10px 12px; }
+    .field-label { font-size: 10px; }
+    .section-label { font-size: 13px; }
+    .btn-salvar { width: 100%; justify-content: center; padding: 11px 20px; font-size: 13px; }
+
+    /* MID ROW */
+    .mid-row { grid-template-columns: 1fr; gap: 12px; }
+
+    /* NOTIF CARD */
+    .notif-card { padding: 16px; }
+    .card-title { font-size: 15px; }
+    .card-title-row { margin-bottom: 14px; }
+    .notif-name { font-size: 13px; }
+    .notif-desc { font-size: 11px; }
+
+    /* OBJETIVO CARD */
+    .objetivo-card { padding: 16px; gap: 12px; }
+    .objetivo-value { font-size: 17px; }
+    .objetivo-label { font-size: 9px; }
+    .btn-alterar { padding: 10px; font-size: 12px; }
+
+    /* CATEGORIAS */
+    .cat-card { padding: 16px; }
+    .cat-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+    .cat-item { padding: 9px 10px; font-size: 12px; }
+    .cat-item-left { gap: 6px; }
+    .cat-item-left i { width: 13px; height: 13px; }
+    .cat-item-edit i { width: 12px; height: 12px; }
+    .cat-add { font-size: 12px; }
+
+    /* PLAN BANNER */
+    .plan-banner { padding: 16px; gap: 14px; flex-direction: column; align-items: flex-start; }
+    .plan-icon { width: 40px; height: 40px; border-radius: 10px; }
+    .plan-icon i { width: 18px; height: 18px; }
+    .plan-name { font-size: 18px; }
+    .plan-desc { font-size: 12px; }
+    .btn-upgrade { width: 100%; text-align: center; padding: 11px 20px; font-size: 13px; }
+
+    /* LOGOUT */
+    .logout-link { font-size: 13px; }
   }
+
+  /* NOTIF PANEL */
+  .notif-panel { position: fixed; top: var(--topbar-height); right: 16px; width: 320px; background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 14px; z-index: 300; box-shadow: 0 16px 48px rgba(0,0,0,0.6); transform: translateY(-8px); opacity: 0; pointer-events: none; transition: all 0.2s ease; }
+  .notif-panel.open { transform: translateY(0); opacity: 1; pointer-events: all; }
+  .notif-overlay { display: none; position: fixed; inset: 0; z-index: 299; }
+  .notif-overlay.open { display: block; }
+  .notif-panel-header { display: flex; align-items: center; justify-content: space-between; padding: 16px 18px 12px; border-bottom: 1px solid #2a2a2a; }
+  .notif-panel-title { font-size: 15px; font-weight: 700; }
+  .notif-panel-close { background: none; border: none; color: #6b7280; cursor: pointer; font-size: 16px; padding: 2px 6px; border-radius: 6px; transition: background 0.15s; }
+  .notif-panel-close:hover { background: #2a2a2a; color: #fff; }
+  .notif-panel-list { display: flex; flex-direction: column; }
+  .notif-panel-item { display: flex; align-items: flex-start; gap: 12px; padding: 14px 18px; border-bottom: 1px solid rgba(255,255,255,0.04); transition: background 0.15s; cursor: pointer; }
+  .notif-panel-item:hover { background: rgba(255,255,255,0.03); }
+  .notif-panel-item:last-child { border-bottom: none; }
+  .notif-panel-item.unread { background: rgba(74,7,137,0.06); }
+  .notif-panel-icon { width: 34px; height: 34px; border-radius: 9px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .notif-panel-icon.warning { background: rgba(245,158,11,0.15); color: #f59e0b; }
+  .notif-panel-icon.purple  { background: rgba(74,7,137,0.2); color: #a855f7; }
+  .notif-panel-icon.green   { background: rgba(34,197,94,0.15); color: #22c55e; }
+  .notif-panel-msg { font-size: 13px; color: #d1d5db; line-height: 1.5; }
+  .notif-panel-msg strong { color: #fff; }
+  .notif-panel-time { font-size: 11px; color: #6b7280; margin-top: 3px; }
+  .notif-panel-footer { padding: 12px 18px; font-size: 12px; font-weight: 600; color: #a855f7; text-align: center; border-top: 1px solid #2a2a2a; cursor: pointer; transition: background 0.15s; border-radius: 0 0 14px 14px; }
+  .notif-panel-footer:hover { background: rgba(74,7,137,0.08); }
+  @media (max-width: 768px) { .notif-panel { width: calc(100vw - 24px); right: 12px; } }
 </style>
 </head>
 <body>
@@ -337,22 +380,23 @@
 <main class="main">
   <header class="topbar">
     <div class="topbar-left">
-      <button class="menu-btn" onclick="openSidebar()"><i data-lucide="menu" style="width:22px;height:22px;"></i></button>
-      <span class="topbar-brand">NEXUM</span>
+      <button class="menu-btn" onclick="openSidebar()">
+        <i data-lucide="menu" style="width:22px;height:22px;"></i>
+      </button>
+      <span class="topbar-title">Settings</span>
     </div>
 
-    <div class="topbar-center">Settings</div>
+    <div class="topbar-search">
+      <i data-lucide="search" class="search-icon"></i>
+      <input type="text" placeholder="Search settings...">
+    </div>
 
     <div class="topbar-right">
-      <div class="topbar-search">
-        <i data-lucide="search" class="search-icon"></i>
-        <input type="text" placeholder="Search settings...">
-      </div>
       <div class="topbar-icon">
         <i data-lucide="bell" style="width:18px;height:18px;"></i>
         <span class="notif-dot"></span>
       </div>
-      <div class="avatar">JP</div>
+      <div class="avatar" onclick="window.location.href='configuracao.html'" style="cursor:pointer;" title="Configurações">JP</div>
     </div>
   </header>
 
@@ -368,22 +412,22 @@
       <div class="form-row-2">
         <div class="field-group">
           <label class="field-label">Nome</label>
-          <input class="field-input" type="text" value="Eduardo">
+          <input id="cfg-nome" class="field-input" type="text" value="Eduardo">
         </div>
         <div class="field-group">
           <label class="field-label">E-mail</label>
-          <input class="field-input" type="email" value="eduardo@email.com">
+          <input id="cfg-email" class="field-input" type="email" value="eduardo@email.com">
         </div>
       </div>
 
       <div class="section-label">Alterar Senha</div>
 
       <div class="form-row-2">
-        <input class="field-input" type="password" placeholder="Nova senha">
-        <input class="field-input" type="password" placeholder="Confirmar nova senha">
+        <input id="cfg-senha" class="field-input" type="password" placeholder="Nova senha">
+        <input id="cfg-confirma" class="field-input" type="password" placeholder="Confirmar nova senha">
       </div>
 
-      <button class="btn-salvar">Salvar Alterações</button>
+      <button id="btn-cfg-salvar" class="btn-salvar">Salvar Alterações</button>
     </div>
 
     <!-- MID ROW -->
@@ -492,15 +536,7 @@
     </div>
 
     <!-- PLAN BANNER -->
-    <div class="plan-banner">
-      <div class="plan-icon"><i data-lucide="shield"></i></div>
-      <div class="plan-info">
-        <div class="plan-tag">Plano Atual</div>
-        <div class="plan-name">Free Plan</div>
-        <div class="plan-desc">Acesse ferramentas básicas de controle financeiro.</div>
-      </div>
-      <button class="btn-upgrade">Upgrade to Pro</button>
-    </div>
+  
 
     <!-- LOGOUT LINK -->
     <div class="logout-link">
@@ -535,6 +571,77 @@
     document.getElementById('sidebar').classList.remove('open');
     document.getElementById('overlay').classList.remove('open');
   }
+
+  document.getElementById('btn-cfg-salvar').addEventListener('click', () => {
+    const senha = document.getElementById('cfg-senha').value;
+    const confirma = document.getElementById('cfg-confirma').value;
+    if (senha && senha !== confirma) {
+      alert('As senhas não coincidem.');
+      return;
+    }
+    const btn = document.getElementById('btn-cfg-salvar');
+    const original = btn.textContent;
+    btn.textContent = '✓ Salvo!';
+    btn.style.background = '#22c55e';
+    setTimeout(() => {
+      btn.textContent = original;
+      btn.style.background = '';
+    }, 2000);
+  });
+
+  document.querySelector('.btn-alterar').addEventListener('click', () => {
+    const objetivos = ['Economizar dinheiro', 'Quitar dívidas', 'Investir mais', 'Aposentadoria', 'Comprar imóvel'];
+    const atual = document.querySelector('.objetivo-value').textContent;
+    const novo = prompt('Qual seu objetivo financeiro?', atual);
+    if (novo && novo.trim()) {
+      document.querySelector('.objetivo-value').textContent = novo.trim();
+    }
+  });
+</script>
+
+<!-- Painel de Notificações -->
+<div class="notif-panel" id="notif-panel">
+  <div class="notif-panel-header">
+    <span class="notif-panel-title">Notificações</span>
+    <button class="notif-panel-close" onclick="fecharNotif()">✕</button>
+  </div>
+  <div class="notif-panel-list">
+    <div class="notif-panel-item unread">
+      <div class="notif-panel-icon warning"><i data-lucide="triangle-alert" style="width:16px;height:16px;"></i></div>
+      <div class="notif-panel-body"><div class="notif-panel-msg">Você atingiu <strong>80%</strong> do limite em Alimentação.</div><div class="notif-panel-time">Há 2 horas</div></div>
+    </div>
+    <div class="notif-panel-item unread">
+      <div class="notif-panel-icon purple"><i data-lucide="target" style="width:16px;height:16px;"></i></div>
+      <div class="notif-panel-body"><div class="notif-panel-msg">Meta <strong>Reserva de Emergência</strong> está 84% concluída!</div><div class="notif-panel-time">Há 5 horas</div></div>
+    </div>
+    <div class="notif-panel-item">
+      <div class="notif-panel-icon green"><i data-lucide="trending-up" style="width:16px;height:16px;"></i></div>
+      <div class="notif-panel-body"><div class="notif-panel-msg">Seu saldo este mês é <strong>R$ 7.330,00</strong> — acima da média.</div><div class="notif-panel-time">Ontem</div></div>
+    </div>
+    <div class="notif-panel-item">
+      <div class="notif-panel-icon purple"><i data-lucide="sparkles" style="width:16px;height:16px;"></i></div>
+      <div class="notif-panel-body"><div class="notif-panel-msg">Novo insight do Consultor IA disponível para você.</div><div class="notif-panel-time">2 dias atrás</div></div>
+    </div>
+  </div>
+  <div class="notif-panel-footer" onclick="marcarLidas()">Marcar todas como lidas</div>
+</div>
+<div class="notif-overlay" id="notif-overlay" onclick="fecharNotif()"></div>
+<script>
+  function abrirNotif() {
+    document.getElementById('notif-panel').classList.add('open');
+    document.getElementById('notif-overlay').classList.add('open');
+    const dot = document.querySelector('.notif-dot');
+    if (dot) dot.style.display = 'none';
+    lucide.createIcons();
+  }
+  function fecharNotif() {
+    document.getElementById('notif-panel').classList.remove('open');
+    document.getElementById('notif-overlay').classList.remove('open');
+  }
+  function marcarLidas() {
+    document.querySelectorAll('.notif-panel-item.unread').forEach(i => i.classList.remove('unread'));
+  }
+  document.querySelector('.topbar-icon').addEventListener('click', abrirNotif);
 </script>
 </body>
 </html>

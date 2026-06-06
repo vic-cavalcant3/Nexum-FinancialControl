@@ -915,6 +915,31 @@
     .modal-actions { gap: 8px; margin-top: 2px; }
     .btn-modal-cancel, .btn-modal-save, .btn-modal-remove { padding: 9px 14px; font-size: 12px; }
   }
+
+  /* NOTIF PANEL */
+  .notif-panel { position: fixed; top: var(--topbar-height); right: 16px; width: 320px; background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 14px; z-index: 300; box-shadow: 0 16px 48px rgba(0,0,0,0.6); transform: translateY(-8px); opacity: 0; pointer-events: none; transition: all 0.2s ease; }
+  .notif-panel.open { transform: translateY(0); opacity: 1; pointer-events: all; }
+  .notif-overlay { display: none; position: fixed; inset: 0; z-index: 299; }
+  .notif-overlay.open { display: block; }
+  .notif-panel-header { display: flex; align-items: center; justify-content: space-between; padding: 16px 18px 12px; border-bottom: 1px solid #2a2a2a; }
+  .notif-panel-title { font-size: 15px; font-weight: 700; }
+  .notif-panel-close { background: none; border: none; color: #6b7280; cursor: pointer; font-size: 16px; padding: 2px 6px; border-radius: 6px; transition: background 0.15s; }
+  .notif-panel-close:hover { background: #2a2a2a; color: #fff; }
+  .notif-panel-list { display: flex; flex-direction: column; }
+  .notif-panel-item { display: flex; align-items: flex-start; gap: 12px; padding: 14px 18px; border-bottom: 1px solid rgba(255,255,255,0.04); transition: background 0.15s; cursor: pointer; }
+  .notif-panel-item:hover { background: rgba(255,255,255,0.03); }
+  .notif-panel-item:last-child { border-bottom: none; }
+  .notif-panel-item.unread { background: rgba(74,7,137,0.06); }
+  .notif-panel-icon { width: 34px; height: 34px; border-radius: 9px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .notif-panel-icon.warning { background: rgba(245,158,11,0.15); color: #f59e0b; }
+  .notif-panel-icon.purple  { background: rgba(74,7,137,0.2); color: #a855f7; }
+  .notif-panel-icon.green   { background: rgba(34,197,94,0.15); color: #22c55e; }
+  .notif-panel-msg { font-size: 13px; color: #d1d5db; line-height: 1.5; }
+  .notif-panel-msg strong { color: #fff; }
+  .notif-panel-time { font-size: 11px; color: #6b7280; margin-top: 3px; }
+  .notif-panel-footer { padding: 12px 18px; font-size: 12px; font-weight: 600; color: #a855f7; text-align: center; border-top: 1px solid #2a2a2a; cursor: pointer; transition: background 0.15s; border-radius: 0 0 14px 14px; }
+  .notif-panel-footer:hover { background: rgba(74,7,137,0.08); }
+  @media (max-width: 768px) { .notif-panel { width: calc(100vw - 24px); right: 12px; } }
 </style>
 </head>
 <body>
@@ -940,7 +965,7 @@
         <i data-lucide="bell" style="width:18px;height:18px;"></i>
         <span class="notif-dot"></span>
       </div>
-      <div class="avatar">JP</div>
+      <div class="avatar" onclick="window.location.href='configuracao.html'" style="cursor:pointer;" title="Configurações">JP</div>
     </div>
   </header>
 
@@ -1417,6 +1442,51 @@
 
   // --- INIT ---
   renderTable();
+</script>
+
+<!-- Painel de Notificações -->
+<div class="notif-panel" id="notif-panel">
+  <div class="notif-panel-header">
+    <span class="notif-panel-title">Notificações</span>
+    <button class="notif-panel-close" onclick="fecharNotif()">✕</button>
+  </div>
+  <div class="notif-panel-list">
+    <div class="notif-panel-item unread">
+      <div class="notif-panel-icon warning"><i data-lucide="triangle-alert" style="width:16px;height:16px;"></i></div>
+      <div class="notif-panel-body"><div class="notif-panel-msg">Você atingiu <strong>80%</strong> do limite em Alimentação.</div><div class="notif-panel-time">Há 2 horas</div></div>
+    </div>
+    <div class="notif-panel-item unread">
+      <div class="notif-panel-icon purple"><i data-lucide="target" style="width:16px;height:16px;"></i></div>
+      <div class="notif-panel-body"><div class="notif-panel-msg">Meta <strong>Reserva de Emergência</strong> está 84% concluída!</div><div class="notif-panel-time">Há 5 horas</div></div>
+    </div>
+    <div class="notif-panel-item">
+      <div class="notif-panel-icon green"><i data-lucide="trending-up" style="width:16px;height:16px;"></i></div>
+      <div class="notif-panel-body"><div class="notif-panel-msg">Seu saldo este mês é <strong>R$ 7.330,00</strong> — acima da média.</div><div class="notif-panel-time">Ontem</div></div>
+    </div>
+    <div class="notif-panel-item">
+      <div class="notif-panel-icon purple"><i data-lucide="sparkles" style="width:16px;height:16px;"></i></div>
+      <div class="notif-panel-body"><div class="notif-panel-msg">Novo insight do Consultor IA disponível para você.</div><div class="notif-panel-time">2 dias atrás</div></div>
+    </div>
+  </div>
+  <div class="notif-panel-footer" onclick="marcarLidas()">Marcar todas como lidas</div>
+</div>
+<div class="notif-overlay" id="notif-overlay" onclick="fecharNotif()"></div>
+<script>
+  function abrirNotif() {
+    document.getElementById('notif-panel').classList.add('open');
+    document.getElementById('notif-overlay').classList.add('open');
+    const dot = document.querySelector('.notif-dot');
+    if (dot) dot.style.display = 'none';
+    lucide.createIcons();
+  }
+  function fecharNotif() {
+    document.getElementById('notif-panel').classList.remove('open');
+    document.getElementById('notif-overlay').classList.remove('open');
+  }
+  function marcarLidas() {
+    document.querySelectorAll('.notif-panel-item.unread').forEach(i => i.classList.remove('unread'));
+  }
+  document.querySelector('.topbar-icon').addEventListener('click', abrirNotif);
 </script>
 </body>
 </html>

@@ -250,15 +250,15 @@
         <!-- E-mail -->
         <div class="flex flex-col gap-1.5">
           <label class="text-xs font-semibold text-gray-300 font-inter">E-mail</label>
-          <input type="email" class="form-input" placeholder="contato@exemplo.com" />
+          <input type="email" id="login-email" class="form-input" placeholder="contato@exemplo.com" />
         </div>
 
         <!-- Senha -->
         <div class="flex flex-col gap-1.5">
           <label class="text-xs font-semibold text-gray-300 font-inter">Senha</label>
           <div class="relative">
-            <input type="password" id="password" class="form-input pr-10" placeholder="••••••••" />
-            <button onclick="togglePassword('password', 'eye-login')" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300 transition-colors">
+            <input type="password" id="login-password" class="form-input pr-10" placeholder="••••••••" />
+            <button onclick="togglePassword('login-password', 'eye-login')" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300 transition-colors">
               <span class="material-icons-round" id="eye-login" style="font-size:18px;">visibility_off</span>
             </button>
           </div>
@@ -274,7 +274,12 @@
         </div>
 
         <!-- Submit -->
-        <button class="btn-primary mt-1">Entrar na Conta</button>
+        <button id="btn-login" class="btn-primary mt-1" onclick="fazerLogin()">Entrar na Conta</button>
+
+        <!-- Demo credentials -->
+        <div style="margin-top:16px;padding:12px 14px;background:rgba(74,7,137,0.1);border:1px solid rgba(74,7,137,0.25);border-radius:10px;font-size:12px;color:#9ca3af;line-height:1.8;">
+          <strong style="color:#a855f7;">Demo:</strong> demo@nexum.com &nbsp;/&nbsp; <strong style="color:#a855f7;">Senha:</strong> 123456
+        </div>
 
         <!-- OR -->
         <div class="or-divider">OU</div>
@@ -322,6 +327,51 @@
         icon.textContent = 'visibility_off';
       }
     }
+
+    const USUARIOS = [
+      { email: 'demo@nexum.com', senha: '123456' },
+      { email: 'eduardo@email.com', senha: '123456' },
+      { email: 'teste@teste.com', senha: 'teste123' },
+    ];
+
+    function fazerLogin() {
+      const email = document.getElementById('login-email').value.trim();
+      const senha = document.getElementById('login-password').value;
+      const btn = document.getElementById('btn-login');
+
+      if (!email || !senha) {
+        mostrarErro('Preencha e-mail e senha.');
+        return;
+      }
+
+      const usuario = USUARIOS.find(u => u.email === email && u.senha === senha);
+
+      if (usuario) {
+        btn.textContent = 'Entrando...';
+        btn.style.opacity = '0.8';
+        setTimeout(() => {
+          window.location.href = 'inicial.html';
+        }, 800);
+      } else {
+        mostrarErro('E-mail ou senha incorretos. Tente: demo@nexum.com / 123456');
+      }
+    }
+
+    function mostrarErro(msg) {
+      let err = document.getElementById('login-error');
+      if (!err) {
+        err = document.createElement('div');
+        err.id = 'login-error';
+        err.style.cssText = 'color:#ef4444;font-size:13px;font-weight:600;padding:10px 14px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);border-radius:8px;margin-top:4px;';
+        document.getElementById('btn-login').after(err);
+      }
+      err.textContent = msg;
+      setTimeout(() => { if (err) err.textContent = ''; }, 4000);
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') fazerLogin();
+    });
   </script>
 
 </body>
