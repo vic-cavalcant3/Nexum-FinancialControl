@@ -205,6 +205,7 @@
       .left-panel { display: none; }
     }
   </style>
+  <script src="../js/api.js"></script>
 </head>
 <body>
 
@@ -290,7 +291,7 @@
         </div>
 
         <!-- Submit -->
-        <button id="btn-cadastro" class="btn-primary mt-1" onclick="criarConta(this)">
+        <button id="btn-cadastro" class="btn-primary mt-1">
           Criar Conta
         </button>
 
@@ -329,13 +330,37 @@
   </div>
 
   <script>
-  function criarConta(btn) {
-    btn.textContent = 'Criando conta...';
-    btn.disabled = true;
-    setTimeout(() => {
-      window.location.href = 'login.html';
-    }, 1000);
-  }
+  document.querySelector('button.btn-primary, button[type="submit"]')
+    ?.addEventListener('click', async function(e) {
+      e.preventDefault();
+
+      const nome  = document.querySelector('input[type="text"]')?.value?.trim();
+      const email = document.querySelector('input[type="email"]')?.value?.trim();
+      const senha = document.querySelector('input[type="password"]')?.value;
+
+      if (!nome || !email || !senha) {
+        alert('Preencha todos os campos.');
+        return;
+      }
+
+      this.textContent = 'Criando conta...';
+      this.disabled = true;
+
+      try {
+        await Auth.registrar(nome, email, senha);
+        alert('Conta criada! Faça login para continuar.');
+        window.location.href = 'login.html';
+      } catch (err) {
+  const msg = err.message.includes('reach') || err.message.includes('connect') || err.message.includes('P1001')
+    ? 'Servidor temporariamente indisponível. Tente novamente mais tarde.'
+    : err.message.includes('cadastrado')
+    ? 'Este e-mail já está cadastrado.'
+    : 'Não foi possível criar a conta. Tente novamente.';
+  alert(msg);
+  this.textContent = 'Criar Conta';
+  this.disabled = false;
+}
+    });
 
 function togglePassword(inputId, iconId) {
   const input = document.getElementById(inputId);

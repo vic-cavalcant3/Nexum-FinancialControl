@@ -8,6 +8,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="icon" type="image/svg+xml" href="../components/image/nexum-icon.svg">
 <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<script src="../js/api.js"></script>
 <style>
   :root {
     --bg-primary:          #000000;
@@ -767,6 +768,12 @@
 </main>
 
 <script>
+  redirecionarSeNaoLogado();
+  const _u = getUsuario();
+  if (_u) {
+    const iniciais = _u.nome.split(' ').map(p => p[0]).join('').substring(0, 2).toUpperCase();
+    document.querySelectorAll('.avatar').forEach(el => el.textContent = iniciais);
+  }
   lucide.createIcons();
 
   const CURRENT_PAGE = 'inicial';

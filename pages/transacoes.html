@@ -8,6 +8,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="icon" type="image/svg+xml" href="../components/image/nexum-icon.svg">
 <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<script src="../js/api.js"></script>
 <style>
   :root {
     --bg-primary:          #000000;
@@ -1174,6 +1175,12 @@
 </div>
 
 <script>
+  redirecionarSeNaoLogado();
+  const _u = getUsuario();
+  if (_u) {
+    const iniciais = _u.nome.split(' ').map(p => p[0]).join('').substring(0, 2).toUpperCase();
+    document.querySelectorAll('.avatar').forEach(el => el.textContent = iniciais);
+  }
   lucide.createIcons();
 
   const CURRENT_PAGE = 'transacoes';
@@ -1220,14 +1227,28 @@
   });
 
   // --- DADOS ---
-  let transacoes = [
-    { id: 1, data: '12/03', descricao: 'Salário Mensal - TechCorp',    categoria: 'trabalho',      valor: 12500.00, tipo: 'receita' },
-    { id: 2, data: '10/03', descricao: 'Supermercado Verdemar',         categoria: 'alimentacao',   valor: 452.30,   tipo: 'despesa' },
-    { id: 3, data: '08/03', descricao: 'Netflix Premium',               categoria: 'assinaturas',   valor: 55.90,    tipo: 'despesa' },
-    { id: 4, data: '05/03', descricao: 'Venda de Criptoassets',         categoria: 'investimentos', valor: 2100.00,  tipo: 'receita' },
-  ];
-  let nextId = 5;
+  let transacoes = [];
+  let nextId = 1;
   let filtroAtual = '';
+
+  async function carregarTransacoes() {
+    try {
+      const data = await Transacoes.listar();
+      transacoes = Array.isArray(data) ? data : (data.transacoes || []);
+      transacoes = transacoes.map(t => ({
+        id: t.id_transacao,
+        data: new Date(t.data).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }),
+        descricao: t.descricao || '',
+        categoria: t.categoria?.nome?.toLowerCase().replace(/\s+/g, '') || 'outros',
+        valor: parseFloat(t.valor),
+        tipo: t.tipo
+      }));
+      renderTable();
+    } catch (err) {
+      console.error('Erro ao carregar transações:', err);
+      renderTable();
+    }
+  }
 
   const catLabels = {
     trabalho: 'Trabalho', alimentacao: 'Alimentação', assinaturas: 'Assinaturas',
@@ -1392,26 +1413,31 @@
     if (e.target === document.getElementById('modal-form')) closeFormModal();
   });
 
-  document.getElementById('mf-save').addEventListener('click', () => {
-    const data      = document.getElementById('mf-data').value.trim();
-    const descricao = document.getElementById('mf-desc').value.trim();
-    const categoria = document.getElementById('mf-cat').value;
-    const valor     = parseFloat(document.getElementById('mf-valor').value);
-    const tipo      = document.getElementById('mf-tipo').value;
+  document.getElementById('mf-save').addEventListener('click', async () => {
+    const dataVal    = document.getElementById('mf-data').value.trim();
+    const descricao  = document.getElementById('mf-desc').value.trim();
+    const categoria  = document.getElementById('mf-cat').value;
+    const valor      = parseFloat(document.getElementById('mf-valor').value);
+    const tipo       = document.getElementById('mf-tipo').value;
 
-    if (!data || !descricao || isNaN(valor) || valor <= 0) return;
+    if (!dataVal || !descricao || isNaN(valor) || valor <= 0) return;
 
-    if (editingId === null) {
-      // TODO: substituir por POST /api/transacoes quando API estiver pronta
-      transacoes.push({ id: nextId++, data, descricao, categoria, valor, tipo });
-    } else {
-      // TODO: substituir por PUT /api/transacoes/:id quando API estiver pronta
-      const idx = transacoes.findIndex(t => t.id === editingId);
-      if (idx !== -1) transacoes[idx] = { id: editingId, data, descricao, categoria, valor, tipo };
+    const [dia, mes] = dataVal.split('/');
+    const ano = new Date().getFullYear();
+    const dataISO = `${ano}-${mes.padStart(2,'0')}-${dia.padStart(2,'0')}T00:00:00`;
+
+    try {
+      if (editingId === null) {
+        await Transacoes.criar({ tipo, descricao, valor, data: dataISO });
+      } else {
+        const original = transacoes.find(t => t.id === editingId);
+        if (original) await Transacoes.atualizar(original.id, { tipo, descricao, valor, data: dataISO });
+      }
+      closeFormModal();
+      await carregarTransacoes();
+    } catch (err) {
+      alert('Erro ao salvar: ' + err.message);
     }
-
-    closeFormModal();
-    renderTable();
   });
 
   document.querySelector('.btn-new-tx').addEventListener('click', openAddModal);
@@ -1433,15 +1459,19 @@
     if (e.target === document.getElementById('modal-confirm')) closeConfirmModal();
   });
 
-  document.getElementById('mc-confirm').addEventListener('click', () => {
-    // TODO: substituir por DELETE /api/transacoes/:id quando API estiver pronta
-    transacoes = transacoes.filter(t => t.id !== deletingId);
-    closeConfirmModal();
-    renderTable();
+  document.getElementById('mc-confirm').addEventListener('click', async () => {
+    try {
+      await Transacoes.deletar(deletingId);
+      closeConfirmModal();
+      await carregarTransacoes();
+    } catch (err) {
+      alert('Erro ao remover: ' + err.message);
+      closeConfirmModal();
+    }
   });
 
   // --- INIT ---
-  renderTable();
+  carregarTransacoes();
 </script>
 
 <!-- Painel de Notificações -->

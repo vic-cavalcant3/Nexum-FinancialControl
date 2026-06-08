@@ -8,6 +8,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="icon" type="image/svg+xml" href="../components/image/nexum-icon.svg">
 <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<script src="../js/api.js"></script>
 <style>
   :root {
     --bg-primary:          #000000;
@@ -421,7 +422,10 @@
       </div>
 
       <div class="section-label">Alterar Senha</div>
-
+      <div class="form-row-2">
+        <input class="field-input" id="cfg-senha-atual" type="password" placeholder="Senha atual">
+        <div></div>
+      </div>
       <div class="form-row-2">
         <input id="cfg-senha" class="field-input" type="password" placeholder="Nova senha">
         <input id="cfg-confirma" class="field-input" type="password" placeholder="Confirmar nova senha">
@@ -548,6 +552,12 @@
 </main>
 
 <script>
+  redirecionarSeNaoLogado();
+  const _u = getUsuario();
+  if (_u) {
+    const iniciais = _u.nome.split(' ').map(p => p[0]).join('').substring(0, 2).toUpperCase();
+    document.querySelectorAll('.avatar').forEach(el => el.textContent = iniciais);
+  }
   lucide.createIcons();
 
   const CURRENT_PAGE = 'configuracao';
@@ -572,21 +582,54 @@
     document.getElementById('overlay').classList.remove('open');
   }
 
-  document.getElementById('btn-cfg-salvar').addEventListener('click', () => {
-    const senha = document.getElementById('cfg-senha').value;
+  document.getElementById('btn-cfg-salvar').addEventListener('click', async () => {
+    const nome     = document.getElementById('cfg-nome').value.trim();
+    const email    = document.getElementById('cfg-email').value.trim();
+    const senha    = document.getElementById('cfg-senha').value;
     const confirma = document.getElementById('cfg-confirma').value;
+
+    const btn = document.getElementById('btn-cfg-salvar');
+
     if (senha && senha !== confirma) {
       alert('As senhas não coincidem.');
       return;
     }
-    const btn = document.getElementById('btn-cfg-salvar');
-    const original = btn.textContent;
-    btn.textContent = '✓ Salvo!';
-    btn.style.background = '#22c55e';
-    setTimeout(() => {
-      btn.textContent = original;
+
+    btn.disabled = true;
+    btn.textContent = 'Salvando...';
+
+    try {
+      if (nome || email) {
+        const res = await Auth.atualizarPerfil(nome, email);
+        const u = getUsuario();
+        salvarSessao({ ...u, nome: res.nome || u.nome, email: res.email || u.email });
+      }
+
+      if (senha) {
+        const senhaAtual = document.getElementById('cfg-senha-atual')?.value;
+        if (!senhaAtual) {
+          alert('Informe a senha atual para trocar a senha.');
+          btn.disabled = false;
+          btn.textContent = 'Salvar Alterações';
+          return;
+        }
+        await Auth.trocarSenha(senhaAtual, senha);
+      }
+
+      btn.textContent = '✓ Salvo!';
+      btn.style.background = '#22c55e';
+      setTimeout(() => {
+        btn.textContent = 'Salvar Alterações';
+        btn.style.background = '';
+        btn.disabled = false;
+      }, 2000);
+
+    } catch (err) {
+      alert('Erro: ' + err.message);
+      btn.textContent = 'Salvar Alterações';
       btn.style.background = '';
-    }, 2000);
+      btn.disabled = false;
+    }
   });
 
   document.querySelector('.btn-alterar').addEventListener('click', () => {

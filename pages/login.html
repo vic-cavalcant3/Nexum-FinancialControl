@@ -206,6 +206,7 @@
       .left-panel { display: none; }
     }
   </style>
+  <script src="../js/api.js"></script>
 </head>
 <body>
 
@@ -328,13 +329,7 @@
       }
     }
 
-    const USUARIOS = [
-      { email: 'demo@nexum.com', senha: '123456' },
-      { email: 'eduardo@email.com', senha: '123456' },
-      { email: 'teste@teste.com', senha: 'teste123' },
-    ];
-
-    function fazerLogin() {
+    async function fazerLogin() {
       const email = document.getElementById('login-email').value.trim();
       const senha = document.getElementById('login-password').value;
       const btn = document.getElementById('btn-login');
@@ -344,17 +339,23 @@
         return;
       }
 
-      const usuario = USUARIOS.find(u => u.email === email && u.senha === senha);
+      btn.textContent = 'Entrando...';
+      btn.disabled = true;
 
-      if (usuario) {
-        btn.textContent = 'Entrando...';
-        btn.style.opacity = '0.8';
-        setTimeout(() => {
-          window.location.href = 'inicial.html';
-        }, 800);
-      } else {
-        mostrarErro('E-mail ou senha incorretos. Tente: demo@nexum.com / 123456');
-      }
+      try {
+        const res = await Auth.login(email, senha);
+        salvarSessao(res.usuario);
+        window.location.href = 'inicial.html';
+      } catch (err) {
+  const msg = err.message.includes('reach') || err.message.includes('connect')
+    ? 'Servidor temporariamente indisponível. Tente mais tarde.'
+    : err.message.includes('inválid')
+    ? 'E-mail ou senha incorretos.'
+    : err.message;
+  mostrarErro(msg);
+  btn.textContent = 'Entrar na Conta';
+  btn.disabled = false;
+}
     }
 
     function mostrarErro(msg) {

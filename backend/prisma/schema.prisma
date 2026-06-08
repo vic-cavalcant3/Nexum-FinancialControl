@@ -1,0 +1,132 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Usuario {
+  id_usuario  Int       @id @default(autoincrement()) @map("id_usuario")
+  nome        String    @db.VarChar(100)
+  email       String    @unique @db.VarChar(150)
+  senha_hash  String    @db.VarChar(255)
+  telefone    String?   @db.VarChar(20)
+  ativo       Boolean   @default(true)
+  criado_em   DateTime  @default(now()) @map("criado_em")
+
+  categorias  Categoria[]
+  transacoes  Transacao[]
+  metas       MetaFinanceira[]
+  dividas     Divida[]
+  planejamentos PlanejamentoMensal[]
+  alertas     Alerta[]
+  relatorios  Relatorio[]
+
+  @@map("usuario")
+}
+
+model Categoria {
+  id          Int       @id @default(autoincrement())
+  usuario_id  Int?      @map("usuario_id")
+  nome        String    @db.VarChar(60)
+  tipo        String
+  icone       String?   @db.VarChar(50)
+
+  usuario     Usuario?  @relation(fields: [usuario_id], references: [id_usuario], onDelete: Cascade)
+  transacoes  Transacao[]
+
+  @@unique([usuario_id, nome, tipo])
+  @@map("categoria")
+}
+
+model Transacao {
+  id_transacao  Int       @id @default(autoincrement()) @map("id_transacao")
+  usuario_id    Int       @map("usuario_id")
+  categoria_id  Int?      @map("categoria_id")
+  tipo          String    @default("despesa")
+  descricao     String?   @db.VarChar(255)
+  valor         Decimal   @db.Decimal(10, 2)
+  data          DateTime  @db.DateTime(0)
+  criado_em     DateTime  @default(now()) @map("criado_em")
+
+  usuario       Usuario   @relation(fields: [usuario_id], references: [id_usuario], onDelete: Cascade)
+  categoria     Categoria? @relation(fields: [categoria_id], references: [id], onDelete: SetNull)
+
+  @@map("transacao")
+}
+
+model MetaFinanceira {
+  id_meta       Int       @id @default(autoincrement()) @map("id_meta")
+  id_usuario    Int       @map("id_usuario")
+  descricao     String    @db.VarChar(255)
+  valor_alvo    Decimal   @db.Decimal(10, 2) @map("valor_alvo")
+  valor_atual   Decimal   @default(0) @db.Decimal(10, 2) @map("valor_atual")
+  aporte_mensal Decimal   @db.Decimal(10, 2) @map("aporte_mensal")
+  data_inicio   DateTime  @db.Date @map("data_inicio")
+  data_prazo    DateTime  @db.Date @map("data_prazo")
+  status_meta   String    @default("em_andamento") @map("status_meta")
+
+  usuario       Usuario   @relation(fields: [id_usuario], references: [id_usuario], onDelete: Cascade)
+
+  @@map("meta_financeira")
+}
+
+model Divida {
+  id_divida              Int       @id @default(autoincrement()) @map("id_divida")
+  id_usuario             Int       @map("id_usuario")
+  descricao              String    @db.VarChar(255)
+  credor                 String    @db.VarChar(100)
+  valor_total            Decimal   @db.Decimal(10, 2) @map("valor_total")
+  valor_pago             Decimal   @default(0) @db.Decimal(10, 2) @map("valor_pago")
+  taxa_juros             Decimal?  @db.Decimal(5, 2) @map("taxa_juros")
+  data_inicio            DateTime  @db.Date @map("data_inicio")
+  data_prevista_quitacao DateTime? @db.Date @map("data_prevista_quitacao")
+  status_divida          String    @default("pendente") @map("status_divida")
+
+  usuario                Usuario   @relation(fields: [id_usuario], references: [id_usuario], onDelete: Cascade)
+
+  @@map("divida")
+}
+
+model PlanejamentoMensal {
+  id_planejamento   Int       @id @default(autoincrement()) @map("id_planejamento")
+  id_usuario        Int       @map("id_usuario")
+  mes_referencia    DateTime  @db.Date @map("mes_referencia")
+  receita_prevista  Decimal   @default(0) @db.Decimal(10, 2) @map("receita_prevista")
+  despesa_prevista  Decimal   @default(0) @db.Decimal(10, 2) @map("despesa_prevista")
+  receita_realizada Decimal   @default(0) @db.Decimal(10, 2) @map("receita_realizada")
+  despesa_realizada Decimal   @default(0) @db.Decimal(10, 2) @map("despesa_realizada")
+  saldo_final       Decimal   @db.Decimal(10, 2) @map("saldo_final")
+
+  usuario           Usuario   @relation(fields: [id_usuario], references: [id_usuario], onDelete: Cascade)
+
+  @@map("planejamento_mensal")
+}
+
+model Alerta {
+  id_alerta    Int       @id @default(autoincrement()) @map("id_alerta")
+  id_usuario   Int       @map("id_usuario")
+  mensagem     String    @db.VarChar(255)
+  tipo_alerta  String    @map("tipo_alerta")
+  lido         Boolean   @default(false)
+  data_criacao DateTime  @default(now()) @map("data_criacao")
+
+  usuario      Usuario   @relation(fields: [id_usuario], references: [id_usuario], onDelete: Cascade)
+
+  @@map("alerta")
+}
+
+model Relatorio {
+  id_relatorio   Int       @id @default(autoincrement()) @map("id_relatorio")
+  id_usuario     Int       @map("id_usuario")
+  tipo_relatorio String    @map("tipo_relatorio")
+  periodo_inicio DateTime  @db.Date @map("periodo_inicio")
+  periodo_fim    DateTime  @db.Date @map("periodo_fim")
+  criado_em      DateTime  @default(now()) @map("criado_em")
+
+  usuario        Usuario   @relation(fields: [id_usuario], references: [id_usuario], onDelete: Cascade)
+
+  @@map("relatorio")
+}
