@@ -508,7 +508,7 @@
           <i data-lucide="layout-grid" style="width:20px;height:20px;color:var(--accent-purple-light)"></i>
           <span class="card-title">Gerenciar Categorias</span>
         </div>
-        <span class="cat-add">+ Adicionar Nova</span>
+        <span class="cat-add" onclick="abrirModalNovaCat()">+ Adicionar Nova</span>
       </div>
 
       <div class="cat-grid">
@@ -543,7 +543,7 @@
   
 
     <!-- LOGOUT LINK -->
-    <div class="logout-link">
+    <div class="logout-link" onclick="fazerLogout()">
       <i data-lucide="log-out"></i>
       Sair da conta Nexum
     </div>
@@ -557,6 +557,8 @@
   if (_u) {
     const iniciais = _u.nome.split(' ').map(p => p[0]).join('').substring(0, 2).toUpperCase();
     document.querySelectorAll('.avatar').forEach(el => el.textContent = iniciais);
+    document.getElementById('cfg-nome').value = _u.nome || '';
+    document.getElementById('cfg-email').value = _u.email || '';
   }
   lucide.createIcons();
 
@@ -633,13 +635,102 @@
   });
 
   document.querySelector('.btn-alterar').addEventListener('click', () => {
-    const objetivos = ['Economizar dinheiro', 'Quitar dívidas', 'Investir mais', 'Aposentadoria', 'Comprar imóvel'];
     const atual = document.querySelector('.objetivo-value').textContent;
     const novo = prompt('Qual seu objetivo financeiro?', atual);
     if (novo && novo.trim()) {
       document.querySelector('.objetivo-value').textContent = novo.trim();
     }
   });
+
+  function fazerLogout() {
+    limparSessao();
+    window.location.href = 'login.html';
+  }
+
+  async function carregarCategorias() {
+    try {
+      const cats = await Categorias.listar();
+      const grid = document.querySelector('.cat-grid');
+      if (!grid) return;
+
+      const icones = { 'alimentação':'utensils','alimentacao':'utensils','transporte':'car','moradia':'house','saúde':'heart-pulse','saude':'heart-pulse','lazer':'clapperboard','educação':'book-open','educacao':'book-open','salário':'wallet','salario':'wallet','investimentos':'trending-up','assinaturas':'repeat','outros':'more-horizontal','renda extra':'plus-circle' };
+
+      function getIcone(nome) {
+        const key = (nome||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
+        for (const k in icones) { if (key.includes(k.normalize('NFD').replace(/[̀-ͯ]/g,''))) return icones[k]; }
+        return 'tag';
+      }
+
+      grid.innerHTML = cats.map(c => `
+        <div class="cat-item">
+          <div class="cat-item-left">
+            <i data-lucide="${getIcone(c.nome)}"></i>
+            ${c.nome}
+          </div>
+          <div class="cat-item-edit" style="cursor:pointer;" onclick="removerCategoria(${c.id}, '${c.nome.replace(/'/g,"\\'")}', ${c.usuario_id === null})">
+            <i data-lucide="${c.usuario_id === null ? 'lock' : 'trash-2'}"></i>
+          </div>
+        </div>
+      `).join('');
+
+      lucide.createIcons();
+    } catch (err) {
+      console.error('Erro ao carregar categorias:', err);
+    }
+  }
+
+  async function removerCategoria(id, nome, ehPadrao) {
+    if (ehPadrao) {
+      alert(`"${nome}" é uma categoria padrão e não pode ser removida.`);
+      return;
+    }
+    if (!confirm(`Remover a categoria "${nome}"?`)) return;
+    try {
+      await Categorias.deletar(id);
+      await carregarCategorias();
+    } catch (err) {
+      alert('Erro ao remover: ' + err.message);
+    }
+  }
+
+  function abrirModalNovaCat() {
+    const nome = prompt('Nome da nova categoria:');
+    if (!nome || !nome.trim()) return;
+    const tipo = confirm('É uma receita? (OK = Receita, Cancelar = Despesa)') ? 'receita' : 'despesa';
+    Categorias.criar(nome.trim(), tipo, 'tag')
+      .then(() => carregarCategorias())
+      .catch(err => alert('Erro: ' + err.message));
+  }
+
+  async function gerarNotificacoesConfig() {
+    const notifs = [];
+    const usuario = getUsuario();
+    const nome = usuario?.nome?.split(' ')[0] || 'você';
+
+    notifs.push({ tipo: 'purple', icone: 'user', msg: `Mantenha seus dados atualizados, <strong>${nome}</strong>. Um perfil completo melhora os insights do Nexum.`, tempo: 'Dica' });
+    notifs.push({ tipo: 'green', icone: 'shield-check', msg: 'Sua conta está segura. Troque sua senha periodicamente para maior segurança.', tempo: 'Segurança' });
+    notifs.push({ tipo: 'purple', icone: 'layout-grid', msg: 'Personalize suas categorias para ter relatórios mais precisos sobre seus gastos.', tempo: 'Dica' });
+
+    const lista = document.querySelector('.notif-panel-list');
+    if (!lista) return;
+
+    lista.innerHTML = notifs.map((n, i) => `
+      <div class="notif-panel-item">
+        <div class="notif-panel-icon ${n.tipo}">
+          <i data-lucide="${n.icone}" style="width:16px;height:16px;"></i>
+        </div>
+        <div class="notif-panel-body">
+          <div class="notif-panel-msg">${n.msg}</div>
+          <div class="notif-panel-time">${n.tempo}</div>
+        </div>
+      </div>
+    `).join('');
+
+    lucide.createIcons();
+  }
+
+  carregarCategorias();
+  gerarNotificacoesConfig();
 </script>
 
 <!-- Painel de Notificações -->

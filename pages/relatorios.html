@@ -653,40 +653,39 @@
   }
 
   // --- DADOS ---
-  const dadosMensais = {
-    JAN: { receita: 10200, despesa: 4800 },
-    FEV: { receita: 11500, despesa: 4200 },
-    MAR: { receita: 9800,  despesa: 5100 },
-    ABR: { receita: 12800, despesa: 4500 },
-    MAI: { receita: 11200, despesa: 4900 },
-    JUN: { receita: 12450, despesa: 5120 },
-  };
-
-  let mesSelecionado = 'JUN';
+  let dadosMensais = {};
+  let mesSelecionado = null;
+  const MESES_LABEL = ['JAN','FEV','MAR','ABR','MAI','JUN','JUL','AGO','SET','OUT','NOV','DEZ'];
+  const MESES_NOME  = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
 
   function atualizarCards(mes) {
     const d = dadosMensais[mes];
+    if (!d) return;
     const saldo = d.receita - d.despesa;
-    const meses = Object.keys(dadosMensais);
-    const idxAnterior = meses.indexOf(mes) - 1;
-    const anterior = idxAnterior >= 0 ? dadosMensais[meses[idxAnterior]] : null;
+
+    const chaves = Object.keys(dadosMensais);
+    const idxAnterior = chaves.indexOf(mes) - 1;
+    const anterior = idxAnterior >= 0 ? dadosMensais[chaves[idxAnterior]] : null;
 
     document.getElementById('val-receita').textContent = 'R$ ' + formatMoeda(d.receita);
     document.getElementById('val-despesa').textContent = 'R$ ' + formatMoeda(d.despesa);
     document.getElementById('val-saldo').textContent   = 'R$ ' + formatMoeda(saldo);
 
     if (anterior) {
-      const diffR = ((d.receita - anterior.receita) / anterior.receita * 100).toFixed(0);
-      const diffD = ((d.despesa - anterior.despesa) / anterior.despesa * 100).toFixed(0);
+      const diffR = anterior.receita > 0 ? ((d.receita - anterior.receita) / anterior.receita * 100).toFixed(0) : 0;
+      const diffD = anterior.despesa > 0 ? ((d.despesa - anterior.despesa) / anterior.despesa * 100).toFixed(0) : 0;
       const sinalR = diffR >= 0 ? '+' : '';
       const sinalD = diffD >= 0 ? '+' : '';
       document.getElementById('trend-receita').textContent = `${sinalR}${diffR}% em relação ao mês anterior`;
       document.getElementById('trend-despesa').textContent = `${sinalD}${diffD}% em relação ao mês anterior`;
       document.getElementById('trend-receita').parentElement.className = 'card-trend ' + (diffR >= 0 ? 'up' : 'down');
       document.getElementById('trend-despesa').parentElement.className = 'card-trend ' + (diffD <= 0 ? 'up' : 'down');
+    } else {
+      document.getElementById('trend-receita').textContent = 'Primeiro mês registrado';
+      document.getElementById('trend-despesa').textContent = 'Primeiro mês registrado';
     }
 
-    const ratio = d.despesa / d.receita;
+    const ratio = d.receita > 0 ? d.despesa / d.receita : 1;
     const perf = ratio < 0.5 ? 'Performance Ótima' : ratio < 0.7 ? 'Performance Boa' : 'Atenção aos Gastos';
     document.getElementById('perf-badge').textContent = perf;
   }
@@ -712,9 +711,191 @@
 
   function selecionarMes(mes) {
     mesSelecionado = mes;
-    document.getElementById('period-label').textContent = mes + ' 2026';
+    const d = dadosMensais[mes];
+    const ano = d ? d.ano : new Date().getFullYear();
+    document.getElementById('period-label').textContent = mes + ' ' + ano;
+    document.getElementById('period-dropdown').classList.remove('open');
     atualizarCards(mes);
     atualizarGrafico();
+    atualizarBreakdown(mes);
+  }
+
+  async function atualizarBreakdown(mesLabel) {
+    const d = dadosMensais[mesLabel];
+    if (!d || d.despesa === 0) {
+      document.querySelector('.breakdown-list').innerHTML = '<div style="color:#6b7280;font-size:13px;padding:12px 0;text-align:center;">Nenhum gasto registrado neste mês.</div>';
+      return;
+    }
+
+    try {
+      const txs = await Transacoes.listar({ mes: d.mes, ano: d.ano });
+      const lista = Array.isArray(txs) ? txs : [];
+
+      const gastosCat = {};
+      lista.filter(t => t.tipo === 'despesa').forEach(t => {
+        const nome = t.categoria?.nome || 'Outros';
+        gastosCat[nome] = (gastosCat[nome] || 0) + Number(t.valor);
+      });
+
+      const total = Object.values(gastosCat).reduce((s, v) => s + v, 0);
+      const cores = ['#f97316','#f59e0b','#3b82f6','#ef4444','#8b5cf6','#22c55e'];
+      const icones = { 'alimentação':'utensils','alimentacao':'utensils','transporte':'car','moradia':'house','saúde':'heart-pulse','saude':'heart-pulse','lazer':'clapperboard','educação':'book-open','educacao':'book-open','salário':'wallet','salario':'wallet','outros':'more-horizontal' };
+
+      function getIcone(nome) {
+        const key = (nome||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
+        for (const k in icones) { if (key.includes(k.normalize('NFD').replace(/[̀-ͯ]/g,''))) return icones[k]; }
+        return 'tag';
+      }
+
+      const entries = Object.entries(gastosCat).sort((a,b) => b[1]-a[1]).slice(0, 5);
+      const lista2 = document.querySelector('.breakdown-list');
+
+      if (entries.length === 0) {
+        lista2.innerHTML = '<div style="color:#6b7280;font-size:13px;padding:12px 0;text-align:center;">Nenhum gasto por categoria.</div>';
+        return;
+      }
+
+      lista2.innerHTML = entries.map(([nome, val], i) => {
+        const pct = total > 0 ? Math.round((val / total) * 100) : 0;
+        const cor = cores[i % cores.length];
+        return `
+          <div class="breakdown-item">
+            <div class="breakdown-item-top">
+              <div class="breakdown-item-left">
+                <i data-lucide="${getIcone(nome)}" style="color:${cor}"></i>
+                ${nome}
+              </div>
+              <div class="breakdown-pct">${pct}%</div>
+            </div>
+            <div class="breakdown-bar">
+              <div class="breakdown-fill" style="width:${pct}%;background:${cor}"></div>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      if (entries.length > 0) {
+        const [topCat, topVal] = entries[0];
+        const pctTop = total > 0 ? Math.round((topVal / total) * 100) : 0;
+        document.querySelector('.insight-text').innerHTML = `
+          Sua maior despesa este mês foi em <span class="hl">${topCat}</span>, representando
+          <span class="hl">${pctTop}%</span> do total gasto (R$ ${formatMoeda(topVal)}).
+          ${pctTop > 40 ? ' Considere revisar este gasto no planejamento.' : ' Continue monitorando seus gastos!'}
+        `;
+      }
+
+      lucide.createIcons();
+    } catch (err) {
+      console.error('Erro ao carregar breakdown:', err);
+    }
+  }
+
+  function gerarNotificacoesRelatorio() {
+    const notifs = [];
+    const chaves = Object.keys(dadosMensais);
+    const mesAtual = dadosMensais[mesSelecionado];
+
+    if (!mesAtual || mesAtual.receita === 0) {
+      notifs.push({ tipo: 'purple', icone: 'bar-chart-2', msg: 'Adicione transações para ver seus relatórios detalhados.', tempo: 'Dica' });
+    } else {
+      const saldo = mesAtual.receita - mesAtual.despesa;
+      const ratio = mesAtual.despesa / mesAtual.receita;
+
+      if (ratio > 0.8) {
+        notifs.push({ tipo: 'warning', icone: 'triangle-alert', msg: `Suas despesas este mês estão em <strong>${Math.round(ratio*100)}%</strong> das receitas. Atenção!`, tempo: 'Este mês' });
+      } else if (ratio < 0.5) {
+        notifs.push({ tipo: 'green', icone: 'trending-up', msg: `Ótimo controle! Você economizou <strong>R$ ${formatMoeda(saldo)}</strong> este mês.`, tempo: 'Este mês' });
+      }
+
+      const idxAnterior = chaves.indexOf(mesSelecionado) - 1;
+      if (idxAnterior >= 0) {
+        const anterior = dadosMensais[chaves[idxAnterior]];
+        if (anterior && anterior.despesa > 0) {
+          const diff = ((mesAtual.despesa - anterior.despesa) / anterior.despesa * 100).toFixed(0);
+          if (diff > 10) {
+            notifs.push({ tipo: 'warning', icone: 'alert-circle', msg: `Seus gastos aumentaram <strong>${diff}%</strong> em relação ao mês anterior.`, tempo: 'Comparativo' });
+          } else if (diff < -10) {
+            notifs.push({ tipo: 'green', icone: 'check-circle', msg: `Seus gastos reduziram <strong>${Math.abs(diff)}%</strong> em relação ao mês anterior!`, tempo: 'Comparativo' });
+          }
+        }
+      }
+    }
+
+    notifs.push({ tipo: 'purple', icone: 'sparkles', msg: 'Use os relatórios para identificar padrões e otimizar seu orçamento mensal.', tempo: 'Dica' });
+
+    const lista = document.querySelector('.notif-panel-list');
+    if (!lista) return;
+
+    const qtdUnread = notifs.filter(n => n.tipo === 'warning').length;
+
+    lista.innerHTML = notifs.slice(0, 5).map((n, i) => `
+      <div class="notif-panel-item ${i < qtdUnread ? 'unread' : ''}">
+        <div class="notif-panel-icon ${n.tipo}">
+          <i data-lucide="${n.icone}" style="width:16px;height:16px;"></i>
+        </div>
+        <div class="notif-panel-body">
+          <div class="notif-panel-msg">${n.msg}</div>
+          <div class="notif-panel-time">${n.tempo}</div>
+        </div>
+      </div>
+    `).join('');
+
+    lucide.createIcons();
+
+    const dot = document.querySelector('.notif-dot');
+    if (dot) dot.style.display = qtdUnread > 0 ? 'block' : 'none';
+  }
+
+  async function carregarRelatorio() {
+    const hoje = new Date();
+
+    const ultimos6 = Array.from({ length: 6 }, (_, i) => {
+      const d = new Date(hoje.getFullYear(), hoje.getMonth() - (5 - i), 1);
+      return { mes: d.getMonth() + 1, ano: d.getFullYear(), label: MESES_LABEL[d.getMonth()] };
+    });
+
+    const resultados = await Promise.all(
+      ultimos6.map(m => Transacoes.resumo(m.mes, m.ano).catch(() => ({ receitas: 0, despesas: 0, saldo: 0 })))
+    );
+
+    dadosMensais = {};
+    ultimos6.forEach((m, i) => {
+      dadosMensais[m.label] = {
+        receita: Number(resultados[i].receitas || 0),
+        despesa: Number(resultados[i].despesas || 0),
+        mes: m.mes,
+        ano: m.ano
+      };
+    });
+
+    mesSelecionado = ultimos6[5].label;
+    document.getElementById('period-label').textContent = mesSelecionado + ' ' + ultimos6[5].ano;
+
+    const dropdown = document.getElementById('period-dropdown');
+    dropdown.innerHTML = ultimos6.map(m => `
+      <div class="period-opt" onclick="selecionarMes('${m.label}')">${m.label} ${m.ano}</div>
+    `).join('');
+
+    const barChart = document.querySelector('.bar-chart');
+    barChart.innerHTML = ultimos6.map(m => `
+      <div class="bar-group" data-mes="${m.label}" style="cursor:pointer;">
+        <div class="bars">
+          <div class="bar despesa bar-despesa" style="height:0px"></div>
+          <div class="bar receita bar-receita" style="height:0px"></div>
+        </div>
+        <div class="bar-label">${m.label}</div>
+      </div>
+    `).join('');
+
+    document.querySelectorAll('.bar-group').forEach(grupo => {
+      grupo.addEventListener('click', () => selecionarMes(grupo.dataset.mes));
+    });
+
+    atualizarCards(mesSelecionado);
+    atualizarGrafico();
+    atualizarBreakdown(mesSelecionado);
+    gerarNotificacoesRelatorio();
+    lucide.createIcons();
   }
 
   function formatMoeda(v) {
@@ -736,18 +917,8 @@
     setTimeout(() => { btn.textContent = 'Exportar PDF'; }, 2000);
   }
 
-  // Clique nas barras para selecionar mês
-  document.querySelectorAll('.bar-group').forEach(grupo => {
-    grupo.style.cursor = 'pointer';
-    grupo.addEventListener('click', () => {
-      selecionarMes(grupo.dataset.mes);
-    });
-  });
-
   // Init
-  atualizarCards('JUN');
-  atualizarGrafico();
-
+  carregarRelatorio();
   lucide.createIcons();
 
   const CURRENT_PAGE = 'relatorios';
