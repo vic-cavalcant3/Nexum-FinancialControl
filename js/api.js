@@ -1,4 +1,4 @@
-const API_URL = 'http://localhost:3000/api';
+const API_URL = 'https://nexum-icgt.onrender.com/api';
 
 function getUsuarioId() {
   return localStorage.getItem('nexum_usuario_id');
