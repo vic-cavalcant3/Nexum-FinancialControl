@@ -363,6 +363,13 @@
 
 @media (min-width: 769px) {
   .menu-btn { display: none; }
+  .btn-nova-meta { display: none; }
+}
+
+@media (max-width: 768px) {
+  .right-col { display: none; }
+  .btn-nova-meta { display: flex; }
+  .two-col { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 1200px) {
@@ -612,6 +619,38 @@
   <button class="btn-upgrade">Upgrade to Pro</button>
 </div>
 
+<div class="modal-overlay" id="modal-nova-meta-mobile">
+  <div class="modal-meta" style="max-width:460px;">
+    <div class="modal-meta-title">Nova Meta</div>
+
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <div>
+        <label style="font-size:10px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:0.08em;display:block;margin-bottom:6px;">Nome da Meta</label>
+        <input class="form-input" id="fm-nome" type="text" placeholder="Ex: Aposentadoria, Casamento..." style="width:100%;background:#1c1c1c;border:1px solid #2a2a2a;border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit;outline:none;">
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+        <div>
+          <label style="font-size:10px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:0.08em;display:block;margin-bottom:6px;">Valor Total (R$)</label>
+          <input class="form-input" id="fm-total" type="number" placeholder="0" style="width:100%;background:#1c1c1c;border:1px solid #2a2a2a;border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit;outline:none;">
+        </div>
+        <div>
+          <label style="font-size:10px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:0.08em;display:block;margin-bottom:6px;">Já Guardado (R$)</label>
+          <input class="form-input" id="fm-atual" type="number" placeholder="0" style="width:100%;background:#1c1c1c;border:1px solid #2a2a2a;border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit;outline:none;">
+        </div>
+      </div>
+      <div>
+        <label style="font-size:10px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:0.08em;display:block;margin-bottom:6px;">Prazo Final</label>
+        <input class="form-input" id="fm-deadline" type="text" placeholder="Ex: Dezembro, 2026" style="width:100%;background:#1c1c1c;border:1px solid #2a2a2a;border-radius:8px;padding:10px 12px;color:#fff;font-size:14px;font-family:inherit;outline:none;">
+      </div>
+    </div>
+
+    <div class="modal-meta-actions">
+      <button class="btn-mmeta-cancel" onclick="document.getElementById('modal-nova-meta-mobile').classList.remove('open')">Cancelar</button>
+      <button class="btn-mmeta-remove" id="fm-salvar" style="background:#4A0789;">Salvar Meta</button>
+    </div>
+  </div>
+</div>
+
 <div class="modal-overlay" id="modal-confirm-meta">
   <div class="modal-meta">
     <div class="modal-meta-title">Remover Meta</div>
@@ -809,13 +848,55 @@
   });
 
   document.querySelector('.btn-nova-meta').addEventListener('click', () => {
-    editingMetaId = null;
-    document.getElementById('f-nome').value = '';
-    document.getElementById('f-total').value = '';
-    document.getElementById('f-atual').value = '';
-    document.getElementById('f-deadline').value = '';
-    document.getElementById('btn-salvar-meta').textContent = 'Salvar Nova Meta';
-    document.querySelector('.form-card').scrollIntoView({ behavior: 'smooth' });
+    if (window.innerWidth <= 768) {
+      document.getElementById('fm-nome').value = '';
+      document.getElementById('fm-total').value = '';
+      document.getElementById('fm-atual').value = '';
+      document.getElementById('fm-deadline').value = '';
+      document.getElementById('modal-nova-meta-mobile').classList.add('open');
+    } else {
+      editingMetaId = null;
+      document.getElementById('f-nome').value = '';
+      document.getElementById('f-total').value = '';
+      document.getElementById('f-atual').value = '';
+      document.getElementById('f-deadline').value = '';
+      document.getElementById('btn-salvar-meta').textContent = 'Salvar Nova Meta';
+      document.querySelector('.form-card').scrollIntoView({ behavior: 'smooth' });
+    }
+  });
+
+  document.getElementById('fm-salvar').addEventListener('click', async () => {
+    const nome     = document.getElementById('fm-nome').value.trim();
+    const total    = parseFloat(document.getElementById('fm-total').value);
+    const atual    = parseFloat(document.getElementById('fm-atual').value) || 0;
+    const deadline = document.getElementById('fm-deadline').value.trim();
+
+    if (!nome || isNaN(total) || total <= 0 || !deadline) {
+      alert('Preencha todos os campos.');
+      return;
+    }
+
+    const mesesNomes = ['janeiro','fevereiro','março','abril','maio','junho',
+                        'julho','agosto','setembro','outubro','novembro','dezembro'];
+    const partes = deadline.toLowerCase().replace(',','').trim().split(' ');
+    const mesIdx = mesesNomes.findIndex(m => partes[0].includes(m.substring(0,3)));
+    const ano = parseInt(partes[1] || partes[0]);
+    const dataISO = `${ano}-${String(mesIdx >= 0 ? mesIdx + 1 : 12).padStart(2,'0')}-01`;
+
+    try {
+      await Metas.criar({
+        descricao: nome,
+        valor_alvo: total,
+        valor_atual: atual,
+        aporte_mensal: atual > 0 ? atual / 6 : 0,
+        data_inicio: new Date().toISOString().split('T')[0],
+        data_prazo: dataISO
+      });
+      document.getElementById('modal-nova-meta-mobile').classList.remove('open');
+      await carregarMetas();
+    } catch (err) {
+      alert('Erro ao salvar: ' + err.message);
+    }
   });
 
   function openEditMetaModal(id) {
