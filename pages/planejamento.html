@@ -944,18 +944,21 @@
 <div class="modal-overlay" id="modal-cat">
   <div class="modal-plan">
     <div class="modal-plan-title" id="mcat-titulo">Nova Categoria</div>
-    <div class="modal-field-plan">
-      <label class="modal-label-plan">Nome</label>
-      <input class="modal-input-plan" id="mcat-nome" type="text" placeholder="Ex: Educação">
-    </div>
-    <div class="modal-field-plan">
-      <label class="modal-label-plan">Descrição</label>
-      <input class="modal-input-plan" id="mcat-sub" type="text" placeholder="Ex: Cursos e livros">
-    </div>
-    <div class="modal-field-plan">
-      <label class="modal-label-plan">Limite (R$)</label>
-      <input class="modal-input-plan" id="mcat-limite" type="number" min="0" step="0.01" placeholder="0,00">
-    </div>
+<div class="modal-field-plan">
+  <label class="modal-label-plan">Nome</label>
+  <input class="modal-input-plan" id="mcat-nome" type="text" placeholder="Ex: Educação">
+</div>
+<div class="modal-field-plan">
+  <label class="modal-label-plan">Tipo</label>
+  <select class="modal-input-plan" id="mcat-tipo">
+    <option value="despesa">Despesa</option>
+    <option value="receita">Receita</option>
+  </select>
+</div>
+<div class="modal-field-plan">
+  <label class="modal-label-plan">Limite (R$)</label>
+  <input class="modal-input-plan" id="mcat-limite" type="number" min="0" step="0.01" placeholder="0,00">
+</div>
     <div class="modal-field-plan">
       <label class="modal-label-plan">Gasto Atual (R$)</label>
       <input class="modal-input-plan" id="mcat-gasto" type="number" min="0" step="0.01" placeholder="0,00">
@@ -1012,17 +1015,55 @@
   }
 
   // --- DADOS ---
-  let categorias = [
-    { id: 1, nome: 'Alimentação',  sub: 'Mercado e Restaurantes',    icon: 'utensils',     classe: 'food',    gasto: 480,   limite: 600  },
-    { id: 2, nome: 'Moradia',      sub: 'Aluguel e Contas Fixas',    icon: 'house',        classe: 'home',    gasto: 1200,  limite: 2500 },
-    { id: 3, nome: 'Transporte',   sub: 'Uber, Combustível, Metro',  icon: 'car',          classe: 'car',     gasto: 420,   limite: 400  },
-    { id: 4, nome: 'Lazer',        sub: 'Streaming e Cinema',        icon: 'clapperboard', classe: 'leisure', gasto: 150,   limite: 500  },
-    { id: 5, nome: 'Saúde',        sub: 'Farmácia e Consultas',      icon: 'cross',        classe: 'health',  gasto: 720,   limite: 800  },
-  ];
-  let nextCatId = 6;
+let categorias = []; // será preenchido pela API
+let gastosReaisPorCategoria = {}; // { categoriaId: valorGasto }
 
-  const ICON_CLASSES = ['food','home','car','leisure','health','purple'];
-  const ICONS        = ['utensils','house','car','clapperboard','cross','tag'];
+const ICON_MAP = {
+  'alimentação': 'utensils', 'alimentacao': 'utensils',
+  'transporte': 'car',
+  'moradia': 'house',
+  'saúde': 'heart-pulse', 'saude': 'heart-pulse',
+  'lazer': 'clapperboard',
+  'educação': 'book-open', 'educacao': 'book-open',
+  'salário': 'wallet', 'salario': 'wallet',
+  'renda extra': 'plus-circle',
+  'investimentos': 'trending-up',
+  'assinaturas': 'repeat',
+  'outros': 'more-horizontal',
+};
+
+const COLOR_MAP = [
+  { classe: 'food',    bg: 'rgba(249,115,22,0.15)', color: '#f97316' },
+  { classe: 'home',    bg: 'rgba(74,7,137,0.15)',   color: '#8b5cf6' },
+  { classe: 'car',     bg: 'rgba(239,68,68,0.15)',   color: '#f87171' },
+  { classe: 'leisure', bg: 'rgba(74,7,137,0.15)',   color: '#a855f7' },
+  { classe: 'health',  bg: 'rgba(245,158,11,0.15)', color: '#f59e0b' },
+  { classe: 'blue',    bg: 'rgba(59,130,246,0.15)', color: '#3b82f6' },
+  { classe: 'green',   bg: 'rgba(34,197,94,0.15)',  color: '#22c55e' },
+];
+
+function getIconForCat(nome) {
+  const key = (nome || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  for (const k in ICON_MAP) {
+    const kn = k.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    if (key.includes(kn)) return ICON_MAP[k];
+  }
+  return 'tag';
+}
+
+function getColorForIndex(i) {
+  return COLOR_MAP[i % COLOR_MAP.length];
+}
+
+function formatVal(v) {
+  return Number(v || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+function getPctClass(pct) {
+  if (pct >= 100) return 'danger';
+  if (pct >= 75)  return 'warning';
+  return 'ok';
+}
 
   function formatVal(v) {
     return v.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -1034,41 +1075,85 @@
     return 'ok';
   }
 
+  async function carregarDados() {
+  const mes = new Date().getMonth() + 1;
+  const ano = new Date().getFullYear();
+
+  try {
+    // 1. Carrega categorias da API
+    const cats = await Categorias.listar().catch(() => []);
+
+    // 2. Carrega transações do mês
+    const txs = await Transacoes.listar({ mes, ano }).catch(() => []);
+    const lista = Array.isArray(txs) ? txs : [];
+
+    // 3. Calcula gastos reais por categoria
+    gastosReaisPorCategoria = {};
+    lista.filter(t => t.tipo === 'despesa').forEach(t => {
+      const cid = t.categoria_id;
+      if (cid) gastosReaisPorCategoria[cid] = (gastosReaisPorCategoria[cid] || 0) + Number(t.valor);
+    });
+
+    // 4. Monta array de categorias com gasto real e limite (localStorage)
+    const limites = JSON.parse(localStorage.getItem('nexum_limites') || '{}');
+
+    categorias = cats.map((c, i) => ({
+      id: c.id,
+      nome: c.nome,
+      tipo: c.tipo,
+      sub: c.tipo === 'receita' ? 'Receitas' : 'Despesas',
+      icon: getIconForCat(c.nome),
+      colorIdx: i,
+      gasto: gastosReaisPorCategoria[c.id] || 0,
+      limite: limites[c.id] || 0,
+    }));
+
+    renderGrid();
+    gerarNotificacoesPlanejamento();
+
+  } catch (err) {
+    console.error('Erro ao carregar planejamento:', err);
+    renderGrid();
+  }
+}
+
   // --- RENDER ---
   function renderGrid() {
     const grid = document.getElementById('budget-grid');
     grid.innerHTML = '';
 
-    categorias.forEach(cat => {
-      const pct = Math.round((cat.gasto / cat.limite) * 100);
-      const cls = getPctClass(pct);
-      const card = document.createElement('div');
-      card.className = 'budget-card';
-      card.innerHTML = `
-        <div class="card-top">
-          <div class="cat-info">
-            <div class="cat-icon ${cat.classe}">
-              <i data-lucide="${cat.icon}"></i>
-            </div>
-            <div>
-              <div class="cat-name">${cat.nome}</div>
-              <div class="cat-sub">${cat.sub}</div>
-            </div>
-          </div>
-          <button class="card-menu" data-id="${cat.id}"><i data-lucide="more-vertical"></i></button>
+    categorias.forEach((cat, i) => {
+  const color = getColorForIndex(cat.colorIdx ?? i);
+  const pct = cat.limite > 0 ? Math.round((cat.gasto / cat.limite) * 100) : 0;
+  const cls = getPctClass(pct);
+
+  const card = document.createElement('div');
+  card.className = 'budget-card';
+  card.innerHTML = `
+    <div class="card-top">
+      <div class="cat-info">
+        <div class="cat-icon" style="background:${color.bg};color:${color.color}">
+          <i data-lucide="${cat.icon}"></i>
         </div>
-        <div class="progress-section">
-          <div class="progress-row">
-            <span class="progress-label">Gasto: R$ ${formatVal(cat.gasto)}</span>
-            <span class="progress-pct ${cls}">${pct}%</span>
-          </div>
-          <div class="progress-bar">
-            <div class="progress-fill ${cls}" style="width:${Math.min(pct,100)}%"></div>
-          </div>
-          <div class="progress-limit">LIMITE: R$ ${formatVal(cat.limite)}</div>
+        <div>
+          <div class="cat-name">${cat.nome}</div>
+          <div class="cat-sub">${cat.sub}</div>
         </div>
-        <button class="btn-edit-limit" data-id="${cat.id}">Editar Limite</button>
-      `;
+      </div>
+      <button class="card-menu" data-id="${cat.id}"><i data-lucide="more-vertical"></i></button>
+    </div>
+    <div class="progress-section">
+      <div class="progress-row">
+        <span class="progress-label">Gasto: R$ ${formatVal(cat.gasto)}</span>
+        <span class="progress-pct ${cls}">${cat.limite > 0 ? pct + '%' : '—'}</span>
+      </div>
+      <div class="progress-bar">
+        <div class="progress-fill ${cls}" style="width:${Math.min(pct,100)}%"></div>
+      </div>
+      <div class="progress-limit">${cat.limite > 0 ? 'LIMITE: R$ ' + formatVal(cat.limite) : 'Sem limite definido'}</div>
+    </div>
+    <button class="btn-edit-limit" data-id="${cat.id}">Editar Limite</button>
+  `;
 
       card.querySelector('.btn-edit-limit').addEventListener('click', () => openEditLimiteModal(cat.id));
       card.querySelector('.card-menu').addEventListener('click', (e) => {
@@ -1135,20 +1220,114 @@
   }
 
   // --- VISÃO GERAL ---
-  function updateOverview() {
-    const totalPlanejado = categorias.reduce((s, c) => s + c.limite, 0);
-    const totalGasto     = categorias.reduce((s, c) => s + c.gasto,  0);
-    document.querySelector('.amount-value:not(.spent)').textContent = 'R$ ' + formatVal(totalPlanejado);
-    document.querySelector('.amount-value.spent').textContent       = 'R$ ' + formatVal(totalGasto);
+function updateOverview() {
+  const comLimite = categorias.filter(c => c.limite > 0);
+  const totalPlanejado = comLimite.reduce((s, c) => s + c.limite, 0);
+  const totalGasto = categorias.filter(c => c.tipo === 'despesa').reduce((s, c) => s + c.gasto, 0);
 
-    const pctGeral = totalPlanejado > 0 ? totalGasto / totalPlanejado : 0;
-    const dots = document.querySelectorAll('.health-dot');
-    dots.forEach((dot, i) => {
-      dot.style.background = (i / dots.length) < pctGeral
-        ? 'var(--accent-purple)'
-        : 'rgba(255,255,255,0.1)';
+  document.querySelector('.amount-value:not(.spent)').textContent = 'R$ ' + formatVal(totalPlanejado);
+  document.querySelector('.amount-value.spent').textContent = 'R$ ' + formatVal(totalGasto);
+
+  const pctGeral = totalPlanejado > 0 ? totalGasto / totalPlanejado : 0;
+  const dots = document.querySelectorAll('.health-dot');
+  dots.forEach((dot, i) => {
+    dot.style.background = (i / dots.length) < pctGeral
+      ? 'var(--accent-purple)'
+      : 'rgba(255,255,255,0.1)';
+  });
+}
+function gerarNotificacoesPlanejamento() {
+  const notifs = [];
+  const usuario = getUsuario();
+  const nome = usuario?.nome?.split(' ')[0] || 'você';
+
+  const comLimite = categorias.filter(c => c.limite > 0);
+  const semLimite = categorias.filter(c => c.limite === 0 && c.tipo === 'despesa');
+
+  // 1. Categorias no limite crítico (>=100%)
+  const estouradas = comLimite.filter(c => c.gasto >= c.limite);
+  estouradas.forEach(c => {
+    notifs.push({
+      tipo: 'warning',
+      icone: 'alert-triangle',
+      msg: `Você <strong>ultrapassou</strong> o limite de <strong>${c.nome}</strong>! Gasto: R$ ${formatVal(c.gasto)} / Limite: R$ ${formatVal(c.limite)}.`,
+      tempo: 'Este mês'
+    });
+  });
+
+  // 2. Categorias em alerta (75-99%)
+  const emAlerta = comLimite.filter(c => c.gasto < c.limite && (c.gasto / c.limite) >= 0.75);
+  emAlerta.forEach(c => {
+    const pct = Math.round((c.gasto / c.limite) * 100);
+    notifs.push({
+      tipo: 'warning',
+      icone: 'triangle-alert',
+      msg: `Atenção! Você usou <strong>${pct}%</strong> do limite de <strong>${c.nome}</strong>.`,
+      tempo: 'Este mês'
+    });
+  });
+
+  // 3. Categorias sem limite definido
+  if (semLimite.length > 0) {
+    notifs.push({
+      tipo: 'purple',
+      icone: 'target',
+      msg: `<strong>${semLimite.length} categoria${semLimite.length > 1 ? 's' : ''}</strong> sem limite definido. Defina limites para controlar melhor seus gastos.`,
+      tempo: 'Dica'
     });
   }
+
+  // 4. Tudo dentro do limite
+  if (comLimite.length > 0 && estouradas.length === 0 && emAlerta.length === 0) {
+    notifs.push({
+      tipo: 'green',
+      icone: 'check-circle',
+      msg: `Parabéns, <strong>${nome}</strong>! Todas as categorias estão dentro do orçamento planejado.`,
+      tempo: 'Este mês'
+    });
+  }
+
+  // 5. Sem categorias
+  if (categorias.length === 0) {
+    notifs.push({
+      tipo: 'purple',
+      icone: 'sparkles',
+      msg: `Comece adicionando categorias e definindo limites para controlar seus gastos mensais.`,
+      tempo: 'Dica'
+    });
+  }
+
+  // 6. Dica geral
+  notifs.push({
+    tipo: 'purple',
+    icone: 'lightbulb',
+    msg: `Use o <strong>Editar Limite</strong> em cada categoria para definir o orçamento máximo do mês.`,
+    tempo: 'Dica'
+  });
+
+  const lista = document.querySelector('.notif-panel-list');
+  if (!lista) return;
+
+  const qtdUnread = estouradas.length + emAlerta.length + (semLimite.length > 0 ? 1 : 0);
+
+  lista.innerHTML = notifs.slice(0, 6).map((n, i) => `
+    <div class="notif-panel-item ${i < qtdUnread ? 'unread' : ''}">
+      <div class="notif-panel-icon ${n.tipo}">
+        <i data-lucide="${n.icone}" style="width:16px;height:16px;"></i>
+      </div>
+      <div class="notif-panel-body">
+        <div class="notif-panel-msg">${n.msg}</div>
+        <div class="notif-panel-time">${n.tempo}</div>
+      </div>
+    </div>
+  `).join('');
+
+  lucide.createIcons();
+
+  const dot = document.querySelector('.notif-dot');
+  if (dot) dot.style.display = qtdUnread > 0 ? 'block' : 'none';
+}
+
 
   // --- MODAL EDITAR LIMITE ---
   let editingLimiteId = null;
@@ -1167,10 +1346,18 @@
   document.getElementById('ml-save').addEventListener('click', () => {
     const val = parseFloat(document.getElementById('ml-valor').value);
     if (isNaN(val) || val <= 0) return;
-    const idx = categorias.findIndex(c => c.id === editingLimiteId);
-    if (idx !== -1) categorias[idx].limite = val;
-    document.getElementById('modal-limite').classList.remove('open');
-    renderGrid();
+
+const idx = categorias.findIndex(c => c.id === editingLimiteId);
+if (idx !== -1) {
+  categorias[idx].limite = val;
+  // Salva no localStorage
+  const limites = JSON.parse(localStorage.getItem('nexum_limites') || '{}');
+  limites[editingLimiteId] = val;
+  localStorage.setItem('nexum_limites', JSON.stringify(limites));
+}
+document.getElementById('modal-limite').classList.remove('open');
+renderGrid();
+gerarNotificacoesPlanejamento();
   });
 
   // --- MODAL ADICIONAR / EDITAR CATEGORIA ---
@@ -1200,24 +1387,29 @@
 
   document.getElementById('mcat-cancel').addEventListener('click', () => document.getElementById('modal-cat').classList.remove('open'));
   document.getElementById('modal-cat').addEventListener('click', (e) => { if (e.target === document.getElementById('modal-cat')) document.getElementById('modal-cat').classList.remove('open'); });
-  document.getElementById('mcat-save').addEventListener('click', () => {
-    const nome   = document.getElementById('mcat-nome').value.trim();
-    const sub    = document.getElementById('mcat-sub').value.trim();
-    const limite = parseFloat(document.getElementById('mcat-limite').value);
-    const gasto  = parseFloat(document.getElementById('mcat-gasto').value) || 0;
-    if (!nome || isNaN(limite) || limite <= 0) return;
+document.getElementById('mcat-save').addEventListener('click', async () => {
+  const nome   = document.getElementById('mcat-nome').value.trim();
+  const tipo   = document.getElementById('mcat-tipo').value;
+  const limite = parseFloat(document.getElementById('mcat-limite').value) || 0;
+  if (!nome) return;
 
+  try {
     if (editingCatId === null) {
-      const i = categorias.length % ICONS.length;
-      categorias.push({ id: nextCatId++, nome, sub, icon: ICONS[i], classe: ICON_CLASSES[i], gasto, limite });
-    } else {
-      const idx = categorias.findIndex(c => c.id === editingCatId);
-      if (idx !== -1) categorias[idx] = { ...categorias[idx], nome, sub, limite, gasto };
+      // Cria categoria via API
+      await Categorias.criar({ nome, tipo, icone: getIconForCat(nome) });
+    }
+    // Salva limite no localStorage
+    if (editingCatId !== null && limite > 0) {
+      const limites = JSON.parse(localStorage.getItem('nexum_limites') || '{}');
+      limites[editingCatId] = limite;
+      localStorage.setItem('nexum_limites', JSON.stringify(limites));
     }
     document.getElementById('modal-cat').classList.remove('open');
-    renderGrid();
-  });
-
+    await carregarDados();
+  } catch (err) {
+    alert('Erro ao salvar: ' + err.message);
+  }
+});
   document.querySelector('.btn-add-cat').addEventListener('click', openAddCatModal);
 
   // --- MODAL CONFIRMAR REMOÇÃO ---
@@ -1230,14 +1422,22 @@
 
   document.getElementById('mrc-cancel').addEventListener('click', () => document.getElementById('modal-remove-cat').classList.remove('open'));
   document.getElementById('modal-remove-cat').addEventListener('click', (e) => { if (e.target === document.getElementById('modal-remove-cat')) document.getElementById('modal-remove-cat').classList.remove('open'); });
-  document.getElementById('mrc-confirm').addEventListener('click', () => {
-    categorias = categorias.filter(c => c.id !== removingCatId);
-    document.getElementById('modal-remove-cat').classList.remove('open');
-    renderGrid();
-  });
+document.getElementById('mrc-confirm').addEventListener('click', async () => {
+  try {
+    await Categorias.deletar(removingCatId);
+    // Remove limite salvo
+    const limites = JSON.parse(localStorage.getItem('nexum_limites') || '{}');
+    delete limites[removingCatId];
+    localStorage.setItem('nexum_limites', JSON.stringify(limites));
+  } catch (err) {
+    console.error('Erro ao remover:', err);
+  }
+  document.getElementById('modal-remove-cat').classList.remove('open');
+  await carregarDados();
+});
 
   // --- INIT ---
-  renderGrid();
+  carregarDados();
 </script>
 
 <!-- Painel de Notificações -->

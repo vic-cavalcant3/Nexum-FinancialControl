@@ -990,21 +990,15 @@
         <div class="filter-group">
           <div class="filter-label">Período</div>
           <div class="filter-select-wrap">
-            <select>
-              <option>Janeiro 2026</option>
-              <option>Fevereiro 2026</option>
-              <option>Março 2026</option>
-            </select>
+            <select id="periodo-select"></select>
             <i data-lucide="chevron-down" class="chevron"></i>
           </div>
         </div>
 
         <div class="filter-group">
           <div class="filter-label">Categorias</div>
-          <div class="category-tags">
-            <div class="cat-tag active">Alimentação <span class="tag-x">×</span></div>
-            <div class="cat-tag active">Lazer <span class="tag-x">×</span></div>
-            <div class="cat-tag active">Assinaturas <span class="tag-x">×</span></div>
+          <div class="category-tags" id="category-tags">
+            <span style="font-size:12px;color:#6b7280;">Carregando...</span>
           </div>
         </div>
 
@@ -1047,7 +1041,7 @@
           </div>
           <div style="flex:1;">
             <div class="summary-mini-label">Entradas Totais</div>
-            <div class="summary-mini-value">R$ 14.600,00</div>
+            <div class="summary-mini-value" id="val-entradas">R$ 0,00</div>
             <div class="summary-mini-bar green"></div>
           </div>
         </div>
@@ -1057,7 +1051,7 @@
           </div>
           <div style="flex:1;">
             <div class="summary-mini-label">Saídas Totais</div>
-            <div class="summary-mini-value">R$ 5.120,45</div>
+            <div class="summary-mini-value" id="val-saidas">R$ 0,00</div>
             <div class="summary-mini-bar red"></div>
           </div>
         </div>
@@ -1067,7 +1061,7 @@
           </div>
           <div style="flex:1;">
             <div class="summary-mini-label">Saldo do Mês</div>
-            <div class="summary-mini-value">R$ 9.479,55</div>
+            <div class="summary-mini-value" id="val-saldo-mes">R$ 0,00</div>
             <div class="summary-mini-bar purple"></div>
           </div>
         </div>
@@ -1091,7 +1085,7 @@
     <div class="modal-title" id="modal-form-title">Nova Transação</div>
     <div class="modal-field">
       <label class="modal-label">Data</label>
-      <input class="modal-input" id="mf-data" type="text" placeholder="dd/mm">
+      <input class="modal-input" id="mf-data" type="text" placeholder="dd/mm" maxlength="5">
     </div>
     <div class="modal-field">
       <label class="modal-label">Descrição</label>
@@ -1100,14 +1094,7 @@
     <div class="modal-field">
       <label class="modal-label">Categoria</label>
       <select class="modal-select" id="mf-cat">
-        <option value="trabalho">Trabalho</option>
-        <option value="alimentacao">Alimentação</option>
-        <option value="assinaturas">Assinaturas</option>
-        <option value="investimentos">Investimentos</option>
-        <option value="lazer">Lazer</option>
-        <option value="saude">Saúde</option>
-        <option value="transporte">Transporte</option>
-        <option value="moradia">Moradia</option>
+        <option value="">Carregando...</option>
       </select>
     </div>
     <div class="modal-field">
@@ -1215,16 +1202,53 @@
     btn.addEventListener('click', () => {
       document.querySelectorAll('.flow-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
+      renderTable();
     });
   });
 
-  document.querySelectorAll('.cat-tag').forEach(tag => {
-    tag.addEventListener('click', () => {
-      tag.classList.toggle('active');
-      const x = tag.querySelector('.tag-x');
-      if (x) x.style.display = tag.classList.contains('active') ? 'inline' : 'none';
-    });
+  document.getElementById('mf-data').addEventListener('input', function() {
+    let v = this.value.replace(/\D/g, '').substring(0, 4);
+    if (v.length > 2) v = v.substring(0, 2) + '/' + v.substring(2);
+    this.value = v;
   });
+
+  function popularPeriodo() {
+    const meses = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho',
+                   'Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+    const hoje = new Date();
+    const select = document.getElementById('periodo-select');
+    select.innerHTML = '';
+    for (let i = -2; i <= 2; i++) {
+      const d = new Date(hoje.getFullYear(), hoje.getMonth() + i, 1);
+      const opt = document.createElement('option');
+      opt.value = `${d.getMonth() + 1}-${d.getFullYear()}`;
+      opt.textContent = `${meses[d.getMonth()]} ${d.getFullYear()}`;
+      if (i === 0) opt.selected = true;
+      select.appendChild(opt);
+    }
+    select.addEventListener('change', async () => {
+      const [mes, ano] = select.value.split('-').map(Number);
+      try {
+        const data = await Transacoes.listar({ mes, ano });
+        transacoes = Array.isArray(data) ? data : (data.transacoes || []);
+        transacoes = transacoes.map(t => ({
+          id: t.id_transacao,
+          categoria_id: t.categoria_id,
+          data: new Date(t.data).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }),
+          descricao: t.descricao || '',
+          categoria: t.categoria?.nome?.toLowerCase().replace(/\s+/g, '') || 'outros',
+          catNome: t.categoria?.nome || 'Outros',
+          valor: parseFloat(t.valor),
+          tipo: t.tipo
+        }));
+        const resumo = await Transacoes.resumo(mes, ano).catch(() => ({ receitas: 0, despesas: 0, saldo: 0 }));
+        document.getElementById('val-entradas').textContent = 'R$ ' + Number(resumo.receitas || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+        document.getElementById('val-saidas').textContent = 'R$ ' + Number(resumo.despesas || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+        document.getElementById('val-saldo-mes').textContent = 'R$ ' + Number(resumo.saldo || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+        renderTable();
+      } catch(err) { console.error(err); }
+    });
+  }
 
   // --- DADOS ---
   let transacoes = [];
@@ -1232,36 +1256,87 @@
   let filtroAtual = '';
 
   async function carregarTransacoes() {
+    const select = document.getElementById('periodo-select');
+    const val = select ? select.value : null;
+    const mes = val ? parseInt(val.split('-')[0]) : new Date().getMonth() + 1;
+    const ano = val ? parseInt(val.split('-')[1]) : new Date().getFullYear();
+
     try {
-      const data = await Transacoes.listar();
+      const data = await Transacoes.listar({ mes, ano });
       transacoes = Array.isArray(data) ? data : (data.transacoes || []);
       transacoes = transacoes.map(t => ({
         id: t.id_transacao,
+        categoria_id: t.categoria_id,
         data: new Date(t.data).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }),
         descricao: t.descricao || '',
         categoria: t.categoria?.nome?.toLowerCase().replace(/\s+/g, '') || 'outros',
+        catNome: t.categoria?.nome || 'Outros',
         valor: parseFloat(t.valor),
         tipo: t.tipo
       }));
       renderTable();
+
+      const resumo = await Transacoes.resumo(mes, ano).catch(() => ({ receitas: 0, despesas: 0, saldo: 0 }));
+      document.getElementById('val-entradas').textContent = 'R$ ' + Number(resumo.receitas || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+      document.getElementById('val-saidas').textContent = 'R$ ' + Number(resumo.despesas || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+      document.getElementById('val-saldo-mes').textContent = 'R$ ' + Number(resumo.saldo || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 });
     } catch (err) {
       console.error('Erro ao carregar transações:', err);
       renderTable();
     }
   }
 
-  const catLabels = {
-    trabalho: 'Trabalho', alimentacao: 'Alimentação', assinaturas: 'Assinaturas',
-    investimentos: 'Investimentos', lazer: 'Lazer', saude: 'Saúde',
-    transporte: 'Transporte', moradia: 'Moradia',
-  };
+  // Carregar categorias no modal
+  async function carregarCategorias() {
+    try {
+      const cats = await Categorias.listar();
+      const select = document.getElementById('mf-cat');
+      select.innerHTML = cats.map(c =>
+        `<option value="${c.id}">${c.nome} (${c.tipo})</option>`
+      ).join('');
+    } catch (err) {
+      console.error('Erro ao carregar categorias:', err);
+    }
+  }
+
+  async function carregarTagsCategorias() {
+    try {
+      const cats = await Categorias.listar();
+      const container = document.getElementById('category-tags');
+      container.innerHTML = cats.map(c => `
+        <div class="cat-tag active" data-cat-id="${c.id}" data-cat-nome="${c.nome}">
+          ${c.nome} <span class="tag-x">×</span>
+        </div>
+      `).join('');
+
+      container.querySelectorAll('.cat-tag').forEach(tag => {
+        tag.addEventListener('click', () => {
+          tag.classList.toggle('active');
+          renderTable();
+        });
+      });
+    } catch (err) {
+      document.getElementById('category-tags').innerHTML = '';
+    }
+  }
+
 
   function formatValor(v) {
     return v.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   }
 
   function renderTable() {
-    const lista = transacoes.filter(t => t.descricao.toLowerCase().includes(filtroAtual));
+    const catAtivas = [...document.querySelectorAll('.cat-tag.active')].map(t => t.dataset.catId);
+    const fluxoAtivo = document.querySelector('.flow-btn.active')?.textContent?.trim().toLowerCase();
+
+    const lista = transacoes.filter(t => {
+      const matchBusca = t.descricao.toLowerCase().includes(filtroAtual);
+      const matchCat = catAtivas.length === 0 || catAtivas.includes(String(t.categoria_id));
+      const matchFluxo = !fluxoAtivo || fluxoAtivo === 'todas' ||
+        (fluxoAtivo === 'receita' && t.tipo === 'receita') ||
+        (fluxoAtivo === 'despesa' && t.tipo === 'despesa');
+      return matchBusca && matchCat && matchFluxo;
+    });
     const tbody = document.querySelector('.tx-table tbody');
     tbody.innerHTML = '';
 
@@ -1276,7 +1351,7 @@
       tr.innerHTML = `
         <td><div class="tx-date-cell">${t.data}</div></td>
         <td><span class="tx-desc">${t.descricao}</span></td>
-        <td class="col-cat"><span class="cat-badge ${t.categoria}">${catLabels[t.categoria] || t.categoria}</span></td>
+        <td class="col-cat"><span class="cat-badge ${t.categoria}">${t.catNome || t.categoria}</span></td>
         <td><span class="tx-amount ${isReceita ? 'positive' : 'negative'}">${isReceita ? '+' : '-'} R$ ${formatValor(t.valor)}</span></td>
         <td class="col-actions">
           <div class="tx-actions">
@@ -1345,7 +1420,7 @@
 
     document.getElementById('mv-titulo').textContent = tx.descricao;
     document.getElementById('mv-data').textContent = tx.data;
-    document.getElementById('mv-cat').textContent = catLabels[tx.categoria] || tx.categoria;
+    document.getElementById('mv-cat').textContent = tx.catNome || tx.categoria;
 
     const tipoEl = document.getElementById('mv-tipo');
     tipoEl.textContent = tx.tipo === 'receita' ? 'Receita' : 'Despesa';
@@ -1380,27 +1455,31 @@
   // --- MODAL FORM (ADICIONAR / EDITAR) ---
   let editingId = null;
 
-  function openAddModal() {
+  async function openAddModal() {
     editingId = null;
     document.getElementById('modal-form-title').textContent = 'Nova Transação';
-    document.getElementById('mf-data').value = '';
+    const hoje = new Date();
+    const dd = String(hoje.getDate()).padStart(2, '0');
+    const mm = String(hoje.getMonth() + 1).padStart(2, '0');
+    document.getElementById('mf-data').value = `${dd}/${mm}`;
     document.getElementById('mf-desc').value = '';
-    document.getElementById('mf-cat').value = 'trabalho';
     document.getElementById('mf-valor').value = '';
     document.getElementById('mf-tipo').value = 'receita';
+    await carregarCategorias();
     document.getElementById('modal-form').classList.add('open');
   }
 
-  function openEditModal(id) {
+  async function openEditModal(id) {
     const tx = transacoes.find(t => t.id === id);
     if (!tx) return;
     editingId = id;
     document.getElementById('modal-form-title').textContent = 'Editar Transação';
     document.getElementById('mf-data').value = tx.data;
     document.getElementById('mf-desc').value = tx.descricao;
-    document.getElementById('mf-cat').value = tx.categoria;
     document.getElementById('mf-valor').value = tx.valor;
     document.getElementById('mf-tipo').value = tx.tipo;
+    await carregarCategorias();
+    document.getElementById('mf-cat').value = tx.categoria_id || '';
     document.getElementById('modal-form').classList.add('open');
   }
 
@@ -1416,7 +1495,7 @@
   document.getElementById('mf-save').addEventListener('click', async () => {
     const dataVal    = document.getElementById('mf-data').value.trim();
     const descricao  = document.getElementById('mf-desc').value.trim();
-    const categoria  = document.getElementById('mf-cat').value;
+    const categoria_id = parseInt(document.getElementById('mf-cat').value);
     const valor      = parseFloat(document.getElementById('mf-valor').value);
     const tipo       = document.getElementById('mf-tipo').value;
 
@@ -1428,10 +1507,10 @@
 
     try {
       if (editingId === null) {
-        await Transacoes.criar({ tipo, descricao, valor, data: dataISO });
+        await Transacoes.criar({ tipo, descricao, valor, data: dataISO, categoria_id });
       } else {
         const original = transacoes.find(t => t.id === editingId);
-        if (original) await Transacoes.atualizar(original.id, { tipo, descricao, valor, data: dataISO });
+        if (original) await Transacoes.atualizar(original.id, { tipo, descricao, valor, data: dataISO, categoria_id });
       }
       closeFormModal();
       await carregarTransacoes();
@@ -1471,6 +1550,9 @@
   });
 
   // --- INIT ---
+  popularPeriodo();
+  carregarCategorias();
+  carregarTagsCategorias();
   carregarTransacoes();
 </script>
 

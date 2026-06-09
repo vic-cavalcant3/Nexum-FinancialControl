@@ -580,41 +580,41 @@
     <div class="topbar-right">
       <div class="topbar-icon">
         <i data-lucide="bell" style="width:18px;height:18px;"></i>
-        <span class="notif-dot"></span>
+        <span class="notif-dot" style="display:none;"></span>
       </div>
-      <div class="avatar" onclick="window.location.href='configuracao.html'" style="cursor:pointer;" title="Configurações">JP</div>
+      <div class="avatar" onclick="window.location.href='configuracao.html'" style="cursor:pointer;" title="Configurações"></div>
     </div>
   </header>
 
   <div class="content">
     <div class="page-header">
-      <h1>Olá, João Pedro!!!</h1>
+      <h1 id="greeting">Olá!!!</h1>
       <p>Aqui está o panorama das suas finanças para este mês.</p>
     </div>
 
     <div class="summary-grid">
       <div class="summary-card">
         <div class="summary-label green">Total de Receitas</div>
-        <div class="summary-value">R$ 12.450,00</div>
-        <div class="summary-badge up">
+        <div class="summary-value" id="val-receitas">R$ 0,00</div>
+        <div class="summary-badge up" id="badge-receitas">
           <i data-lucide="trending-up"></i>
-          +12% vs mês anterior
+          Receitas do mês
         </div>
       </div>
       <div class="summary-card">
         <div class="summary-label red">Total de Gastos</div>
-        <div class="summary-value">R$ 4.120,50</div>
-        <div class="summary-badge down">
+        <div class="summary-value" id="val-gastos">R$ 0,00</div>
+        <div class="summary-badge down" id="badge-gastos">
           <i data-lucide="trending-down"></i>
-          -5% economia ativa
+          Despesas do mês
         </div>
       </div>
       <div class="summary-card highlight">
         <div class="summary-label">Saldo Disponível</div>
-        <div class="summary-value">R$ 8.329,50</div>
-        <div class="summary-badge neutral">
-          <i data-lucide="landmark"></i>
-          Pronto para investir
+        <div class="summary-value" id="val-saldo">R$ 0,00</div>
+        <div class="summary-badge neutral" id="badge-saldo">
+          <i data-lucide="minus"></i>
+          Sem movimentações
         </div>
       </div>
     </div>
@@ -626,54 +626,19 @@
             <div class="card-title">Meta de Economia</div>
             <div class="card-sub">Progresso Mensal</div>
           </div>
-          <div class="meta-percent">34%</div>
+          <div class="meta-percent" id="meta-percent">0%</div>
         </div>
-        <div class="progress-bar"><div class="progress-fill"></div></div>
-        <div class="meta-quote">"Você economizou 34% da sua meta esse mês. Continue assim!"</div>
+        <div class="progress-bar"><div class="progress-fill" id="meta-fill" style="width:0%"></div></div>
+        <div class="meta-quote" id="meta-quote"></div>
       </div>
 
-      <div class="alert-card">
-        <div class="alert-icon-wrap">
-          <i data-lucide="triangle-alert"></i>
-        </div>
-        <div>
-          <div class="alert-title">Alerta de Limite</div>
-          <div class="alert-text">
-            Você gastou <span>80%</span> do seu limite definido para <a>Alimentação</a>.
-          </div>
-        </div>
-      </div>
+      <div class="alert-card" id="alert-card" style="display:none;"></div>
     </div>
 
     <div class="charts-grid">
       <div class="card">
         <div class="card-title" style="margin-bottom:20px;">Gastos por Categoria</div>
-        <div class="category-list">
-          <div class="category-item">
-            <div class="category-row">
-              <div class="cat-icon food"><i data-lucide="utensils"></i></div>
-              <span class="cat-name">Alimentação</span>
-              <span class="cat-amount">R$ 1.200</span>
-            </div>
-            <div class="cat-bar"><div class="cat-bar-fill food"></div></div>
-          </div>
-          <div class="category-item">
-            <div class="category-row">
-              <div class="cat-icon transport"><i data-lucide="car"></i></div>
-              <span class="cat-name">Transporte</span>
-              <span class="cat-amount">R$ 850</span>
-            </div>
-            <div class="cat-bar"><div class="cat-bar-fill transport"></div></div>
-          </div>
-          <div class="category-item">
-            <div class="category-row">
-              <div class="cat-icon home"><i data-lucide="home"></i></div>
-              <span class="cat-name">Moradia</span>
-              <span class="cat-amount">R$ 1.800</span>
-            </div>
-            <div class="cat-bar"><div class="cat-bar-fill home"></div></div>
-          </div>
-        </div>
+        <div class="category-list" id="category-list"></div>
       </div>
 
       <div class="card">
@@ -684,39 +649,14 @@
             <i data-lucide="chevron-down"></i>
           </div>
         </div>
-        <div class="bar-chart">
-          <div class="bar-group">
-            <div class="bar inactive" style="height:55px;"></div>
-            <span class="bar-label">JAN</span>
-          </div>
-          <div class="bar-group">
-            <div class="bar inactive" style="height:70px;"></div>
-            <span class="bar-label">FEV</span>
-          </div>
-          <div class="bar-group">
-            <div class="bar inactive" style="height:62px;"></div>
-            <span class="bar-label">MAR</span>
-          </div>
-          <div class="bar-group">
-            <div class="bar inactive" style="height:80px;"></div>
-            <span class="bar-label">ABR</span>
-          </div>
-          <div class="bar-group">
-            <div class="bar inactive" style="height:72px;"></div>
-            <span class="bar-label">MAI</span>
-          </div>
-          <div class="bar-group">
-            <div class="bar active" style="height:105px;"></div>
-            <span class="bar-label">JUN</span>
-          </div>
-        </div>
+        <div class="bar-chart" id="bar-chart"></div>
       </div>
     </div>
 
     <div class="card transactions-card">
       <div class="tx-header">
         <div class="card-title" style="font-size:16px;">Últimas Transações</div>
-        <a class="tx-link">Ver todas</a>
+        <a class="tx-link" href="./transacoes.html">Ver todas</a>
       </div>
       <table class="tx-table">
         <thead>
@@ -727,77 +667,387 @@
             <th>Valor</th>
           </tr>
         </thead>
-        <tbody>
-          <tr>
-            <td>
-              <div class="tx-name-cell">
-                <div class="tx-icon"><i data-lucide="shopping-bag"></i></div>
-                <span class="tx-label">Ifood</span>
-              </div>
-            </td>
-            <td class="col-cat"><span class="tx-category">Alimentação</span></td>
-            <td class="col-date"><span class="tx-date">Hoje, 14:32</span></td>
-            <td><span class="tx-amount negative">- R$ 74,90</span></td>
-          </tr>
-          <tr>
-            <td>
-              <div class="tx-name-cell">
-                <div class="tx-icon"><i data-lucide="briefcase"></i></div>
-                <span class="tx-label">Salário</span>
-              </div>
-            </td>
-            <td class="col-cat"><span class="tx-category">Renda Mensal</span></td>
-            <td class="col-date"><span class="tx-date">Ontem, 09:00</span></td>
-            <td><span class="tx-amount positive">+ R$ 12.450,00</span></td>
-          </tr>
-          <tr>
-            <td>
-              <div class="tx-name-cell">
-                <div class="tx-icon"><i data-lucide="fuel"></i></div>
-                <span class="tx-label">Posto Shell</span>
-              </div>
-            </td>
-            <td class="col-cat"><span class="tx-category">Transporte</span></td>
-            <td class="col-date"><span class="tx-date">22 Jun, 18:15</span></td>
-            <td><span class="tx-amount negative">- R$ 240,00</span></td>
-          </tr>
-        </tbody>
+        <tbody id="tx-tbody"></tbody>
       </table>
     </div>
   </div>
 </main>
 
 <script>
-  redirecionarSeNaoLogado();
-  const _u = getUsuario();
-  if (_u) {
-    const iniciais = _u.nome.split(' ').map(p => p[0]).join('').substring(0, 2).toUpperCase();
-    document.querySelectorAll('.avatar').forEach(el => el.textContent = iniciais);
+redirecionarSeNaoLogado();
+
+// Preenche avatar e saudação com nome real
+const _u = getUsuario();
+if (_u) {
+  const iniciais = _u.nome.split(' ').map(p => p[0]).join('').substring(0, 2).toUpperCase();
+  document.querySelectorAll('.avatar').forEach(el => el.textContent = iniciais);
+
+  const primeiroNome = _u.nome.split(' ')[0];
+  const hora = new Date().getHours();
+  const saudacao = hora < 12 ? 'Bom dia' : hora < 18 ? 'Boa tarde' : 'Boa noite';
+  document.getElementById('greeting').textContent = `${saudacao}, ${primeiroNome}!!!`;
+}
+
+lucide.createIcons();
+
+const CURRENT_PAGE = 'inicial';
+
+fetch('../components/layout/sidebar.html')
+  .then(r => r.text())
+  .then(html => {
+    document.getElementById('sidebar-container').innerHTML = html;
+    lucide.createIcons();
+    document.querySelectorAll('.nav-item').forEach(item => {
+      const href = item.getAttribute('href') || '';
+      if (href.includes(CURRENT_PAGE)) item.classList.add('active');
+    });
+  });
+
+function openSidebar() {
+  document.getElementById('sidebar').classList.add('open');
+  document.getElementById('overlay').classList.add('open');
+}
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('overlay').classList.remove('open');
+}
+
+// --- FORMATAÇÃO ---
+function fmt(v) {
+  return Number(v || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+function fmtData(dataStr) {
+  const d = new Date(dataStr);
+  const hoje = new Date();
+  const ontem = new Date(); ontem.setDate(ontem.getDate() - 1);
+  if (d.toDateString() === hoje.toDateString()) return `Hoje, ${d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}`;
+  if (d.toDateString() === ontem.toDateString()) return `Ontem, ${d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}`;
+  return d.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' });
+}
+
+// Ícones para categorias
+const catIcones = {
+  alimentacao: 'utensils', alimentação: 'utensils',
+  transporte: 'car', moradia: 'house', home: 'house',
+  saude: 'heart-pulse', saúde: 'heart-pulse',
+  lazer: 'clapperboard', educacao: 'book-open', educação: 'book-open',
+  assinaturas: 'repeat', investimentos: 'trending-up',
+  salario: 'briefcase', salário: 'briefcase',
+  trabalho: 'briefcase', outros: 'more-horizontal',
+  'renda extra': 'plus-circle',
+};
+function getCatIcon(nome) {
+  const key = (nome || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+  for (const k in catIcones) {
+    const kn = k.normalize('NFD').replace(/[̀-ͯ]/g, '');
+    if (key.includes(kn)) return catIcones[k];
   }
-  lucide.createIcons();
+  return 'tag';
+}
 
-  const CURRENT_PAGE = 'inicial';
+// Cores para categorias no gráfico
+const catCores = ['#4A0789','#f97316','#3b82f6','#22c55e','#f59e0b','#ef4444','#8b5cf6','#06b6d4'];
 
-  fetch('../components/layout/sidebar.html')
-    .then(r => r.text())
-    .then(html => {
-      document.getElementById('sidebar-container').innerHTML = html;
-      lucide.createIcons();
-      document.querySelectorAll('.nav-item').forEach(item => {
-        const href = item.getAttribute('href') || '';
-        if (href.includes(CURRENT_PAGE)) item.classList.add('active');
-      });
+// --- CARREGAR DADOS ---
+async function carregarDashboard() {
+  const mes = new Date().getMonth() + 1;
+  const ano = new Date().getFullYear();
+
+  try {
+    // 1. Resumo do mês
+    const resumo = await Transacoes.resumo(mes, ano).catch(() => ({ receitas: 0, despesas: 0, saldo: 0 }));
+    const receitas = Number(resumo.receitas || 0);
+    const despesas = Number(resumo.despesas || 0);
+    const saldo    = Number(resumo.saldo    || 0);
+
+    document.getElementById('val-receitas').textContent = `R$ ${fmt(receitas)}`;
+    document.getElementById('val-gastos').textContent   = `R$ ${fmt(despesas)}`;
+    document.getElementById('val-saldo').textContent    = `R$ ${fmt(saldo)}`;
+
+    // Badge saldo
+    const badgeSaldo = document.getElementById('badge-saldo');
+    if (saldo > 0) {
+      badgeSaldo.innerHTML = '<i data-lucide="landmark"></i> Pronto para investir';
+      badgeSaldo.className = 'summary-badge neutral';
+    } else if (saldo < 0) {
+      badgeSaldo.innerHTML = '<i data-lucide="alert-triangle"></i> Saldo negativo';
+      badgeSaldo.className = 'summary-badge down';
+    } else {
+      badgeSaldo.innerHTML = '<i data-lucide="minus"></i> Sem movimentações';
+      badgeSaldo.className = 'summary-badge neutral';
+    }
+
+    // 2. Transações do mês para categorias e gráfico
+    const transacoes = await Transacoes.listar({ mes, ano }).catch(() => []);
+    const lista = Array.isArray(transacoes) ? transacoes : [];
+
+    // Gastos por categoria
+    const gastosCat = {};
+    lista.filter(t => t.tipo === 'despesa').forEach(t => {
+      const nome = t.categoria?.nome || 'Outros';
+      gastosCat[nome] = (gastosCat[nome] || 0) + Number(t.valor);
     });
 
-  function openSidebar() {
-    document.getElementById('sidebar').classList.add('open');
-    document.getElementById('overlay').classList.add('open');
+    const catList = document.getElementById('category-list');
+    const catEntries = Object.entries(gastosCat).sort((a, b) => b[1] - a[1]).slice(0, 5);
+    const maxCat = catEntries.length > 0 ? catEntries[0][1] : 1;
+
+    if (catEntries.length === 0) {
+      catList.innerHTML = '<div style="color:#6b7280;font-size:13px;padding:20px 0;text-align:center;">Nenhum gasto registrado este mês</div>';
+    } else {
+      catList.innerHTML = catEntries.map(([nome, valor], i) => `
+        <div class="category-item">
+          <div class="category-row">
+            <div class="cat-icon" style="background:${catCores[i % catCores.length]}22;color:${catCores[i % catCores.length]}">
+              <i data-lucide="${getCatIcon(nome)}"></i>
+            </div>
+            <span class="cat-name">${nome}</span>
+            <span class="cat-amount">R$ ${fmt(valor)}</span>
+          </div>
+          <div class="cat-bar">
+            <div class="cat-bar-fill" style="width:${Math.round((valor/maxCat)*100)}%;background:${catCores[i % catCores.length]};"></div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // Meta de economia (% do saldo sobre receitas)
+    const pctMeta = receitas > 0 ? Math.min(Math.round((saldo / receitas) * 100), 100) : 0;
+    document.getElementById('meta-percent').textContent = `${pctMeta}%`;
+    const fill = document.getElementById('meta-fill');
+    if (fill) fill.style.width = `${pctMeta}%`;
+    const quote = document.getElementById('meta-quote');
+    if (quote) {
+      if (receitas === 0) quote.textContent = 'Adicione suas receitas para acompanhar o progresso.';
+      else if (pctMeta >= 30) quote.textContent = `"Você economizou ${pctMeta}% da sua renda esse mês. Continue assim!"`;
+      else if (pctMeta > 0) quote.textContent = `"Você economizou ${pctMeta}% da sua renda. Tente reduzir os gastos!"`;
+      else quote.textContent = '"Seus gastos superaram as receitas este mês. Atenção!"';
+    }
+
+    // Alerta de limite (se alguma categoria passou de 50% dos gastos totais)
+    const alertCard = document.getElementById('alert-card');
+    if (alertCard && catEntries.length > 0 && despesas > 0) {
+      const critica = catEntries.find(([, v]) => (v / despesas) > 0.5);
+      if (critica) {
+        const pctCritica = Math.round((critica[1] / despesas) * 100);
+        alertCard.style.display = 'flex';
+        alertCard.innerHTML = `
+          <div class="alert-icon-wrap"><i data-lucide="triangle-alert"></i></div>
+          <div>
+            <div class="alert-title">Alerta de Gastos</div>
+            <div class="alert-text">
+              Você concentrou <span>${pctCritica}%</span> dos seus gastos em <a>${critica[0]}</a>.
+            </div>
+          </div>
+        `;
+      } else {
+        alertCard.style.display = 'none';
+      }
+    }
+
+    // 3. Evolução mensal — últimos 6 meses
+    const meses = ['JAN','FEV','MAR','ABR','MAI','JUN','JUL','AGO','SET','OUT','NOV','DEZ'];
+    const hoje = new Date();
+    const ultimos6 = Array.from({ length: 6 }, (_, i) => {
+      const d = new Date(hoje.getFullYear(), hoje.getMonth() - (5 - i), 1);
+      return { mes: d.getMonth() + 1, ano: d.getFullYear(), label: meses[d.getMonth()] };
+    });
+
+    const dadosMeses = await Promise.all(
+      ultimos6.map(m => Transacoes.resumo(m.mes, m.ano).catch(() => ({ receitas: 0, despesas: 0, saldo: 0 })))
+    );
+
+    const maxVal = Math.max(...dadosMeses.map(d => Number(d.receitas || 0)), 1);
+    const alturaMax = 100;
+
+    const barChart = document.getElementById('bar-chart');
+    barChart.innerHTML = ultimos6.map((m, i) => {
+      const r = Number(dadosMeses[i].receitas || 0);
+      const altura = Math.max(Math.round((r / maxVal) * alturaMax), r > 0 ? 8 : 0);
+      const isAtual = i === 5;
+      return `
+        <div class="bar-group">
+          <div class="bar ${isAtual ? 'active' : 'inactive'}" style="height:${altura}px;"></div>
+          <span class="bar-label">${m.label}</span>
+        </div>
+      `;
+    }).join('');
+
+    // 4. Últimas transações (5 mais recentes)
+    const tbody = document.getElementById('tx-tbody');
+    const ultimas = lista.slice(0, 5);
+
+    if (ultimas.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;color:#6b7280;padding:24px;font-size:13px;">Nenhuma transação registrada</td></tr>`;
+    } else {
+      tbody.innerHTML = ultimas.map(t => {
+        const isReceita = t.tipo === 'receita';
+        const catNome = t.categoria?.nome || 'Outros';
+        return `
+          <tr>
+            <td>
+              <div class="tx-name-cell">
+                <div class="tx-icon"><i data-lucide="${getCatIcon(catNome)}"></i></div>
+                <span class="tx-label">${t.descricao || catNome}</span>
+              </div>
+            </td>
+            <td class="col-cat"><span class="tx-category">${catNome}</span></td>
+            <td class="col-date"><span class="tx-date">${fmtData(t.data)}</span></td>
+            <td><span class="tx-amount ${isReceita ? 'positive' : 'negative'}">${isReceita ? '+' : '-'} R$ ${fmt(t.valor)}</span></td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    lucide.createIcons();
+
+    // 5. Notificações inteligentes
+    gerarNotificacoes(lista, receitas, despesas, saldo, gastosCat);
+
+  } catch (err) {
+    console.error('Erro ao carregar dashboard:', err);
+  }
+}
+
+// --- NOTIFICAÇÕES INTELIGENTES ---
+function gerarNotificacoes(transacoes, receitas, despesas, saldo, gastosCat) {
+  const notifs = [];
+  const usuario = getUsuario();
+  const nome = usuario?.nome?.split(' ')[0] || 'você';
+
+  // 1. Boas-vindas se não tiver transações
+  if (transacoes.length === 0) {
+    notifs.push({
+      tipo: 'purple',
+      icone: 'sparkles',
+      msg: `Bem-vindo ao Nexum, <strong>${nome}</strong>! Comece adicionando suas primeiras transações.`,
+      tempo: 'Agora'
+    });
   }
 
-  function closeSidebar() {
-    document.getElementById('sidebar').classList.remove('open');
-    document.getElementById('overlay').classList.remove('open');
+  // 2. Saldo negativo
+  if (saldo < 0) {
+    notifs.push({
+      tipo: 'warning',
+      icone: 'alert-triangle',
+      msg: `Atenção! Seu saldo este mês está negativo: <strong>- R$ ${fmt(Math.abs(saldo))}</strong>.`,
+      tempo: 'Este mês'
+    });
   }
+
+  // 3. Categoria com mais de 50% dos gastos
+  const catEntries = Object.entries(gastosCat).sort((a, b) => b[1] - a[1]);
+  if (catEntries.length > 0 && despesas > 0) {
+    const [catNome, catVal] = catEntries[0];
+    const pct = Math.round((catVal / despesas) * 100);
+    if (pct >= 50) {
+      notifs.push({
+        tipo: 'warning',
+        icone: 'triangle-alert',
+        msg: `<strong>${pct}%</strong> dos seus gastos este mês estão em <strong>${catNome}</strong>.`,
+        tempo: 'Este mês'
+      });
+    }
+  }
+
+  // 4. Saldo positivo e alto
+  if (saldo > 0 && receitas > 0) {
+    const pctEconomia = Math.round((saldo / receitas) * 100);
+    if (pctEconomia >= 20) {
+      notifs.push({
+        tipo: 'green',
+        icone: 'trending-up',
+        msg: `Ótimo! Você economizou <strong>${pctEconomia}%</strong> da sua renda este mês.`,
+        tempo: 'Este mês'
+      });
+    }
+  }
+
+  // 5. Muitas transações em um dia
+  const hojeStr = new Date().toDateString();
+  const txHoje = transacoes.filter(t => new Date(t.data).toDateString() === hojeStr);
+  if (txHoje.length >= 3) {
+    notifs.push({
+      tipo: 'purple',
+      icone: 'zap',
+      msg: `Você teve <strong>${txHoje.length} transações</strong> registradas hoje.`,
+      tempo: 'Hoje'
+    });
+  }
+
+  // 6. Receita alta
+  if (receitas > 10000) {
+    notifs.push({
+      tipo: 'green',
+      icone: 'banknote',
+      msg: `Suas receitas este mês superaram <strong>R$ ${fmt(receitas)}</strong>. Considere investir o excedente!`,
+      tempo: 'Este mês'
+    });
+  }
+
+  // 7. Sem receitas
+  if (receitas === 0 && transacoes.length > 0) {
+    notifs.push({
+      tipo: 'warning',
+      icone: 'info',
+      msg: `Você ainda não registrou nenhuma <strong>receita</strong> este mês.`,
+      tempo: 'Este mês'
+    });
+  }
+
+  // 8. Insight padrão
+  notifs.push({
+    tipo: 'purple',
+    icone: 'sparkles',
+    msg: 'Use o <strong>Planejamento</strong> para definir limites por categoria e controlar melhor seus gastos.',
+    tempo: 'Dica'
+  });
+
+  // Renderiza no painel
+  const lista = document.querySelector('.notif-panel-list');
+  if (!lista) return;
+
+  const qtdUnread = Math.min(notifs.filter(n => n.tipo === 'warning').length + 1, notifs.length);
+
+  lista.innerHTML = notifs.slice(0, 6).map((n, i) => `
+    <div class="notif-panel-item ${i < qtdUnread ? 'unread' : ''}">
+      <div class="notif-panel-icon ${n.tipo}">
+        <i data-lucide="${n.icone}" style="width:16px;height:16px;"></i>
+      </div>
+      <div class="notif-panel-body">
+        <div class="notif-panel-msg">${n.msg}</div>
+        <div class="notif-panel-time">${n.tempo}</div>
+      </div>
+    </div>
+  `).join('');
+
+  lucide.createIcons();
+
+  // Atualiza o dot de notificação
+  const dot = document.querySelector('.notif-dot');
+  if (dot && qtdUnread > 0) dot.style.display = 'block';
+}
+
+// --- PAINEL DE NOTIFICAÇÕES ---
+function abrirNotif() {
+  document.getElementById('notif-panel').classList.add('open');
+  document.getElementById('notif-overlay').classList.add('open');
+  lucide.createIcons();
+}
+function fecharNotif() {
+  document.getElementById('notif-panel').classList.remove('open');
+  document.getElementById('notif-overlay').classList.remove('open');
+}
+function marcarLidas() {
+  document.querySelectorAll('.notif-panel-item.unread').forEach(i => i.classList.remove('unread'));
+  const dot = document.querySelector('.notif-dot');
+  if (dot) dot.style.display = 'none';
+}
+document.querySelector('.topbar-icon').addEventListener('click', abrirNotif);
+
+// Inicializa
+carregarDashboard();
 </script>
 
 <!-- Painel de Notificações -->
@@ -806,43 +1056,9 @@
     <span class="notif-panel-title">Notificações</span>
     <button class="notif-panel-close" onclick="fecharNotif()">✕</button>
   </div>
-  <div class="notif-panel-list">
-    <div class="notif-panel-item unread">
-      <div class="notif-panel-icon warning"><i data-lucide="triangle-alert" style="width:16px;height:16px;"></i></div>
-      <div class="notif-panel-body"><div class="notif-panel-msg">Você atingiu <strong>80%</strong> do limite em Alimentação.</div><div class="notif-panel-time">Há 2 horas</div></div>
-    </div>
-    <div class="notif-panel-item unread">
-      <div class="notif-panel-icon purple"><i data-lucide="target" style="width:16px;height:16px;"></i></div>
-      <div class="notif-panel-body"><div class="notif-panel-msg">Meta <strong>Reserva de Emergência</strong> está 84% concluída!</div><div class="notif-panel-time">Há 5 horas</div></div>
-    </div>
-    <div class="notif-panel-item">
-      <div class="notif-panel-icon green"><i data-lucide="trending-up" style="width:16px;height:16px;"></i></div>
-      <div class="notif-panel-body"><div class="notif-panel-msg">Seu saldo este mês é <strong>R$ 7.330,00</strong> — acima da média.</div><div class="notif-panel-time">Ontem</div></div>
-    </div>
-    <div class="notif-panel-item">
-      <div class="notif-panel-icon purple"><i data-lucide="sparkles" style="width:16px;height:16px;"></i></div>
-      <div class="notif-panel-body"><div class="notif-panel-msg">Novo insight do Consultor IA disponível para você.</div><div class="notif-panel-time">2 dias atrás</div></div>
-    </div>
-  </div>
+  <div class="notif-panel-list"></div>
   <div class="notif-panel-footer" onclick="marcarLidas()">Marcar todas como lidas</div>
 </div>
 <div class="notif-overlay" id="notif-overlay" onclick="fecharNotif()"></div>
-<script>
-  function abrirNotif() {
-    document.getElementById('notif-panel').classList.add('open');
-    document.getElementById('notif-overlay').classList.add('open');
-    const dot = document.querySelector('.notif-dot');
-    if (dot) dot.style.display = 'none';
-    lucide.createIcons();
-  }
-  function fecharNotif() {
-    document.getElementById('notif-panel').classList.remove('open');
-    document.getElementById('notif-overlay').classList.remove('open');
-  }
-  function marcarLidas() {
-    document.querySelectorAll('.notif-panel-item.unread').forEach(i => i.classList.remove('unread'));
-  }
-  document.querySelector('.topbar-icon').addEventListener('click', abrirNotif);
-</script>
 </body>
 </html>
