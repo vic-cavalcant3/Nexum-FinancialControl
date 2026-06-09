@@ -24,6 +24,9 @@ class CategoriaController {
         });
         res.status(201).json(categoria);
       } catch (err) {
+        if (err.code === 'P2002') {
+          return res.status(400).json({ erro: 'Você já tem uma categoria com esse nome e tipo.' });
+        }
         res.status(400).json({ erro: err.message });
       }
     }

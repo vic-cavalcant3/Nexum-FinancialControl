@@ -1405,7 +1405,10 @@ function openEditCatModal(id) {
     document.getElementById('modal-cat').classList.remove('open');
     await carregarDados();
   } catch (err) {
-    alert('Erro ao salvar: ' + err.message);
+    const msg = err.message.includes('já tem')
+      ? err.message
+      : 'Erro ao salvar categoria. Tente um nome diferente.';
+    alert(msg);
   }
 });
   document.querySelector('.btn-add-cat').addEventListener('click', openAddCatModal);
