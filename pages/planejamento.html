@@ -1364,30 +1364,29 @@ gerarNotificacoesPlanejamento();
   let editingCatId = null;
 
   function openAddCatModal() {
-    editingCatId = null;
-    document.getElementById('mcat-titulo').textContent = 'Nova Categoria';
-    document.getElementById('mcat-nome').value = '';
-    document.getElementById('mcat-sub').value = '';
-    document.getElementById('mcat-limite').value = '';
-    document.getElementById('mcat-gasto').value = '';
-    document.getElementById('modal-cat').classList.add('open');
-  }
+  editingCatId = null;
+  document.getElementById('mcat-titulo').textContent = 'Nova Categoria';
+  document.getElementById('mcat-nome').value = '';
+  document.getElementById('mcat-tipo').value = 'despesa';
+  document.getElementById('mcat-limite').value = '';
+  document.getElementById('modal-cat').classList.add('open');
+}
 
-  function openEditCatModal(id) {
-    const cat = categorias.find(c => c.id === id);
-    if (!cat) return;
-    editingCatId = id;
-    document.getElementById('mcat-titulo').textContent = 'Editar Categoria';
-    document.getElementById('mcat-nome').value = cat.nome;
-    document.getElementById('mcat-sub').value = cat.sub;
-    document.getElementById('mcat-limite').value = cat.limite;
-    document.getElementById('mcat-gasto').value = cat.gasto;
-    document.getElementById('modal-cat').classList.add('open');
-  }
+function openEditCatModal(id) {
+  const cat = categorias.find(c => c.id === id);
+  if (!cat) return;
+  editingCatId = id;
+  document.getElementById('mcat-titulo').textContent = 'Editar Categoria';
+  document.getElementById('mcat-nome').value = cat.nome;
+  document.getElementById('mcat-tipo').value = cat.tipo || 'despesa';
+  const limites = JSON.parse(localStorage.getItem('nexum_limites') || '{}');
+  document.getElementById('mcat-limite').value = limites[id] || '';
+  document.getElementById('modal-cat').classList.add('open');
+}
 
   document.getElementById('mcat-cancel').addEventListener('click', () => document.getElementById('modal-cat').classList.remove('open'));
   document.getElementById('modal-cat').addEventListener('click', (e) => { if (e.target === document.getElementById('modal-cat')) document.getElementById('modal-cat').classList.remove('open'); });
-document.getElementById('mcat-save').addEventListener('click', async () => {
+  document.getElementById('mcat-save').addEventListener('click', async () => {
   const nome   = document.getElementById('mcat-nome').value.trim();
   const tipo   = document.getElementById('mcat-tipo').value;
   const limite = parseFloat(document.getElementById('mcat-limite').value) || 0;
@@ -1396,8 +1395,7 @@ document.getElementById('mcat-save').addEventListener('click', async () => {
   try {
     if (editingCatId === null) {
       // Cria categoria via API
-      await Categorias.criar({ nome, tipo, icone: getIconForCat(nome) });
-    }
+      await Categorias.criar(nome, tipo, getIconForCat(nome));    }
     // Salva limite no localStorage
     if (editingCatId !== null && limite > 0) {
       const limites = JSON.parse(localStorage.getItem('nexum_limites') || '{}');

@@ -96,9 +96,14 @@ const Transacoes = {
 // Categorias
 const Categorias = {
   listar: () => apiFetch('/categorias'),
-  criar: (nome, tipo, icone) => apiFetch('/categorias', {
-    method: 'POST',
-    body: JSON.stringify({ nome, tipo, icone })
-  }),
+  criar: (nomeOuObj, tipo, icone) => {
+    const dados = typeof nomeOuObj === 'object'
+      ? nomeOuObj
+      : { nome: nomeOuObj, tipo, icone };
+    return apiFetch('/categorias', {
+      method: 'POST',
+      body: JSON.stringify(dados)
+    });
+  },
   deletar: (id) => apiFetch(`/categorias/${id}`, { method: 'DELETE' })
 };
