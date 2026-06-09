@@ -735,12 +735,14 @@
   .btn-upgrade:hover { background: var(--accent-purple-dark); }
 
   /* ── RESPONSIVE ── */
-  @media (max-width: 1600px) {
-    .menu-btn{display:none}
-    .budget-grid { grid-template-columns: repeat(2, 1fr); }
-    .bottom-section { grid-template-columns: 1fr; }
-  }
+@media (min-width: 769px) {
+  .menu-btn { display: none; }
+}
 
+@media (max-width: 1200px) {
+  .budget-grid { grid-template-columns: repeat(2, 1fr); }
+  .bottom-section { grid-template-columns: 1fr; }
+}
   @media (max-width: 768px) {
     .sidebar { transform: translateX(-100%); box-shadow: 4px 0 24px rgba(0,0,0,0.5); }
     .sidebar.open { transform: translateX(0); }
