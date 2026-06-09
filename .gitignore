@@ -4,3 +4,5 @@ backend/node_modules/
 
 # Env geral
 .env
+
+database/rodar-sql.js
