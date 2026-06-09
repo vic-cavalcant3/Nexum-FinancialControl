@@ -107,3 +107,11 @@ const Categorias = {
   },
   deletar: (id) => apiFetch(`/categorias/${id}`, { method: 'DELETE' })
 };
+
+// Metas
+const Metas = {
+  listar: () => apiFetch('/metas'),
+  criar: (dados) => apiFetch('/metas', { method: 'POST', body: JSON.stringify(dados) }),
+  atualizar: (id, dados) => apiFetch(`/metas/${id}`, { method: 'PUT', body: JSON.stringify(dados) }),
+  deletar: (id) => apiFetch(`/metas/${id}`, { method: 'DELETE' })
+};

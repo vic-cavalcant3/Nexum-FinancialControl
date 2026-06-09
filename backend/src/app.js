@@ -6,6 +6,7 @@ const { PrismaClient } = require('@prisma/client');
 const authRoutes = require('./routes/auth.routes');
 const transacaoRoutes = require('./routes/transacao.routes');
 const categoriaRoutes = require('./routes/categoria.routes');
+const metaRoutes = require('./routes/meta.routes');
 
 const prisma = new PrismaClient();
 const app = express();
@@ -25,6 +26,7 @@ app.use((req, _res, next) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/transacoes', transacaoRoutes);
 app.use('/api/categorias', categoriaRoutes);
+app.use('/api/metas', metaRoutes);
 
 app.get('/api/health', (_, res) => res.json({ status: 'ok' }));
 app.use((_, res) => res.status(404).json({ erro: 'Rota não encontrada.' }));

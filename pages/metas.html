@@ -361,17 +361,14 @@
   .btn-mmeta-cancel { background: #222; border: 1px solid #2a2a2a; border-radius: 8px; padding: 10px 18px; color: #9ca3af; font-size: 13px; font-weight: 600; font-family: inherit; cursor: pointer; }
   .btn-mmeta-remove { background: #ef4444; border: none; border-radius: 8px; padding: 10px 18px; color: #fff; font-size: 13px; font-weight: 700; font-family: inherit; cursor: pointer; }
 
-  @media (max-width: 1600px) {
-    .two-col {
-      grid-template-columns: 1fr;
-      width: 100%;
-    }
-    .right-col {
-      width: 100%;
-      max-width: 100%;
-    }
-    .menu-btn{display:none}
-  }
+@media (min-width: 769px) {
+  .menu-btn { display: none; }
+}
+
+@media (max-width: 1200px) {
+  .budget-grid { grid-template-columns: repeat(2, 1fr); }
+  .bottom-section { grid-template-columns: 1fr; }
+}
 
   @media (max-width: 768px) {
     .sidebar { transform: translateX(-100%); box-shadow: 4px 0 24px rgba(0,0,0,0.5); }
@@ -658,50 +655,73 @@
   }
 
   // --- DADOS ---
-  let metas = [
-    { id: 1, nome: 'Viagem para Europa',    tag: 'Meta de Experiência',  atual: 18500, total: 35000,  deadline: 'Dezembro, 2026' },
-    { id: 2, nome: 'Reserva de Emergência', tag: 'Segurança Financeira', atual: 42000, total: 50000,  deadline: 'Julho, 2026'    },
-    { id: 3, nome: 'Trocar de Carro',       tag: 'Meta de Patrimônio',   atual: 15000, total: 120000, deadline: 'Março, 2026'    },
-  ];
-  let nextMetaId = 4;
+  let metas = [];
 
   function formatVal(v) {
-    return v.toLocaleString('pt-BR', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+    return Number(v || 0).toLocaleString('pt-BR', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
   }
 
-  function calcMeses(atual, total) {
+  function formatValDec(v) {
+    return Number(v || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  function formatDeadline(dataStr) {
+    if (!dataStr) return '—';
+    const d = new Date(dataStr);
+    const meses = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho',
+                   'Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+    return `${meses[d.getMonth()]}, ${d.getFullYear()}`;
+  }
+
+  function calcMeses(atual, total, aporte) {
     const faltam = total - atual;
     if (faltam <= 0) return 0;
-    const aporte = atual > 0 ? atual / 6 : 500;
-    return Math.ceil(faltam / aporte);
+    const ap = aporte > 0 ? aporte : (atual > 0 ? atual / 6 : 500);
+    return Math.ceil(faltam / ap);
   }
 
   function renderMetas() {
     const list = document.getElementById('goals-list');
     list.innerHTML = '';
 
+    if (metas.length === 0) {
+      list.innerHTML = `
+        <div style="background:#141414;border:1px solid #1f1f1f;border-radius:16px;padding:40px;text-align:center;color:#6b7280;">
+          <p style="font-size:15px;margin-bottom:8px;">Nenhuma meta cadastrada ainda.</p>
+          <p style="font-size:13px;">Use o formulário ao lado para criar sua primeira meta!</p>
+        </div>
+      `;
+      lucide.createIcons();
+      gerarNotificacoesMetas();
+      return;
+    }
+
     metas.forEach(m => {
-      const pct = Math.min((m.atual / m.total) * 100, 100).toFixed(1);
-      const faltam = Math.max(m.total - m.atual, 0);
-      const meses = calcMeses(m.atual, m.total);
+      const atual = Number(m.valor_atual || 0);
+      const total = Number(m.valor_alvo || 0);
+      const aporte = Number(m.aporte_mensal || 0);
+      const pct = total > 0 ? Math.min((atual / total) * 100, 100).toFixed(1) : 0;
+      const faltam = Math.max(total - atual, 0);
+      const meses = calcMeses(atual, total, aporte);
+
       const card = document.createElement('div');
       card.className = 'goal-card';
       card.innerHTML = `
         <div class="goal-top">
           <div class="goal-title-block">
-            <div class="goal-title">${m.nome}</div>
-            <div class="goal-tag">${m.tag}</div>
+            <div class="goal-title">${m.descricao}</div>
+            <div class="goal-tag">${m.status_meta === 'concluida' ? '✓ Concluída' : 'Meta Personalizada'}</div>
           </div>
           <div class="goal-deadline">
             <div class="deadline-label">Deadline</div>
-            <div class="deadline-value">${m.deadline}</div>
+            <div class="deadline-value">${formatDeadline(m.data_prazo)}</div>
           </div>
         </div>
         <div class="goal-progress">
           <div class="progress-label-row">Progresso Atual</div>
           <div class="progress-amounts">
-            <span class="prog-current">R$ ${formatVal(m.atual)}</span>
-            <span class="prog-total">/ R$ ${formatVal(m.total)}</span>
+            <span class="prog-current">R$ ${formatVal(atual)}</span>
+            <span class="prog-total">/ R$ ${formatVal(total)}</span>
           </div>
           <div class="progress-bar-row">
             <span class="prog-pct">${pct}% Concluído</span>
@@ -711,52 +731,81 @@
         </div>
         <div class="goal-insight">
           <div class="insight-ico"><i data-lucide="check-circle-2"></i></div>
-          <div class="insight-txt">No seu ritmo atual, você alcança essa meta em ${meses} ${meses === 1 ? 'mês' : 'meses'}.</div>
+          <div class="insight-txt">${faltam <= 0 ? 'Meta concluída! Parabéns!' : `No seu ritmo atual, você alcança essa meta em ${meses} ${meses === 1 ? 'mês' : 'meses'}.`}</div>
         </div>
         <div class="goal-actions">
-          <button class="btn-goal-edit" data-id="${m.id}"><i data-lucide="pencil"></i> Editar</button>
-          <button class="btn-goal-remove" data-id="${m.id}"><i data-lucide="trash-2"></i> Remover</button>
+          <button class="btn-goal-edit" data-id="${m.id_meta}"><i data-lucide="pencil"></i> Editar</button>
+          <button class="btn-goal-remove" data-id="${m.id_meta}"><i data-lucide="trash-2"></i> Remover</button>
         </div>
       `;
-      const metaId = m.id;
+
       card.querySelector('.btn-goal-edit').addEventListener('click', (e) => {
         e.stopPropagation();
-        openEditMetaModal(metaId);
+        openEditMetaModal(m.id_meta);
       });
       card.querySelector('.btn-goal-remove').addEventListener('click', (e) => {
         e.stopPropagation();
-        openConfirmModal(metaId);
+        openConfirmModal(m.id_meta);
       });
       list.appendChild(card);
     });
 
     lucide.createIcons();
+    gerarNotificacoesMetas();
   }
 
   // --- FORMULÁRIO LATERAL ---
   let editingMetaId = null;
 
-  document.getElementById('btn-salvar-meta').addEventListener('click', () => {
+  document.getElementById('btn-salvar-meta').addEventListener('click', async () => {
     const nome     = document.getElementById('f-nome').value.trim();
     const total    = parseFloat(document.getElementById('f-total').value);
     const atual    = parseFloat(document.getElementById('f-atual').value) || 0;
     const deadline = document.getElementById('f-deadline').value.trim();
-    if (!nome || isNaN(total) || total <= 0 || !deadline) return;
-
-    if (editingMetaId === null) {
-      metas.push({ id: nextMetaId++, nome, tag: 'Meta Personalizada', atual, total, deadline });
-    } else {
-      const idx = metas.findIndex(m => m.id === editingMetaId);
-      if (idx !== -1) metas[idx] = { ...metas[idx], nome, atual, total, deadline };
-      editingMetaId = null;
-      document.getElementById('btn-salvar-meta').textContent = 'Salvar Nova Meta';
+    if (!nome || isNaN(total) || total <= 0 || !deadline) {
+      alert('Preencha todos os campos obrigatórios.');
+      return;
     }
 
-    document.getElementById('f-nome').value = '';
-    document.getElementById('f-total').value = '';
-    document.getElementById('f-atual').value = '';
-    document.getElementById('f-deadline').value = '';
-    renderMetas();
+    // Converte deadline "Dezembro, 2026" para data ISO
+    const mesesNomes = ['janeiro','fevereiro','março','abril','maio','junho',
+                        'julho','agosto','setembro','outubro','novembro','dezembro'];
+    const partes = deadline.toLowerCase().replace(',','').trim().split(' ');
+    const mesIdx = mesesNomes.findIndex(m => partes[0].includes(m.substring(0,3)));
+    const ano = parseInt(partes[1] || partes[0]);
+    const dataISO = `${ano}-${String(mesIdx >= 0 ? mesIdx + 1 : 12).padStart(2,'0')}-01`;
+
+    try {
+      if (editingMetaId === null) {
+        await Metas.criar({
+          descricao: nome,
+          valor_alvo: total,
+          valor_atual: atual,
+          aporte_mensal: atual > 0 ? atual / 6 : 0,
+          data_inicio: new Date().toISOString().split('T')[0],
+          data_prazo: dataISO
+        });
+      } else {
+        await Metas.atualizar(editingMetaId, {
+          descricao: nome,
+          valor_alvo: total,
+          valor_atual: atual,
+          data_prazo: dataISO
+        });
+        editingMetaId = null;
+        document.getElementById('btn-salvar-meta').textContent = 'Salvar Nova Meta';
+        document.getElementById('btn-salvar-meta').style.background = '';
+      }
+
+      document.getElementById('f-nome').value = '';
+      document.getElementById('f-total').value = '';
+      document.getElementById('f-atual').value = '';
+      document.getElementById('f-deadline').value = '';
+
+      await carregarMetas();
+    } catch (err) {
+      alert('Erro ao salvar: ' + err.message);
+    }
   });
 
   document.querySelector('.btn-nova-meta').addEventListener('click', () => {
@@ -770,28 +819,21 @@
   });
 
   function openEditMetaModal(id) {
-    const m = metas.find(x => x.id === id);
+    const m = metas.find(x => x.id_meta === id);
     if (!m) return;
     editingMetaId = id;
-    document.getElementById('f-nome').value = m.nome;
-    document.getElementById('f-total').value = m.total;
-    document.getElementById('f-atual').value = m.atual;
-    document.getElementById('f-deadline').value = m.deadline;
+    document.getElementById('f-nome').value = m.descricao;
+    document.getElementById('f-total').value = m.valor_alvo;
+    document.getElementById('f-atual').value = m.valor_atual;
+    document.getElementById('f-deadline').value = formatDeadline(m.data_prazo);
     const btn = document.getElementById('btn-salvar-meta');
     btn.textContent = 'Atualizar Meta';
     btn.style.background = '#6d28d9';
-
-    // Scroll para o form
+    document.querySelector('.form-card').scrollIntoView({ behavior: 'smooth', block: 'start' });
     const formCard = document.querySelector('.form-card');
-    formCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
-
-    // Highlight visual no form
     formCard.style.border = '1px solid #4A0789';
     formCard.style.boxShadow = '0 0 20px rgba(74,7,137,0.3)';
-    setTimeout(() => {
-      formCard.style.border = '';
-      formCard.style.boxShadow = '';
-    }, 2000);
+    setTimeout(() => { formCard.style.border = ''; formCard.style.boxShadow = ''; }, 2000);
   }
 
   // --- MODAL CONFIRMAR REMOÇÃO ---
@@ -804,14 +846,110 @@
 
   document.getElementById('mm-cancel').addEventListener('click', () => document.getElementById('modal-confirm-meta').classList.remove('open'));
   document.getElementById('modal-confirm-meta').addEventListener('click', (e) => { if (e.target === document.getElementById('modal-confirm-meta')) document.getElementById('modal-confirm-meta').classList.remove('open'); });
-  document.getElementById('mm-confirm').addEventListener('click', () => {
-    metas = metas.filter(m => m.id !== deletingMetaId);
+  document.getElementById('mm-confirm').addEventListener('click', async () => {
+    try {
+      await Metas.deletar(deletingMetaId);
+    } catch (err) {
+      console.error('Erro ao remover:', err);
+    }
     document.getElementById('modal-confirm-meta').classList.remove('open');
-    renderMetas();
+    await carregarMetas();
   });
 
+  async function carregarMetas() {
+    try {
+      const data = await Metas.listar().catch(() => []);
+      metas = Array.isArray(data) ? data : [];
+      renderMetas();
+    } catch (err) {
+      console.error('Erro ao carregar metas:', err);
+      renderMetas();
+    }
+  }
+
+  function gerarNotificacoesMetas() {
+    const notifs = [];
+    const usuario = getUsuario();
+    const nome = usuario?.nome?.split(' ')[0] || 'você';
+
+    if (metas.length === 0) {
+      notifs.push({
+        tipo: 'purple', icone: 'target',
+        msg: `Crie sua primeira meta financeira, <strong>${nome}</strong>! Metas aumentam em 40% a chance de sucesso.`,
+        tempo: 'Dica'
+      });
+    }
+
+    // Metas quase concluídas (>=80%)
+    metas.filter(m => {
+      const pct = Number(m.valor_atual) / Number(m.valor_alvo);
+      return pct >= 0.8 && pct < 1;
+    }).forEach(m => {
+      const pct = Math.round((Number(m.valor_atual) / Number(m.valor_alvo)) * 100);
+      notifs.push({
+        tipo: 'green', icone: 'trending-up',
+        msg: `Sua meta <strong>${m.descricao}</strong> está <strong>${pct}%</strong> concluída! Continue assim!`,
+        tempo: 'Este mês'
+      });
+    });
+
+    // Metas concluídas
+    metas.filter(m => Number(m.valor_atual) >= Number(m.valor_alvo)).forEach(m => {
+      notifs.push({
+        tipo: 'green', icone: 'check-circle',
+        msg: `Parabéns! Você concluiu a meta <strong>${m.descricao}</strong>!`,
+        tempo: 'Concluída'
+      });
+    });
+
+    // Metas com prazo próximo (menos de 60 dias)
+    const hoje = new Date();
+    metas.filter(m => {
+      const prazo = new Date(m.data_prazo);
+      const dias = Math.ceil((prazo - hoje) / (1000 * 60 * 60 * 24));
+      return dias > 0 && dias <= 60 && Number(m.valor_atual) < Number(m.valor_alvo);
+    }).forEach(m => {
+      const prazo = new Date(m.data_prazo);
+      const dias = Math.ceil((prazo - hoje) / (1000 * 60 * 60 * 24));
+      notifs.push({
+        tipo: 'warning', icone: 'clock',
+        msg: `A meta <strong>${m.descricao}</strong> vence em <strong>${dias} dias</strong>. Aumente seus aportes!`,
+        tempo: 'Urgente'
+      });
+    });
+
+    // Dica geral
+    notifs.push({
+      tipo: 'purple', icone: 'sparkles',
+      msg: `Revise suas metas mensalmente e ajuste os aportes conforme seu saldo disponível.`,
+      tempo: 'Dica'
+    });
+
+    const lista = document.querySelector('.notif-panel-list');
+    if (!lista) return;
+
+    const qtdUnread = notifs.filter(n => n.tipo === 'warning').length + notifs.filter(n => n.tipo === 'green').length;
+
+    lista.innerHTML = notifs.slice(0, 6).map((n, i) => `
+      <div class="notif-panel-item ${i < qtdUnread ? 'unread' : ''}">
+        <div class="notif-panel-icon ${n.tipo}">
+          <i data-lucide="${n.icone}" style="width:16px;height:16px;"></i>
+        </div>
+        <div class="notif-panel-body">
+          <div class="notif-panel-msg">${n.msg}</div>
+          <div class="notif-panel-time">${n.tempo}</div>
+        </div>
+      </div>
+    `).join('');
+
+    lucide.createIcons();
+
+    const dot = document.querySelector('.notif-dot');
+    if (dot) dot.style.display = qtdUnread > 0 ? 'block' : 'none';
+  }
+
   // --- INIT ---
-  renderMetas();
+  carregarMetas();
 </script>
 
 <!-- Painel de Notificações -->
