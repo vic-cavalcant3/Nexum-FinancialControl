@@ -30,9 +30,14 @@ nexum-frontend/
 
 ---
 
-## 👨‍💻 Autor
+## 👥 Equipe
 
-Desenvolvido por **Victor Cavalcante** como parte do **Projeto Integrador** do curso de Análise e Desenvolvimento de Sistemas — SENAI-Mariano Ferraz.
+Desenvolvido como parte do **Projeto Integrador** do curso de Análise e Desenvolvimento de Sistemas — SENAI-Mariano Ferraz, pelo grupo:
+
+- Victor Cavalcante
+- Mariana Paiva
+- Raissa Gouvea
+- João Vitor Maciel
 
 ---
 
