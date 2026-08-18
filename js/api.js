@@ -108,6 +108,12 @@ const Categorias = {
   deletar: (id) => apiFetch(`/categorias/${id}`, { method: 'DELETE' })
 };
 
+// Admin
+const Admin = {
+  listarUsuarios: () => apiFetch('/admin/usuarios'),
+  deletarUsuario: (id) => apiFetch(`/admin/usuarios/${id}`, { method: 'DELETE' })
+};
+
 // Metas
 const Metas = {
   listar: () => apiFetch('/metas'),

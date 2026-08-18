@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nexum - Administração</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="icon" type="image/svg+xml" href="../components/image/nexum-icon.svg">
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<script src="../js/api.js"></script>
+<style>
+  :root {
+    --bg-primary:          #000000;
+    --bg-secondary:        #0a0a0a;
+    --bg-card:             #141414;
+    --bg-input:            #1c1c1c;
+    --accent-purple:       #4A0789;
+    --accent-purple-light: #6d28d9;
+    --accent-purple-bright:#7c3aed;
+    --accent-red:          #ef4444;
+    --accent-green:        #22c55e;
+    --text-primary:        #ffffff;
+    --text-secondary:      #9ca3af;
+    --text-muted:          #6b7280;
+    --border-color:        #1f1f1f;
+    --sidebar-width:       220px;
+    --topbar-height:       65px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    display: flex;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  .main { margin-left: var(--sidebar-width); flex: 1; display: flex; flex-direction: column; }
+
+  .topbar {
+    height: var(--topbar-height);
+    background: var(--bg-primary);
+    border-bottom: 1px solid var(--border-color);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 28px; position: sticky; top: 0; z-index: 50;
+  }
+  .topbar-left { display: flex; align-items: center; gap: 12px; }
+  .topbar-title { font-size: 16px; font-weight: 700; color: var(--accent-purple-light); letter-spacing: -0.3px; }
+  .menu-btn { display: none; background: none; border: none; color: var(--text-primary); cursor: pointer; }
+
+  .content { padding: 28px; flex: 1; }
+
+  .section-header { margin-bottom: 22px; }
+  .section-title { font-size: 22px; font-weight: 800; letter-spacing: -0.5px; }
+  .section-sub { font-size: 13px; color: var(--text-secondary); margin-top: 4px; }
+
+  .stats-row { display: flex; gap: 14px; margin-bottom: 22px; flex-wrap: wrap; }
+  .stat-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 16px 20px;
+    min-width: 160px;
+    flex: 1;
+  }
+  .stat-label { font-size: 12px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; }
+  .stat-value { font-size: 24px; font-weight: 800; margin-top: 6px; }
+
+  .table-wrap {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    overflow: hidden;
+  }
+
+  table { width: 100%; border-collapse: collapse; }
+  thead { background: var(--bg-input); }
+  th {
+    text-align: left;
+    padding: 12px 16px;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-secondary);
+    font-weight: 700;
+    border-bottom: 1px solid var(--border-color);
+  }
+  td {
+    padding: 14px 16px;
+    font-size: 14px;
+    border-bottom: 1px solid var(--border-color);
+    vertical-align: middle;
+  }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr:hover { background: rgba(124,58,237,0.06); }
+
+  .user-name { font-weight: 600; }
+  .user-email { color: var(--text-secondary); font-size: 13px; }
+
+  .badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 3px 9px; border-radius: 20px; font-size: 11px; font-weight: 700;
+  }
+  .badge.ativo { background: rgba(34,197,94,0.15); color: var(--accent-green); }
+  .badge.inativo { background: rgba(239,68,68,0.15); color: var(--accent-red); }
+
+  .btn-delete {
+    background: rgba(239,68,68,0.1);
+    border: 1px solid rgba(239,68,68,0.3);
+    color: var(--accent-red);
+    padding: 7px 12px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    display: inline-flex; align-items: center; gap: 6px;
+    transition: all 0.15s ease;
+  }
+  .btn-delete:hover { background: rgba(239,68,68,0.2); }
+  .btn-delete:disabled { opacity: 0.5; cursor: not-allowed; }
+  .btn-delete i { width: 14px; height: 14px; }
+
+  .empty-state, .access-denied {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-secondary);
+  }
+  .access-denied i { width: 40px; height: 40px; color: var(--accent-red); margin-bottom: 12px; }
+
+  /* Confirm modal */
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.7);
+    display: none; align-items: center; justify-content: center; z-index: 500;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    padding: 24px;
+    width: 90%; max-width: 380px;
+  }
+  .modal-title { font-size: 17px; font-weight: 700; margin-bottom: 8px; }
+  .modal-text { font-size: 13.5px; color: var(--text-secondary); margin-bottom: 20px; line-height: 1.5; }
+  .modal-actions { display: flex; gap: 10px; justify-content: flex-end; }
+  .btn-modal-cancel {
+    background: var(--bg-input); border: 1px solid var(--border-color); color: var(--text-primary);
+    padding: 9px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer;
+  }
+  .btn-modal-remove {
+    background: var(--accent-red); border: none; color: #fff;
+    padding: 9px 16px; border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer;
+  }
+
+  @media (max-width: 768px) {
+    .main { margin-left: 0; }
+    .menu-btn { display: flex; }
+    table { font-size: 12px; }
+    th, td { padding: 10px 8px; }
+  }
+</style>
+</head>
+<body>
+
+<div id="sidebar-container"></div>
+
+<main class="main">
+  <header class="topbar">
+    <div class="topbar-left">
+      <button class="menu-btn" onclick="openSidebar()">
+        <i data-lucide="menu" style="width:22px;height:22px;"></i>
+      </button>
+      <span class="topbar-title">Administração</span>
+    </div>
+  </header>
+
+  <div class="content" id="admin-content">
+
+    <div class="section-header">
+      <div class="section-title">Painel de Administração</div>
+      <div class="section-sub">Acompanhe e gerencie os usuários cadastrados no Nexum.</div>
+    </div>
+
+    <div class="stats-row" id="stats-row" style="display:none;">
+      <div class="stat-card">
+        <div class="stat-label">Total de usuários</div>
+        <div class="stat-value" id="stat-total">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Ativos</div>
+        <div class="stat-value" id="stat-ativos">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Transações registradas</div>
+        <div class="stat-value" id="stat-transacoes">0</div>
+      </div>
+    </div>
+
+    <div class="table-wrap" id="table-wrap" style="display:none;">
+      <table>
+        <thead>
+          <tr>
+            <th>Usuário</th>
+            <th>Status</th>
+            <th>Transações</th>
+            <th>Metas</th>
+            <th>Cadastrado em</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="tbody-usuarios"></tbody>
+      </table>
+    </div>
+
+    <div id="loading-state" class="empty-state">Carregando usuários...</div>
+
+  </div>
+</main>
+
+<!-- Modal confirmar exclusão -->
+<div class="modal-overlay" id="modal-confirm">
+  <div class="modal">
+    <div class="modal-title">Apagar usuário?</div>
+    <div class="modal-text" id="modal-confirm-text">Essa ação é permanente e vai remover todos os dados desse usuário (transações, categorias, metas).</div>
+    <div class="modal-actions">
+      <button class="btn-modal-cancel" id="btn-cancel-delete">Cancelar</button>
+      <button class="btn-modal-remove" id="btn-confirm-delete">Apagar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  redirecionarSeNaoLogado();
+  lucide.createIcons();
+
+  fetch('../components/layout/sidebar.html')
+    .then(r => r.text())
+    .then(html => {
+      document.getElementById('sidebar-container').innerHTML = html;
+      lucide.createIcons();
+    });
+
+  function openSidebar() {
+    document.getElementById('sidebar')?.classList.add('open');
+    document.getElementById('overlay')?.classList.add('open');
+  }
+
+  let usuarios = [];
+  let deletingId = null;
+
+  function formatarData(iso) {
+    const d = new Date(iso);
+    return d.toLocaleDateString('pt-BR');
+  }
+
+  function renderUsuarios() {
+    const tbody = document.getElementById('tbody-usuarios');
+    tbody.innerHTML = usuarios.map(u => `
+      <tr>
+        <td>
+          <div class="user-name">${u.nome}</div>
+          <div class="user-email">${u.email}</div>
+        </td>
+        <td><span class="badge ${u.ativo ? 'ativo' : 'inativo'}">${u.ativo ? 'Ativo' : 'Inativo'}</span></td>
+        <td>${u._count?.transacoes ?? 0}</td>
+        <td>${u._count?.metas ?? 0}</td>
+        <td>${formatarData(u.criado_em)}</td>
+        <td>
+          <button class="btn-delete" onclick="pedirExclusao(${u.id_usuario}, '${u.nome.replace(/'/g, "\\'")}')">
+            <i data-lucide="trash-2"></i> Apagar
+          </button>
+        </td>
+      </tr>
+    `).join('');
+    lucide.createIcons();
+  }
+
+  function atualizarStats() {
+    document.getElementById('stat-total').textContent = usuarios.length;
+    document.getElementById('stat-ativos').textContent = usuarios.filter(u => u.ativo).length;
+    document.getElementById('stat-transacoes').textContent =
+      usuarios.reduce((soma, u) => soma + (u._count?.transacoes ?? 0), 0);
+  }
+
+  function pedirExclusao(id, nome) {
+    deletingId = id;
+    document.getElementById('modal-confirm-text').textContent =
+      `Essa ação é permanente e vai apagar o usuário "${nome}" e todos os seus dados (transações, categorias, metas).`;
+    document.getElementById('modal-confirm').classList.add('open');
+  }
+
+  document.getElementById('btn-cancel-delete').addEventListener('click', () => {
+    deletingId = null;
+    document.getElementById('modal-confirm').classList.remove('open');
+  });
+
+  document.getElementById('btn-confirm-delete').addEventListener('click', async () => {
+    if (deletingId === null) return;
+    const btn = document.getElementById('btn-confirm-delete');
+    btn.disabled = true;
+    btn.textContent = 'Apagando...';
+    try {
+      await Admin.deletarUsuario(deletingId);
+      usuarios = usuarios.filter(u => u.id_usuario !== deletingId);
+      renderUsuarios();
+      atualizarStats();
+      document.getElementById('modal-confirm').classList.remove('open');
+    } catch (err) {
+      alert('Erro ao apagar usuário: ' + err.message);
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Apagar';
+      deletingId = null;
+    }
+  });
+
+  async function carregarUsuarios() {
+    try {
+      usuarios = await Admin.listarUsuarios();
+      document.getElementById('loading-state').style.display = 'none';
+      document.getElementById('stats-row').style.display = 'flex';
+      document.getElementById('table-wrap').style.display = 'block';
+      renderUsuarios();
+      atualizarStats();
+    } catch (err) {
+      const content = document.getElementById('admin-content');
+      document.getElementById('loading-state').outerHTML = `
+        <div class="access-denied">
+          <i data-lucide="shield-alert"></i>
+          <div style="font-weight:700;color:#fff;margin-bottom:4px;">Acesso restrito</div>
+          <div>${err.message || 'Você não tem permissão para ver esta página.'}</div>
+        </div>
+      `;
+      lucide.createIcons();
+    }
+  }
+
+  carregarUsuarios();
+</script>
+
+</body>
+</html>

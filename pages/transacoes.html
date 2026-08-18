@@ -1286,14 +1286,20 @@
     }
   }
 
-  // Carregar categorias no modal
-  async function carregarCategorias() {
+  // Carregar categorias no modal, filtradas pelo tipo selecionado (receita/despesa)
+  let categoriasCache = [];
+
+  async function carregarCategorias(tipoFiltro) {
     try {
-      const cats = await Categorias.listar();
+      if (categoriasCache.length === 0) {
+        categoriasCache = await Categorias.listar();
+      }
+      const tipo = tipoFiltro || document.getElementById('mf-tipo').value || 'receita';
       const select = document.getElementById('mf-cat');
-      select.innerHTML = cats.map(c =>
-        `<option value="${c.id}">${c.nome} (${c.tipo})</option>`
-      ).join('');
+      const filtradas = categoriasCache.filter(c => c.tipo === tipo);
+      select.innerHTML = filtradas.length
+        ? filtradas.map(c => `<option value="${c.id}">${c.nome}</option>`).join('')
+        : '<option value="">Nenhuma categoria para este tipo</option>';
     } catch (err) {
       console.error('Erro ao carregar categorias:', err);
     }
@@ -1465,7 +1471,7 @@
     document.getElementById('mf-desc').value = '';
     document.getElementById('mf-valor').value = '';
     document.getElementById('mf-tipo').value = 'receita';
-    await carregarCategorias();
+    await carregarCategorias('receita');
     document.getElementById('modal-form').classList.add('open');
   }
 
@@ -1478,10 +1484,15 @@
     document.getElementById('mf-desc').value = tx.descricao;
     document.getElementById('mf-valor').value = tx.valor;
     document.getElementById('mf-tipo').value = tx.tipo;
-    await carregarCategorias();
+    await carregarCategorias(tx.tipo);
     document.getElementById('mf-cat').value = tx.categoria_id || '';
     document.getElementById('modal-form').classList.add('open');
   }
+
+  // Refiltra a lista de categorias sempre que o Tipo (Receita/Despesa) muda
+  document.getElementById('mf-tipo').addEventListener('change', (e) => {
+    carregarCategorias(e.target.value);
+  });
 
   function closeFormModal() {
     document.getElementById('modal-form').classList.remove('open');
