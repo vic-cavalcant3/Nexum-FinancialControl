@@ -1,4 +1,21 @@
 class AdminController {
+  async verificarSenha(req, res) {
+    try {
+      const { senha } = req.body;
+      const senhaCorreta = process.env.ADMIN_PASSWORD;
+
+      if (!senhaCorreta) {
+        return res.status(500).json({ erro: 'ADMIN_PASSWORD não configurada no servidor.' });
+      }
+      if (senha !== senhaCorreta) {
+        return res.status(401).json({ erro: 'Senha incorreta.' });
+      }
+      res.json({ ok: true });
+    } catch (err) {
+      res.status(400).json({ erro: err.message });
+    }
+  }
+
   async listarUsuarios(req, res) {
     try {
       const usuarios = await req.prisma.usuario.findMany({

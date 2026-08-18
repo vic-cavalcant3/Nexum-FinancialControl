@@ -110,6 +110,10 @@ const Categorias = {
 
 // Admin
 const Admin = {
+  verificarSenha: (senha) => apiFetch('/admin/verificar-senha', {
+    method: 'POST',
+    body: JSON.stringify({ senha })
+  }),
   listarUsuarios: () => apiFetch('/admin/usuarios'),
   deletarUsuario: (id) => apiFetch(`/admin/usuarios/${id}`, { method: 'DELETE' })
 };

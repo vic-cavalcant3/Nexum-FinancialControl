@@ -131,6 +131,59 @@
   }
   .access-denied i { width: 40px; height: 40px; color: var(--accent-red); margin-bottom: 12px; }
 
+  /* Password gate */
+  .gate-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 60vh;
+  }
+  .gate-box {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    padding: 32px 28px;
+    width: 90%;
+    max-width: 340px;
+    text-align: center;
+  }
+  .gate-icon {
+    width: 44px; height: 44px;
+    background: rgba(124,58,237,0.15);
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 14px;
+    color: var(--accent-purple-bright);
+  }
+  .gate-icon i { width: 22px; height: 22px; }
+  .gate-title { font-size: 17px; font-weight: 800; margin-bottom: 6px; }
+  .gate-sub { font-size: 12.5px; color: var(--text-secondary); margin-bottom: 18px; }
+  .gate-input {
+    width: 100%;
+    background: var(--bg-input);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 11px 14px;
+    color: var(--text-primary);
+    font-size: 14px;
+    margin-bottom: 10px;
+    outline: none;
+  }
+  .gate-input:focus { border-color: var(--accent-purple-bright); }
+  .gate-btn {
+    width: 100%;
+    background: var(--accent-purple-bright);
+    border: none;
+    color: #fff;
+    padding: 11px;
+    border-radius: 8px;
+    font-size: 13.5px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .gate-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+  .gate-error { color: var(--accent-red); font-size: 12.5px; margin-top: 10px; min-height: 16px; }
+
   /* Confirm modal */
   .modal-overlay {
     position: fixed; inset: 0; background: rgba(0,0,0,0.7);
@@ -180,43 +233,57 @@
 
   <div class="content" id="admin-content">
 
-    <div class="section-header">
-      <div class="section-title">Painel de Administração</div>
-      <div class="section-sub">Acompanhe e gerencie os usuários cadastrados no Nexum.</div>
-    </div>
-
-    <div class="stats-row" id="stats-row" style="display:none;">
-      <div class="stat-card">
-        <div class="stat-label">Total de usuários</div>
-        <div class="stat-value" id="stat-total">0</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Ativos</div>
-        <div class="stat-value" id="stat-ativos">0</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Transações registradas</div>
-        <div class="stat-value" id="stat-transacoes">0</div>
+    <!-- GATE DE SENHA -->
+    <div class="gate-wrap" id="gate-wrap">
+      <div class="gate-box">
+        <div class="gate-icon"><i data-lucide="lock"></i></div>
+        <div class="gate-title">Área restrita</div>
+        <div class="gate-sub">Digite a senha de administrador para continuar.</div>
+        <input type="password" class="gate-input" id="gate-senha" placeholder="Senha" autocomplete="off">
+        <button class="gate-btn" id="gate-btn">Entrar</button>
+        <div class="gate-error" id="gate-error"></div>
       </div>
     </div>
 
-    <div class="table-wrap" id="table-wrap" style="display:none;">
-      <table>
-        <thead>
-          <tr>
-            <th>Usuário</th>
-            <th>Status</th>
-            <th>Transações</th>
-            <th>Metas</th>
-            <th>Cadastrado em</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody id="tbody-usuarios"></tbody>
-      </table>
-    </div>
+    <div id="painel-admin" style="display:none;">
+      <div class="section-header">
+        <div class="section-title">Painel de Administração</div>
+        <div class="section-sub">Acompanhe e gerencie os usuários cadastrados no Nexum.</div>
+      </div>
 
-    <div id="loading-state" class="empty-state">Carregando usuários...</div>
+      <div class="stats-row" id="stats-row" style="display:none;">
+        <div class="stat-card">
+          <div class="stat-label">Total de usuários</div>
+          <div class="stat-value" id="stat-total">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Ativos</div>
+          <div class="stat-value" id="stat-ativos">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Transações registradas</div>
+          <div class="stat-value" id="stat-transacoes">0</div>
+        </div>
+      </div>
+
+      <div class="table-wrap" id="table-wrap" style="display:none;">
+        <table>
+          <thead>
+            <tr>
+              <th>Usuário</th>
+              <th>Status</th>
+              <th>Transações</th>
+              <th>Metas</th>
+              <th>Cadastrado em</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="tbody-usuarios"></tbody>
+        </table>
+      </div>
+
+      <div id="loading-state" class="empty-state" style="display:none;">Carregando usuários...</div>
+    </div>
 
   </div>
 </main>
@@ -251,6 +318,51 @@
 
   let usuarios = [];
   let deletingId = null;
+
+  // --- GATE DE SENHA ---
+  const SESSION_KEY = 'nexum_admin_unlocked';
+
+  async function tentarSenha() {
+    const senha = document.getElementById('gate-senha').value;
+    const btn = document.getElementById('gate-btn');
+    const errEl = document.getElementById('gate-error');
+    errEl.textContent = '';
+
+    if (!senha) {
+      errEl.textContent = 'Digite a senha.';
+      return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = 'Verificando...';
+    try {
+      await Admin.verificarSenha(senha);
+      sessionStorage.setItem(SESSION_KEY, 'true');
+      liberarPainel();
+    } catch (err) {
+      errEl.textContent = err.message || 'Senha incorreta.';
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Entrar';
+    }
+  }
+
+  function liberarPainel() {
+    document.getElementById('gate-wrap').style.display = 'none';
+    document.getElementById('painel-admin').style.display = 'block';
+    document.getElementById('loading-state').style.display = 'block';
+    carregarUsuarios();
+  }
+
+  document.getElementById('gate-btn').addEventListener('click', tentarSenha);
+  document.getElementById('gate-senha').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') tentarSenha();
+  });
+
+  // Se já desbloqueou nesta aba antes, pula direto pro painel
+  if (sessionStorage.getItem(SESSION_KEY) === 'true') {
+    liberarPainel();
+  }
 
   function formatarData(iso) {
     const d = new Date(iso);

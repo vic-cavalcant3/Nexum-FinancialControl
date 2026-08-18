@@ -859,6 +859,7 @@
     color: #fff; font-size: 13px; font-weight: 700;
     font-family: inherit; cursor: pointer;
   }
+  .btn-modal-save:disabled { opacity: 0.45; cursor: not-allowed; }
 
   .btn-modal-remove {
     background: #ef4444; border: none;
@@ -1096,6 +1097,10 @@
       <select class="modal-select" id="mf-cat">
         <option value="">Carregando...</option>
       </select>
+      <div id="mf-cat-aviso" style="display:none; margin-top:8px; padding:10px 12px; background:rgba(245,158,11,0.1); border:1px solid rgba(245,158,11,0.35); border-radius:8px; font-size:12.5px; color:#f59e0b; line-height:1.5;">
+        Nenhuma categoria cadastrada para este tipo ainda.
+        <a href="./planejamento.html" style="color:#fbbf24; font-weight:700; text-decoration:underline;">Vá em Planejamento para adicionar uma categoria</a>.
+      </div>
     </div>
     <div class="modal-field">
       <label class="modal-label">Valor (R$)</label>
@@ -1296,10 +1301,21 @@
       }
       const tipo = tipoFiltro || document.getElementById('mf-tipo').value || 'receita';
       const select = document.getElementById('mf-cat');
+      const aviso = document.getElementById('mf-cat-aviso');
       const filtradas = categoriasCache.filter(c => c.tipo === tipo);
-      select.innerHTML = filtradas.length
-        ? filtradas.map(c => `<option value="${c.id}">${c.nome}</option>`).join('')
-        : '<option value="">Nenhuma categoria para este tipo</option>';
+
+      if (filtradas.length) {
+        select.innerHTML = filtradas.map(c => `<option value="${c.id}">${c.nome}</option>`).join('');
+        select.disabled = false;
+        aviso.style.display = 'none';
+      } else {
+        select.innerHTML = '<option value="">—</option>';
+        select.disabled = true;
+        aviso.style.display = 'block';
+      }
+
+      const btnSalvar = document.getElementById('mf-save');
+      if (btnSalvar) btnSalvar.disabled = filtradas.length === 0;
     } catch (err) {
       console.error('Erro ao carregar categorias:', err);
     }
