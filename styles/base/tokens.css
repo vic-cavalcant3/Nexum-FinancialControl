@@ -25,15 +25,19 @@
   --on-brand-muted: rgba(255, 255, 255, 0.75);
   --on-brand-strong: rgba(255, 255, 255, 0.85);
 
-  /* Navegação mobile — iguais nos dois temas */
-  --nav-bg: #14121a;
-  --nav-active-bg: #ffffff;
-  --nav-icon: #9994a8;
-  --nav-bubble: #1c1a24;
-  --nav-tile: #302b38;
-  --nav-label: #bfb8cc;
-  --nav-border: rgba(255, 255, 255, 0.06);
-  --nav-bubble-border: rgba(255, 255, 255, 0.07);
+  /* Navegação mobile */
+  --nav-bg: #ffffff;
+  --nav-border: #e3e0ee;
+  --nav-shadow: 0 12px 28px rgba(16, 13, 28, 0.12), 0 2px 6px rgba(16, 13, 28, 0.08);
+  --nav-icon: #6b6478;
+  --nav-active-bg: #14121a;
+  --nav-active-fg: #ffffff;
+  --nav-bubble: #ffffff;
+  --nav-bubble-border: var(--nav-border);
+  --nav-bubble-shadow: var(--nav-shadow);
+  --nav-tile: #f6f5fa;
+  --nav-tile-icon: #100d1c;
+  --nav-label: #6b6478;
 
   --font: 'Inter', sans-serif;
   --font-brand: 'Poppins', sans-serif;
@@ -70,4 +74,18 @@
   --on-accent: #ffffff;
   --btn-strong-bg: #ffffff;
   --btn-strong-fg: #121214;
+
+  /* Navegação mobile (valores originais do Figma escuro) */
+  --nav-bg: #14121a;
+  --nav-border: rgba(255, 255, 255, 0.06);
+  --nav-shadow: 0 12px 28px rgba(0, 0, 0, 0.45), 0 2px 6px rgba(0, 0, 0, 0.35);
+  --nav-icon: #9994a8;
+  --nav-active-bg: #ffffff;
+  --nav-active-fg: #14121a;
+  --nav-bubble: #1c1a24;
+  --nav-bubble-border: rgba(255, 255, 255, 0.07);
+  --nav-bubble-shadow: 0 16px 36px rgba(0, 0, 0, 0.5), 0 4px 10px rgba(0, 0, 0, 0.4);
+  --nav-tile: #302b38;
+  --nav-tile-icon: #ffffff;
+  --nav-label: #bfb8cc;
 }
