@@ -13,16 +13,102 @@
   <link rel="stylesheet" href="../styles/base/reset.css">
   <link rel="stylesheet" href="../styles/base/components.css">
   <link rel="stylesheet" href="../styles/layout/shell.css">
+  <link rel="stylesheet" href="../styles/pages/dashboard.css">
 </head>
 <body>
-  <main class="app-main">
-    <div class="page">
-      <p class="page-placeholder">Em construção</p>
+  <main class="app-main app-main--surface">
+    <div class="page dash" id="dash">
+      <div class="dash-alert" id="dash-alert" role="alert" hidden>
+        <span>Não foi possível carregar seus dados.</span>
+        <button type="button" id="dash-retry">Tentar de novo</button>
+      </div>
+
+      <header class="dash-head">
+        <div class="dash-head-text">
+          <h1 class="dash-hello">Olá, <span id="user-first-name"></span> 👋</h1>
+          <p class="dash-sub">
+            <span class="only-m">Resumo das suas finanças hoje.</span>
+            <span class="only-d">Aqui está o resumo das suas finanças hoje.</span>
+          </p>
+        </div>
+        <a class="dash-avatar only-m" href="configuracoes.html" aria-label="Configurações"></a>
+        <a class="btn btn-primary dash-new only-d" href="metas.html?nova=1">+ Nova meta</a>
+      </header>
+
+      <!-- MOBILE: saldo + mini cards -->
+      <section class="balance-card only-m" aria-label="Saldo">
+        <span class="balance-label">Saldo total</span>
+        <span class="balance-value" data-slot="saldo"></span>
+        <span class="balance-delta" data-slot="saldo-delta-m"></span>
+      </section>
+
+      <div class="mini-cards only-m">
+        <div class="mini-card">
+          <span class="mini-label">Receitas</span>
+          <span class="mini-value is-income" data-slot="receitas"></span>
+        </div>
+        <div class="mini-card">
+          <span class="mini-label">Despesas</span>
+          <span class="mini-value" data-slot="despesas"></span>
+        </div>
+      </div>
+
+      <!-- DESKTOP: 4 stat cards -->
+      <div class="stat-grid only-d">
+        <div class="dstat">
+          <span class="dstat-label">Saldo total</span>
+          <span class="dstat-value" data-slot="saldo"></span>
+          <span class="dstat-delta" data-slot="saldo-delta"></span>
+        </div>
+        <div class="dstat">
+          <span class="dstat-label">Receitas</span>
+          <span class="dstat-value" data-slot="receitas"></span>
+          <span class="dstat-delta" data-slot="receitas-delta"></span>
+        </div>
+        <div class="dstat">
+          <span class="dstat-label">Despesas</span>
+          <span class="dstat-value" data-slot="despesas"></span>
+          <span class="dstat-delta" data-slot="despesas-delta"></span>
+        </div>
+        <div class="dstat">
+          <span class="dstat-label">Economias</span>
+          <span class="dstat-value" data-slot="economias"></span>
+          <span class="dstat-delta" data-slot="economias-delta"></span>
+        </div>
+      </div>
+
+      <div class="dash-row">
+        <section class="dcard flow-card">
+          <h2 class="dcard-title">Fluxo de caixa · 6 meses</h2>
+          <div class="flow" id="flow"></div>
+        </section>
+
+        <section class="dcard cat-card only-d">
+          <h2 class="dcard-title">Despesas por categoria</h2>
+          <div class="bars-list" id="categorias"></div>
+        </section>
+      </div>
+
+      <div class="dash-row">
+        <section class="dcard tx-card">
+          <div class="dcard-head">
+            <h2 class="dcard-title">Transações recentes</h2>
+            <a class="dcard-link" href="transacoes.html">Ver todas</a>
+          </div>
+          <div class="tx-list" id="transacoes"></div>
+        </section>
+
+        <section class="dcard goals-card only-d">
+          <h2 class="dcard-title">Minhas metas</h2>
+          <div class="bars-list" id="metas"></div>
+        </section>
+      </div>
     </div>
   </main>
 
   <script src="../js/icons.js"></script>
   <script src="../js/layout.js"></script>
   <script>renderLayout('dashboard');</script>
+  <script src="../js/pages/dashboard.js"></script>
 </body>
 </html>

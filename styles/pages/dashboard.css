@@ -1,0 +1,466 @@
+/* Dashboard (Visão geral) — mobile base, desktop >= 1024px */
+
+.app-main--surface {
+  background: var(--bg-surface);
+}
+
+.only-d { display: none !important; }
+
+.dash {
+  padding: 50px 20px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Aviso de erro */
+.dash-alert {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 16px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.dash-alert button {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--link);
+  white-space: nowrap;
+}
+
+/* Header */
+.dash-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.dash-head-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.dash-hello {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.dash-sub {
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--text-secondary);
+}
+
+.dash-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-full);
+  background: var(--accent);
+  flex-shrink: 0;
+}
+
+/* Card saldo (mobile) */
+.balance-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 20px;
+  border-radius: 20px;
+  background: var(--accent);
+}
+
+.balance-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--on-brand-muted);
+}
+
+.balance-value {
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--on-brand);
+}
+
+.balance-delta {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--on-brand-strong);
+}
+
+/* Mini cards (mobile) */
+.mini-cards {
+  display: flex;
+  gap: 12px;
+}
+
+.mini-card {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 14px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+
+.mini-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.mini-value {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.mini-value.is-income { color: var(--success); }
+
+/* Cards genéricos */
+.dcard {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 18px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  min-width: 0;
+}
+
+.dcard-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.dcard-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.dcard-link {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--link);
+}
+
+.dash-empty {
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+/* Fluxo de caixa */
+.flow {
+  --bar-w: 18px;
+  --bar-r: 5px;
+  --bar-max: 85px;
+  --month-size: 10px;
+  --month-gap: 6px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+}
+
+.flow-col {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--month-gap);
+}
+
+.flow-bar {
+  display: block;
+  width: var(--bar-w);
+  border-radius: var(--bar-r);
+  background: var(--accent);
+}
+
+button.flow-bar {
+  cursor: pointer;
+}
+
+.flow-bar.skel {
+  background: var(--border);
+}
+
+.flow-month {
+  font-size: var(--month-size);
+  font-weight: 400;
+  color: var(--text-secondary);
+}
+
+.flow-tip {
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  background: var(--btn-strong-bg);
+  color: var(--btn-strong-fg);
+  font-size: 11px;
+  font-weight: 500;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* Transações */
+.tx-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.tx-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.tx-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.tx-name,
+.tx-meta {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.tx-name {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.tx-meta {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--text-secondary);
+}
+
+.tx-meta-d { display: none; }
+
+.tx-value {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-primary);
+  white-space: nowrap;
+}
+
+.tx-value.is-income { color: var(--success); }
+
+.tx-divider {
+  height: 1px;
+  background: var(--border);
+}
+
+/* Trilhos (categorias e metas) */
+.bars-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.bar-row {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.bar-row-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 12px;
+}
+
+.bar-row-name {
+  font-weight: 400;
+  color: var(--text-primary);
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.goals-card .bar-row-name { font-weight: 500; }
+
+.bar-row-value {
+  font-weight: 500;
+  color: var(--text-primary);
+  white-space: nowrap;
+}
+
+.bar-row-value.is-pct { color: var(--link); }
+
+.track {
+  height: 6px;
+  border-radius: var(--radius-sm);
+  background: var(--border);
+  overflow: hidden;
+}
+
+.track-fill {
+  height: 100%;
+  border-radius: var(--radius-sm);
+  background: var(--accent);
+}
+
+/* Stat cards (desktop) */
+.stat-grid {
+  display: flex;
+  gap: 20px;
+}
+
+.dstat {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 20px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(107, 77, 224, 0.06);
+}
+
+.dstat-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.dstat-value {
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--text-primary);
+  overflow-wrap: anywhere;
+}
+
+.dstat-delta {
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.dstat-delta.up { color: var(--success); }
+.dstat-delta.down { color: var(--danger); }
+
+/* Skeleton */
+.skel {
+  display: inline-block;
+  vertical-align: middle;
+  border-radius: var(--radius-sm);
+  background: var(--border);
+  animation: skel-pulse 1.2s ease-in-out infinite;
+}
+
+.balance-card .skel { background: var(--on-brand-muted); opacity: 0.35; }
+
+.dash.is-error .skel { animation: none; }
+
+@keyframes skel-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.45; }
+}
+
+.balance-card .skel { animation-name: skel-pulse-soft; }
+
+@keyframes skel-pulse-soft {
+  0%, 100% { opacity: 0.35; }
+  50% { opacity: 0.15; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skel { animation: none; }
+}
+
+/* ===== DESKTOP ===== */
+@media (min-width: 1024px) {
+  .only-m { display: none !important; }
+  .only-d { display: revert !important; }
+  .dash-new.only-d { display: flex !important; }
+  .dcard.only-d { display: flex !important; }
+
+  .dash {
+    padding: 40px;
+    gap: 28px;
+  }
+
+  .dash-head-text { gap: 4px; }
+  .dash-hello { font-size: 24px; }
+
+  .dash-new {
+    padding: 12px 20px;
+    flex-shrink: 0;
+  }
+
+  /* 1024–1279px: 4 cards não cabem com os tamanhos fixos do Figma → grade 2x2 */
+  .stat-grid.only-d {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .dash-row {
+    display: flex;
+    gap: 20px;
+    align-items: stretch;
+  }
+
+  .dash-row > .dcard:first-child { flex: 1; }
+
+  .dcard {
+    padding: 20px;
+    gap: 16px;
+  }
+
+  .dcard-title { font-size: 16px; }
+
+  .cat-card { flex: 0 0 360px; }
+  .goals-card { flex: 0 0 340px; }
+
+  .flow {
+    --bar-w: 28px;
+    --bar-r: 6px;
+    --bar-max: 160px;
+    --month-size: 11px;
+    --month-gap: 8px;
+    gap: 20px;
+    margin-top: auto;
+  }
+
+  .tx-list { gap: 16px; }
+  .tx-divider { display: none; }
+  .tx-meta { font-size: 11px; }
+  .tx-meta-m { display: none; }
+  .tx-meta-d { display: block; }
+}
+
+@media (min-width: 1280px) {
+  .stat-grid.only-d {
+    display: flex !important;
+  }
+}

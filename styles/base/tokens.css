@@ -23,6 +23,7 @@
   --brand-gradient: linear-gradient(65.2deg, #5b2e87 3.57%, #4a2570 75%);
   --on-brand: #ffffff;
   --on-brand-muted: rgba(255, 255, 255, 0.75);
+  --on-brand-strong: rgba(255, 255, 255, 0.85);
 
   /* Navegação mobile — iguais nos dois temas */
   --nav-bg: #14121a;
