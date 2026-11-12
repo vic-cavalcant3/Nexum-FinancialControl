@@ -1,0 +1,54 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@500;700&display=swap');
+
+:root {
+  --bg-primary: #ffffff;
+  --bg-surface: #f6f5fa;
+  --bg-elevated: #ffffff;
+  --border: #e3e0ee;
+  --text-primary: #100d1c;
+  --text-secondary: #6b6478;
+  --accent: #5b2e87;
+  --accent-hover: #4a2570;
+  --accent-soft: #f0e8f6;
+  --link: #5b2e87;
+  --on-accent: #ffffff;
+  --btn-strong-bg: #121214;
+  --btn-strong-fg: #ffffff;
+  --success: #1c7d3d;
+  --danger: #bf2e29;
+
+  --font: 'Inter', sans-serif;
+  --font-brand: 'Poppins', sans-serif;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 16px;
+  --space-4: 24px;
+  --space-5: 32px;
+  --space-6: 48px;
+
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-input: 12px;
+  --radius-lg: 16px;
+  --radius-full: 999px;
+
+  --shadow-card: 0 4px 12px rgba(107, 77, 224, 0.08);
+  --ease: 120ms ease-out;
+}
+
+[data-theme="dark"] {
+  --bg-primary: #0e0b18;
+  --bg-surface: #17131f;
+  --bg-elevated: #201a2c;
+  --border: #332c42;
+  --text-primary: #ffffff;
+  --text-secondary: #a79fb8;
+  --accent: #5b2e87;
+  --accent-hover: #ad86d6;
+  --accent-soft: #332144;
+  --link: #ad86d6;
+  --on-accent: #ffffff;
+  --btn-strong-bg: #ffffff;
+  --btn-strong-fg: #121214;
+}

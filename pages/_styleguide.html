@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nexum — Styleguide</title>
+  <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
+  <script src="../js/theme.js"></script>
+  <link rel="stylesheet" href="../styles/base/tokens.css">
+  <link rel="stylesheet" href="../styles/base/reset.css">
+  <link rel="stylesheet" href="../styles/base/components.css">
+  <style>
+    .sg { padding: var(--space-4) var(--space-3); display: flex; flex-direction: column; gap: var(--space-5); max-width: 960px; margin: 0 auto; }
+    .sg h2 { font-size: 12px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; margin-bottom: var(--space-3); }
+    .sg-row { display: flex; flex-wrap: wrap; gap: var(--space-3); align-items: center; }
+    .sg-col { display: flex; flex-direction: column; gap: var(--space-3); }
+    .swatch { width: 120px; font-size: 12px; color: var(--text-secondary); }
+    .swatch span { display: block; height: 56px; border-radius: var(--radius-md); border: 1px solid var(--border); margin-bottom: var(--space-1); }
+    .sg-grid { display: grid; grid-template-columns: 1fr; gap: var(--space-3); }
+    @media (min-width: 1024px) {
+      .sg { padding: var(--space-6); }
+      .sg-grid { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main class="sg">
+    <section class="sg-row" style="justify-content: space-between;">
+      <h1 style="font-size: 28px; font-weight: 700;">Styleguide</h1>
+      <button class="btn btn-secondary" type="button" onclick="toggleTheme()">Alternar tema</button>
+    </section>
+
+    <section>
+      <h2>Cores</h2>
+      <div class="sg-row" id="swatches"></div>
+    </section>
+
+    <section>
+      <h2>Tipografia</h2>
+      <div class="sg-col">
+        <p style="font-size: 40px; font-weight: 700;">40px — Nexum</p>
+        <p style="font-size: 28px; font-weight: 700;">28px — Nexum</p>
+        <p style="font-size: 20px; font-weight: 600;">20px — Nexum</p>
+        <p style="font-size: 15px;">15px — Nexum</p>
+        <p style="font-size: 12px; color: var(--text-secondary);">12px — Nexum</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>Botões e link</h2>
+      <div class="sg-row">
+        <button class="btn btn-primary" type="button">Primário</button>
+        <button class="btn btn-secondary" type="button">Secundário</button>
+        <a class="link" href="#">Link</a>
+      </div>
+    </section>
+
+    <section>
+      <h2>Inputs</h2>
+      <div class="sg-grid">
+        <input class="input" type="text" placeholder="Padrão">
+        <input class="input" type="text" value="Preenchido">
+        <input class="input" type="text" placeholder="Foco" autofocus>
+        <input class="input is-error" type="text" value="Erro">
+      </div>
+    </section>
+
+    <section>
+      <h2>Stat cards</h2>
+      <div class="sg-grid">
+        <div class="card stat-card">
+          <span class="stat-label">Saldo total</span>
+          <span class="stat-value">R$ 18.450</span>
+          <span class="stat-delta up">↑ 9,1% vs mês anterior</span>
+        </div>
+        <div class="card stat-card">
+          <span class="stat-label">Despesas</span>
+          <span class="stat-value">R$ 4.680</span>
+          <span class="stat-delta down">↓ 3,8% vs mês anterior</span>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Logos</h2>
+      <div class="sg-row">
+        <img src="../assets/logo/logo-48.svg" width="48" height="48" alt="Nexum 48">
+        <img src="../assets/logo/logo-64.svg" width="64" height="64" alt="Nexum 64">
+        <img src="../assets/logo/logo-96.svg" width="96" height="96" alt="Nexum 96">
+      </div>
+    </section>
+  </main>
+
+  <script>
+    var tokens = ['--bg-primary', '--bg-surface', '--bg-elevated', '--border', '--text-primary', '--text-secondary',
+      '--accent', '--accent-hover', '--accent-soft', '--link', '--on-accent', '--btn-strong-bg', '--btn-strong-fg',
+      '--success', '--danger'];
+    document.getElementById('swatches').innerHTML = tokens.map(function (t) {
+      return '<div class="swatch"><span style="background: var(' + t + ')"></span>' + t + '</div>';
+    }).join('');
+  </script>
+</body>
+</html>
