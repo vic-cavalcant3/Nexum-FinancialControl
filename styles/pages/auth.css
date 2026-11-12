@@ -1,3 +1,5 @@
+/* Telas de autenticação (login e cadastro) */
+
 /* ===== MOBILE (base, frame 390x844) ===== */
 
 .brand-panel,
@@ -17,6 +19,11 @@
   gap: 20px;
 }
 
+.auth-form--signup {
+  padding: 62px 24px 32px;
+  gap: 18px;
+}
+
 .auth-logo {
   width: 48px;
   height: 48px;
@@ -24,6 +31,7 @@
 }
 
 .spacer-8 { height: 8px; flex-shrink: 0; }
+.spacer-12 { height: 12px; flex-shrink: 0; }
 .spacer-16 { height: 16px; flex-shrink: 0; }
 
 .auth-heading {
@@ -55,6 +63,11 @@
   font-size: 13px;
   font-weight: 500;
   color: var(--text-primary);
+}
+
+.field-error {
+  font-size: 12px;
+  color: var(--danger);
 }
 
 .auth-input {
@@ -126,31 +139,66 @@
   cursor: pointer;
 }
 
-.remember input {
+.remember input,
+.terms input {
   appearance: none;
   -webkit-appearance: none;
-  width: 16px;
-  height: 16px;
   margin: 0;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  background: var(--bg-primary);
   cursor: pointer;
   flex-shrink: 0;
   transition: background-color var(--ease), border-color var(--ease);
 }
 
-.remember input:checked {
+.remember input {
+  width: 16px;
+  height: 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg-primary);
+}
+
+.remember input:checked,
+.terms input:checked {
   background: var(--accent) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none'%3E%3Cpath d='M4 8.5l2.5 2.5L12 5.5' stroke='%23ffffff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / 12px no-repeat;
   border-color: var(--accent);
 }
 
-.remember input:focus-visible {
+.remember input:focus-visible,
+.terms input:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
 }
 
-/* Botão Entrar */
+/* Termos (cadastro) */
+.terms-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.terms {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.terms input {
+  width: 18px;
+  height: 18px;
+  border: none;
+  border-radius: 5px;
+  background: var(--bg-surface);
+}
+
+.terms input.is-error {
+  box-shadow: inset 0 0 0 2px var(--danger);
+}
+
+/* Botão principal */
 .auth-submit {
   width: 100%;
   padding: 16px;
@@ -174,6 +222,11 @@
 .auth-error {
   font-size: 13px;
   color: var(--danger);
+}
+
+.auth-success {
+  font-size: 13px;
+  color: var(--success);
 }
 
 /* Divisor */
@@ -211,8 +264,8 @@
   color: var(--text-primary);
 }
 
-/* Cadastro */
-.auth-signup {
+/* Alternar login/cadastro */
+.auth-alt {
   display: flex;
   justify-content: center;
   gap: 4px;
@@ -221,7 +274,7 @@
   color: var(--text-secondary);
 }
 
-.auth-signup a {
+.auth-alt a {
   font-weight: 700;
   color: var(--link);
 }
@@ -273,7 +326,8 @@
     min-width: 0;
   }
 
-  .auth-form {
+  .auth-form,
+  .auth-form--signup {
     width: 360px;
     flex-shrink: 0;
     padding: 0;
@@ -318,6 +372,16 @@
   .remember { display: flex; }
   .auth-forgot { font-size: 13px; }
 
+  .terms input {
+    background-color: var(--bg-primary);
+    border: 1px solid var(--border);
+  }
+
+  .terms input.is-error {
+    box-shadow: none;
+    border-color: var(--danger);
+  }
+
   .auth-submit {
     background: var(--accent);
     color: var(--on-accent);
@@ -350,6 +414,6 @@
     font-size: 13px;
   }
 
-  .auth-signup { font-size: 13px; }
-  .auth-signup a { font-weight: 500; }
+  .auth-alt { font-size: 13px; }
+  .auth-alt a { font-weight: 500; }
 }

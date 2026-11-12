@@ -12,7 +12,7 @@
   <link rel="stylesheet" href="../styles/base/tokens.css">
   <link rel="stylesheet" href="../styles/base/reset.css">
   <link rel="stylesheet" href="../styles/base/components.css">
-  <link rel="stylesheet" href="../styles/pages/login.css">
+  <link rel="stylesheet" href="../styles/pages/auth.css">
 </head>
 <body>
   <aside class="brand-panel" aria-hidden="true">
@@ -34,14 +34,16 @@
 
       <div class="field">
         <label class="field-label sr-only" for="email">E-mail</label>
-        <input class="auth-input" id="email" name="email" type="email" autocomplete="email" placeholder="E-mail">
+        <input class="auth-input" id="email" name="email" type="email" autocomplete="email"
+               placeholder="E-mail" data-ph-mobile="E-mail" data-ph-desktop="seu@email.com">
       </div>
 
       <div class="field">
         <label class="field-label sr-only" for="senha">Senha</label>
         <div class="password-wrap">
-          <input class="auth-input" id="senha" name="senha" type="password" autocomplete="current-password" placeholder="Senha">
-          <button class="toggle-password" id="toggle-senha" type="button" aria-label="Mostrar senha" aria-pressed="false">
+          <input class="auth-input" id="senha" name="senha" type="password" autocomplete="current-password"
+                 placeholder="Senha" data-ph-mobile="Senha" data-ph-desktop="••••••••">
+          <button class="toggle-password" data-target="senha" type="button" aria-label="Mostrar senha" aria-pressed="false">
             <svg class="icon-show" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
               <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
             </svg>
@@ -61,6 +63,7 @@
       </div>
 
       <div class="spacer-8 only-desktop"></div>
+      <p class="auth-success" id="login-success" role="status" hidden></p>
       <button class="auth-submit" id="btn-entrar" type="submit">Entrar</button>
       <p class="auth-error" id="login-error" role="alert" hidden></p>
 
@@ -75,7 +78,7 @@
       </div>
 
       <div class="spacer-8 only-mobile"></div>
-      <p class="auth-signup">
+      <p class="auth-alt">
         <span>Não tem conta?</span>
         <a href="cadastro.html">Cadastre-se</a>
       </p>
@@ -83,6 +86,7 @@
   </main>
 
   <script src="../js/toast.js"></script>
+  <script src="../js/auth.js"></script>
   <script>
     (function () {
       var REMEMBER_KEY = 'nexum-lembrar-email';
@@ -91,18 +95,8 @@
       var senha = document.getElementById('senha');
       var btn = document.getElementById('btn-entrar');
       var erro = document.getElementById('login-error');
+      var sucesso = document.getElementById('login-success');
       var lembrar = document.getElementById('lembrar');
-      var toggle = document.getElementById('toggle-senha');
-
-      // Placeholders mobile x desktop
-      var mq = window.matchMedia('(min-width: 1024px)');
-      function syncPlaceholders() {
-        email.placeholder = mq.matches ? 'seu@email.com' : 'E-mail';
-        senha.placeholder = mq.matches ? '••••••••' : 'Senha';
-      }
-      syncPlaceholders();
-      if (mq.addEventListener) mq.addEventListener('change', syncPlaceholders);
-      else mq.addListener(syncPlaceholders);
 
       // Lembrar de mim
       try {
@@ -110,15 +104,14 @@
         if (salvo) { email.value = salvo; lembrar.checked = true; }
       } catch (e) {}
 
-      // Mostrar / ocultar senha
-      toggle.addEventListener('click', function () {
-        var mostrar = senha.type === 'password';
-        senha.type = mostrar ? 'text' : 'password';
-        toggle.setAttribute('aria-pressed', String(mostrar));
-        toggle.setAttribute('aria-label', mostrar ? 'Ocultar senha' : 'Mostrar senha');
-        toggle.querySelector('.icon-show').hidden = mostrar;
-        toggle.querySelector('.icon-hide').hidden = !mostrar;
-      });
+      // Vindo do cadastro: login.html?email=...
+      var emailCadastro = new URLSearchParams(window.location.search).get('email');
+      if (emailCadastro) {
+        email.value = emailCadastro;
+        sucesso.textContent = 'Conta criada! Faça login.';
+        sucesso.hidden = false;
+        senha.focus();
+      }
 
       function mostrarErro(msg) {
         erro.textContent = msg;
@@ -139,6 +132,7 @@
       form.addEventListener('submit', async function (e) {
         e.preventDefault();
         limparErro();
+        sucesso.hidden = true;
 
         var emailVal = email.value.trim();
         var senhaVal = senha.value;
@@ -163,23 +157,10 @@
           salvarSessao(res.usuario);
           window.location.href = 'dashboard.html';
         } catch (err) {
-          var m = (err && err.message) || '';
-          var msg;
-          if (/reach|connect|failed to fetch|networkerror/i.test(m)) {
-            msg = 'Servidor temporariamente indisponível. Tente mais tarde.';
-          } else if (m.indexOf('inválid') !== -1) {
-            msg = 'E-mail ou senha incorretos.';
-          } else {
-            msg = m;
-          }
-          mostrarErro(msg);
+          mostrarErro(mensagemErroApi(err, true));
           btn.disabled = false;
           btn.textContent = 'Entrar';
         }
-      });
-
-      document.querySelectorAll('[data-soon]').forEach(function (b) {
-        b.addEventListener('click', function () { showToast('Em breve'); });
       });
     })();
   </script>

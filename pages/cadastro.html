@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
+  <title>Criar conta — Nexum</title>
+  <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
+  <script src="../js/theme.js"></script>
+  <script src="../js/api.js"></script>
+  <script>if (estaLogado()) window.location.replace('dashboard.html');</script>
+  <link rel="stylesheet" href="../styles/base/tokens.css">
+  <link rel="stylesheet" href="../styles/base/reset.css">
+  <link rel="stylesheet" href="../styles/base/components.css">
+  <link rel="stylesheet" href="../styles/pages/auth.css">
+</head>
+<body>
+  <aside class="brand-panel" aria-hidden="true">
+    <img src="../assets/logo/logo-96.svg" width="96" height="96" alt="">
+    <p class="brand-name">Nexum</p>
+    <p class="brand-tagline">Crie sua conta e comece a<br>organizar suas finanças hoje.</p>
+  </aside>
+
+  <main class="auth">
+    <form class="auth-form auth-form--signup" id="signup-form" novalidate>
+      <img class="auth-logo" src="../assets/logo/logo-48.svg" width="48" height="48" alt="Nexum">
+
+      <div class="auth-heading">
+        <h1 class="auth-title">Criar conta</h1>
+        <p class="auth-subtitle">Leva menos de 1 minuto.</p>
+      </div>
+      <div class="spacer-12 only-desktop"></div>
+
+      <div class="field">
+        <label class="field-label sr-only" for="nome">Nome completo</label>
+        <input class="auth-input" id="nome" name="nome" type="text" autocomplete="name"
+               placeholder="Nome completo" data-ph-mobile="Nome completo" data-ph-desktop="Seu nome"
+               aria-describedby="erro-nome">
+        <p class="field-error" id="erro-nome" hidden></p>
+      </div>
+
+      <div class="field">
+        <label class="field-label sr-only" for="email">E-mail</label>
+        <input class="auth-input" id="email" name="email" type="email" autocomplete="email"
+               placeholder="E-mail" data-ph-mobile="E-mail" data-ph-desktop="seu@email.com"
+               aria-describedby="erro-email">
+        <p class="field-error" id="erro-email" hidden></p>
+      </div>
+
+      <div class="field">
+        <label class="field-label sr-only" for="senha">Senha</label>
+        <div class="password-wrap">
+          <input class="auth-input" id="senha" name="senha" type="password" autocomplete="new-password"
+                 placeholder="Senha" data-ph-mobile="Senha" data-ph-desktop="Crie uma senha"
+                 aria-describedby="erro-senha">
+          <button class="toggle-password" data-target="senha" type="button" aria-label="Mostrar senha" aria-pressed="false">
+            <svg class="icon-show" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+            </svg>
+            <svg class="icon-hide" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" hidden>
+              <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><path d="M14.12 14.12a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>
+            </svg>
+          </button>
+        </div>
+        <p class="field-error" id="erro-senha" hidden></p>
+      </div>
+
+      <div class="field">
+        <label class="field-label sr-only" for="confirmar">Confirmar senha</label>
+        <div class="password-wrap">
+          <input class="auth-input" id="confirmar" name="confirmar" type="password" autocomplete="new-password"
+                 placeholder="Confirmar senha" data-ph-mobile="Confirmar senha" data-ph-desktop="Repita a senha"
+                 aria-describedby="erro-confirmar">
+          <button class="toggle-password" data-target="confirmar" type="button" aria-label="Mostrar senha" aria-pressed="false">
+            <svg class="icon-show" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+            </svg>
+            <svg class="icon-hide" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" hidden>
+              <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><path d="M14.12 14.12a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>
+            </svg>
+          </button>
+        </div>
+        <p class="field-error" id="erro-confirmar" hidden></p>
+      </div>
+
+      <div class="spacer-8 only-desktop"></div>
+
+      <div class="terms-field">
+        <label class="terms">
+          <input type="checkbox" id="termos" aria-describedby="erro-termos">
+          <span>Concordo com os Termos de Uso e Privacidade</span>
+        </label>
+        <p class="field-error" id="erro-termos" hidden></p>
+      </div>
+
+      <button class="auth-submit" id="btn-criar" type="submit">Criar conta</button>
+      <p class="auth-error" id="signup-error" role="alert" hidden></p>
+
+      <div class="auth-divider">
+        <span class="only-mobile">ou cadastre-se com</span>
+        <span class="only-desktop">ou</span>
+      </div>
+
+      <div class="auth-social">
+        <button class="social-btn" type="button" data-soon>Google</button>
+        <button class="social-btn" type="button" data-soon>Facebook</button>
+      </div>
+
+      <p class="auth-alt">
+        <span>Já tem conta?</span>
+        <a href="login.html">Entrar</a>
+      </p>
+    </form>
+  </main>
+
+  <script src="../js/toast.js"></script>
+  <script src="../js/auth.js"></script>
+  <script>
+    (function () {
+      var form = document.getElementById('signup-form');
+      var nome = document.getElementById('nome');
+      var email = document.getElementById('email');
+      var senha = document.getElementById('senha');
+      var confirmar = document.getElementById('confirmar');
+      var termos = document.getElementById('termos');
+      var btn = document.getElementById('btn-criar');
+      var erroGeral = document.getElementById('signup-error');
+
+      var campos = [
+        { input: nome, erro: document.getElementById('erro-nome') },
+        { input: email, erro: document.getElementById('erro-email') },
+        { input: senha, erro: document.getElementById('erro-senha') },
+        { input: confirmar, erro: document.getElementById('erro-confirmar') },
+        { input: termos, erro: document.getElementById('erro-termos') }
+      ];
+
+      function setErro(campo, msg) {
+        campo.input.classList.toggle('is-error', !!msg);
+        campo.input.setAttribute('aria-invalid', msg ? 'true' : 'false');
+        campo.erro.textContent = msg || '';
+        campo.erro.hidden = !msg;
+      }
+
+      campos.forEach(function (c) {
+        var evento = c.input.type === 'checkbox' ? 'change' : 'input';
+        c.input.addEventListener(evento, function () { setErro(c, ''); });
+      });
+
+      function validar() {
+        var nomeVal = nome.value.trim();
+        var emailVal = email.value.trim();
+        var letras = (nomeVal.match(/\p{L}/gu) || []).length;
+
+        var msgs = [
+          letras >= 3 ? '' : 'Informe seu nome (mínimo de 3 letras).',
+          /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailVal) ? '' : 'Informe um e-mail válido.',
+          senha.value.length >= 6 ? '' : 'A senha deve ter no mínimo 6 caracteres.',
+          confirmar.value && confirmar.value === senha.value ? '' : 'As senhas não coincidem.',
+          termos.checked ? '' : 'Aceite os termos para continuar.'
+        ];
+
+        var primeiro = null;
+        campos.forEach(function (c, i) {
+          setErro(c, msgs[i]);
+          if (msgs[i] && !primeiro) primeiro = c.input;
+        });
+        if (primeiro) primeiro.focus();
+        return !primeiro;
+      }
+
+      form.addEventListener('submit', async function (e) {
+        e.preventDefault();
+        erroGeral.hidden = true;
+        erroGeral.textContent = '';
+
+        if (!validar()) return;
+
+        var nomeVal = nome.value.trim();
+        var emailVal = email.value.trim();
+
+        btn.disabled = true;
+        btn.textContent = 'Criando conta...';
+
+        try {
+          await Auth.registrar(nomeVal, emailVal, senha.value);
+          window.location.href = 'login.html?email=' + encodeURIComponent(emailVal);
+        } catch (err) {
+          erroGeral.textContent = mensagemErroApi(err);
+          erroGeral.hidden = false;
+          btn.disabled = false;
+          btn.textContent = 'Criar conta';
+        }
+      });
+    })();
+  </script>
+</body>
+</html>
