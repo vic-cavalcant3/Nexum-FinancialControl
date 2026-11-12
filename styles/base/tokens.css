@@ -17,6 +17,12 @@
   --success: #1c7d3d;
   --danger: #bf2e29;
 
+  /* Marca — iguais nos dois temas */
+  --brand: #5b2e87;
+  --brand-gradient: linear-gradient(65.2deg, #5b2e87 3.57%, #4a2570 75%);
+  --on-brand: #ffffff;
+  --on-brand-muted: rgba(255, 255, 255, 0.75);
+
   --font: 'Inter', sans-serif;
   --font-brand: 'Poppins', sans-serif;
 

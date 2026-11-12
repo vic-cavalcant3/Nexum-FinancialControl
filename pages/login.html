@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Entrar — Nexum</title>
+  <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
+  <script src="../js/theme.js"></script>
+  <script src="../js/api.js"></script>
+  <script>if (estaLogado()) window.location.replace('dashboard.html');</script>
+  <link rel="stylesheet" href="../styles/base/tokens.css">
+  <link rel="stylesheet" href="../styles/base/reset.css">
+  <link rel="stylesheet" href="../styles/base/components.css">
+  <link rel="stylesheet" href="../styles/pages/login.css">
+</head>
+<body>
+  <aside class="brand-panel" aria-hidden="true">
+    <img src="../assets/logo/logo-96.svg" width="96" height="96" alt="">
+    <p class="brand-name">Nexum</p>
+    <p class="brand-tagline">Controle financeiro simples,<br>claro e no seu ritmo.</p>
+  </aside>
+
+  <main class="auth">
+    <form class="auth-form" id="login-form" novalidate>
+      <img class="auth-logo" src="../assets/logo/logo-48.svg" width="48" height="48" alt="Nexum">
+      <div class="spacer-8 only-mobile"></div>
+
+      <div class="auth-heading">
+        <h1 class="auth-title">Bem-vindo de volta</h1>
+        <p class="auth-subtitle">Entre com sua conta pra continuar.</p>
+      </div>
+      <div class="spacer-16 only-desktop"></div>
+
+      <div class="field">
+        <label class="field-label sr-only" for="email">E-mail</label>
+        <input class="auth-input" id="email" name="email" type="email" autocomplete="email" placeholder="E-mail">
+      </div>
+
+      <div class="field">
+        <label class="field-label sr-only" for="senha">Senha</label>
+        <div class="password-wrap">
+          <input class="auth-input" id="senha" name="senha" type="password" autocomplete="current-password" placeholder="Senha">
+          <button class="toggle-password" id="toggle-senha" type="button" aria-label="Mostrar senha" aria-pressed="false">
+            <svg class="icon-show" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+            </svg>
+            <svg class="icon-hide" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" hidden>
+              <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><path d="M14.12 14.12a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="auth-options">
+        <label class="remember">
+          <input type="checkbox" id="lembrar">
+          <span>Lembrar de mim</span>
+        </label>
+        <a class="auth-forgot" href="#">Esqueceu a senha?</a>
+      </div>
+
+      <div class="spacer-8 only-desktop"></div>
+      <button class="auth-submit" id="btn-entrar" type="submit">Entrar</button>
+      <p class="auth-error" id="login-error" role="alert" hidden></p>
+
+      <div class="auth-divider">
+        <span class="only-mobile">ou entre com</span>
+        <span class="only-desktop">ou</span>
+      </div>
+
+      <div class="auth-social">
+        <button class="social-btn" type="button" data-soon>Google</button>
+        <button class="social-btn" type="button" data-soon>Facebook</button>
+      </div>
+
+      <div class="spacer-8 only-mobile"></div>
+      <p class="auth-signup">
+        <span>Não tem conta?</span>
+        <a href="cadastro.html">Cadastre-se</a>
+      </p>
+    </form>
+  </main>
+
+  <script src="../js/toast.js"></script>
+  <script>
+    (function () {
+      var REMEMBER_KEY = 'nexum-lembrar-email';
+      var form = document.getElementById('login-form');
+      var email = document.getElementById('email');
+      var senha = document.getElementById('senha');
+      var btn = document.getElementById('btn-entrar');
+      var erro = document.getElementById('login-error');
+      var lembrar = document.getElementById('lembrar');
+      var toggle = document.getElementById('toggle-senha');
+
+      // Placeholders mobile x desktop
+      var mq = window.matchMedia('(min-width: 1024px)');
+      function syncPlaceholders() {
+        email.placeholder = mq.matches ? 'seu@email.com' : 'E-mail';
+        senha.placeholder = mq.matches ? '••••••••' : 'Senha';
+      }
+      syncPlaceholders();
+      if (mq.addEventListener) mq.addEventListener('change', syncPlaceholders);
+      else mq.addListener(syncPlaceholders);
+
+      // Lembrar de mim
+      try {
+        var salvo = localStorage.getItem(REMEMBER_KEY);
+        if (salvo) { email.value = salvo; lembrar.checked = true; }
+      } catch (e) {}
+
+      // Mostrar / ocultar senha
+      toggle.addEventListener('click', function () {
+        var mostrar = senha.type === 'password';
+        senha.type = mostrar ? 'text' : 'password';
+        toggle.setAttribute('aria-pressed', String(mostrar));
+        toggle.setAttribute('aria-label', mostrar ? 'Ocultar senha' : 'Mostrar senha');
+        toggle.querySelector('.icon-show').hidden = mostrar;
+        toggle.querySelector('.icon-hide').hidden = !mostrar;
+      });
+
+      function mostrarErro(msg) {
+        erro.textContent = msg;
+        erro.hidden = false;
+      }
+
+      function limparErro() {
+        erro.textContent = '';
+        erro.hidden = true;
+        email.classList.remove('is-error');
+        senha.classList.remove('is-error');
+      }
+
+      [email, senha].forEach(function (input) {
+        input.addEventListener('input', function () { input.classList.remove('is-error'); });
+      });
+
+      form.addEventListener('submit', async function (e) {
+        e.preventDefault();
+        limparErro();
+
+        var emailVal = email.value.trim();
+        var senhaVal = senha.value;
+
+        if (!emailVal || !senhaVal) {
+          if (!emailVal) email.classList.add('is-error');
+          if (!senhaVal) senha.classList.add('is-error');
+          mostrarErro('Preencha e-mail e senha.');
+          (!emailVal ? email : senha).focus();
+          return;
+        }
+
+        btn.disabled = true;
+        btn.textContent = 'Entrando...';
+
+        try {
+          var res = await Auth.login(emailVal, senhaVal);
+          try {
+            if (lembrar.checked) localStorage.setItem(REMEMBER_KEY, emailVal);
+            else localStorage.removeItem(REMEMBER_KEY);
+          } catch (e) {}
+          salvarSessao(res.usuario);
+          window.location.href = 'dashboard.html';
+        } catch (err) {
+          var m = (err && err.message) || '';
+          var msg;
+          if (/reach|connect|failed to fetch|networkerror/i.test(m)) {
+            msg = 'Servidor temporariamente indisponível. Tente mais tarde.';
+          } else if (m.indexOf('inválid') !== -1) {
+            msg = 'E-mail ou senha incorretos.';
+          } else {
+            msg = m;
+          }
+          mostrarErro(msg);
+          btn.disabled = false;
+          btn.textContent = 'Entrar';
+        }
+      });
+
+      document.querySelectorAll('[data-soon]').forEach(function (b) {
+        b.addEventListener('click', function () { showToast('Em breve'); });
+      });
+    })();
+  </script>
+</body>
+</html>
