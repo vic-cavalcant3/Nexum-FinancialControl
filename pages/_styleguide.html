@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
   <title>Nexum — Styleguide</title>
   <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
   <script src="../js/theme.js"></script>
@@ -27,7 +28,11 @@
   <main class="sg">
     <section class="sg-row" style="justify-content: space-between;">
       <h1 style="font-size: 28px; font-weight: 700;">Styleguide</h1>
-      <button class="btn btn-secondary" type="button" onclick="toggleTheme()">Alternar tema</button>
+      <div class="theme-switch" role="radiogroup" aria-label="Tema">
+        <button type="button" role="radio" data-theme-option="system">Sistema</button>
+        <button type="button" role="radio" data-theme-option="light">Claro</button>
+        <button type="button" role="radio" data-theme-option="dark">Escuro</button>
+      </div>
     </section>
 
     <section>

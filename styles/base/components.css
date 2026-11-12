@@ -34,6 +34,39 @@
   transform: translate(-50%, 0);
 }
 
+/* Seletor de tema (Sistema / Claro / Escuro) — reutilizar em Configurações */
+.theme-switch {
+  display: inline-flex;
+  gap: var(--space-1);
+  padding: var(--space-1);
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+}
+
+.theme-switch button {
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-full);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  transition: background-color var(--ease), color var(--ease);
+}
+
+.theme-switch button:hover {
+  color: var(--text-primary);
+}
+
+.theme-switch button.is-active {
+  background: var(--bg-elevated);
+  color: var(--accent);
+  box-shadow: var(--shadow-card);
+}
+
+[data-theme="dark"] .theme-switch button.is-active {
+  color: var(--link);
+}
+
 /* Botões */
 .btn {
   display: inline-flex;
