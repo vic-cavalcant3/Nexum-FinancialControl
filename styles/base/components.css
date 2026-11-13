@@ -306,7 +306,7 @@ select.field-input {
 
 select.field-input.is-empty { color: var(--text-secondary); }
 
-input[type="date"].field-input { min-height: 43px; }
+input[type="date"].field-input { height: 43px; padding-top: 0; padding-bottom: 0; }
 input[type="date"].field-input::-webkit-calendar-picker-indicator { opacity: 0.5; cursor: pointer; }
 [data-theme="dark"] input[type="date"].field-input::-webkit-calendar-picker-indicator { filter: invert(1); }
 

@@ -105,7 +105,7 @@
       el.setAttribute('aria-labelledby', 'modal-sucesso-titulo');
       el.innerHTML =
         '<div class="modal-card modal-success">' +
-          '<span class="success-icon" aria-hidden="true">' + (window.ICONS ? ICONS.check : '') + '</span>' +
+          '<span class="success-icon" aria-hidden="true">' + (typeof ICONS !== 'undefined' ? ICONS.check : '') + '</span>' +
           '<div class="success-text">' +
             '<h2 class="success-title" id="modal-sucesso-titulo"></h2>' +
             '<p class="success-desc"></p>' +

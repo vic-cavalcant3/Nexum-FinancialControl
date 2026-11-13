@@ -6,3 +6,5 @@ backend/node_modules/
 .env
 
 database/rodar-sql.js
+# Prompts locais
+prompt.md
