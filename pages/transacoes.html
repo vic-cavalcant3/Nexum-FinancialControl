@@ -14,16 +14,133 @@
   <link rel="stylesheet" href="../styles/base/reset.css">
   <link rel="stylesheet" href="../styles/base/components.css">
   <link rel="stylesheet" href="../styles/layout/shell.css">
+  <link rel="stylesheet" href="../styles/pages/transacoes.css">
 </head>
 <body>
-  <main class="app-main">
-    <div class="page">
-      <p class="page-placeholder">Em construção</p>
+  <main class="app-main app-main--surface">
+    <div class="page txp" id="txp">
+      <header class="ph">
+        <div class="ph-text">
+          <h1 class="ph-title">Transações</h1>
+          <p class="ph-sub only-d">Todas as suas movimentações em um só lugar.</p>
+        </div>
+        <button type="button" class="ph-add only-m" data-nova aria-label="Nova transação"></button>
+        <button type="button" class="btn btn-primary ph-btn only-d" data-nova>+ Nova transação</button>
+      </header>
+
+      <div class="txp-tools">
+        <label class="search-box txp-search">
+          <span class="txp-search-ic"></span>
+          <span class="sr-only">Buscar transação</span>
+          <input type="search" id="tx-busca" placeholder="Buscar transação..." autocomplete="off">
+        </label>
+
+        <div class="txp-filters" role="group" aria-label="Filtros">
+          <label class="filter txp-f-periodo">
+            <span class="filter-text"></span><span class="filter-chev" aria-hidden="true">⌄</span>
+            <span class="sr-only">Período</span>
+            <select id="f-periodo">
+              <option value="mes">Este mês</option>
+              <option value="passado">Mês passado</option>
+              <option value="3m">Últimos 3 meses</option>
+              <option value="tudo">Todo o período</option>
+            </select>
+          </label>
+          <label class="filter txp-f-categoria">
+            <span class="filter-text"></span><span class="filter-chev" aria-hidden="true">⌄</span>
+            <span class="sr-only">Categoria</span>
+            <select id="f-categoria">
+              <option value="" data-m="Todas categorias" data-d="Todas as categorias">Todas as categorias</option>
+            </select>
+          </label>
+          <label class="filter txp-f-conta">
+            <span class="filter-text"></span><span class="filter-chev" aria-hidden="true">⌄</span>
+            <span class="sr-only">Conta</span>
+            <select id="f-conta">
+              <option value="" data-m="Todas contas" data-d="Todas as contas">Todas as contas</option>
+            </select>
+          </label>
+        </div>
+      </div>
+
+      <div class="load-alert" id="tx-alert" role="alert" hidden>
+        <span>Não foi possível carregar suas transações.</span>
+        <button type="button" id="tx-retry">Tentar de novo</button>
+      </div>
+
+      <!-- MOBILE: grupos por dia -->
+      <div class="txp-groups only-m" id="tx-groups" aria-live="polite"></div>
+
+      <!-- DESKTOP: tabela -->
+      <section class="txp-table only-d" aria-label="Transações">
+        <div class="txp-tr txp-th" role="row">
+          <span>Descrição</span><span>Categoria</span><span>Conta</span><span>Data</span><span>Valor</span>
+        </div>
+        <div id="tx-rows" aria-live="polite"></div>
+      </section>
     </div>
   </main>
+
+  <!-- Modal: nova / editar transação -->
+  <div class="modal" id="modal-tx" hidden role="dialog" aria-modal="true" aria-labelledby="modal-tx-title">
+    <form class="modal-card" id="form-tx" novalidate>
+      <div class="modal-head">
+        <h2 class="modal-title" id="modal-tx-title">Nova transação</h2>
+        <button type="button" class="modal-close" data-modal-close aria-label="Fechar"></button>
+      </div>
+
+      <div class="type-toggle" id="tx-tipo" role="radiogroup" aria-label="Tipo" data-value="despesa">
+        <span class="type-toggle-pill" aria-hidden="true"></span>
+        <button type="button" role="radio" data-tipo="despesa" aria-checked="true">Despesa</button>
+        <button type="button" role="radio" data-tipo="receita" aria-checked="false">Receita</button>
+      </div>
+
+      <label class="field">
+        <span class="field-label">Descrição</span>
+        <input class="field-input" id="tx-descricao" type="text" placeholder="Ex: Mercado São Luiz" maxlength="255" required>
+      </label>
+
+      <div class="field-row">
+        <label class="field">
+          <span class="field-label">Valor</span>
+          <input class="field-input" id="tx-valor" type="text" inputmode="numeric" placeholder="R$ 0,00" required>
+        </label>
+        <label class="field">
+          <span class="field-label">Data</span>
+          <input class="field-input" id="tx-data" type="date" required>
+        </label>
+      </div>
+
+      <div class="field-row">
+        <label class="field">
+          <span class="field-label">Categoria</span>
+          <select class="field-input" id="tx-categoria">
+            <option value="">Selecionar categoria</option>
+          </select>
+        </label>
+        <label class="field">
+          <span class="field-label">Conta</span>
+          <select class="field-input" id="tx-conta">
+            <option value="">Selecionar conta</option>
+          </select>
+        </label>
+      </div>
+
+      <p class="field-error" id="tx-erro" role="alert" hidden></p>
+
+      <div class="modal-actions">
+        <button type="button" class="btn btn-secondary" id="tx-cancelar" data-modal-close>Cancelar</button>
+        <button type="button" class="btn btn-secondary btn-danger-text" id="tx-excluir" hidden>Excluir</button>
+        <button type="submit" class="btn btn-primary" id="tx-salvar">Salvar transação</button>
+      </div>
+    </form>
+  </div>
 
   <script src="../js/icons.js"></script>
   <script src="../js/layout.js"></script>
   <script>renderLayout('transacoes');</script>
+  <script src="../js/util.js"></script>
+  <script src="../js/modal.js"></script>
+  <script src="../js/pages/transacoes.js"></script>
 </body>
 </html>

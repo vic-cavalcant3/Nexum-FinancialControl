@@ -8,6 +8,7 @@
   var FLAG_KEY = 'nexum-mock';
   var DB_KEY = 'nexum-mock-db';
   var DELAY = 400;
+  var VERSION = 2; // mude para recriar os dados salvos
 
   function lsGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
   function lsSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
@@ -48,6 +49,7 @@
       categorias: [],
       transacoes: [],
       metas: [],
+      version: VERSION,
       seq: { categoria: 0, transacao: 0, meta: 0 }
     };
 
@@ -74,33 +76,53 @@
       });
     }
 
+    // Transações recentes do Figma (Transações): N dias atrás, sem sair do mês atual.
+    var D = hoje.getDate();
+    function txRecente(diasAtras, hh, mm, tipo, descricao, valor, categoria, conta) {
+      var dia = Math.max(1, D - diasAtras);
+      tx(0, dia, hh, mm, tipo, descricao, valor, categoria);
+      contas[db.seq.transacao] = conta;
+    }
+    // Demais transações do mês: nunca no futuro nem nos dias das recentes.
+    function txMes(dia, hh, mm, tipo, descricao, valor, categoria) {
+      tx(0, Math.max(1, Math.min(dia, D - 5)), hh, mm, tipo, descricao, valor, categoria);
+    }
+    var contas = {};
+
     // ---- Mês atual: receitas 9.120 | despesas 4.680 ----
-    tx(0, 5, 9, 0, 'receita', 'Pagamento mensal', 6800, 'Salário');
-    tx(0, 15, 16, 20, 'receita', 'Freelance site institucional', 1070, 'Freelance');
-    tx(0, 22, 14, 5, 'receita', 'Salário', 1250, 'Receita');
+    txRecente(0, 10, 15, 'despesa', 'Mercado São Luiz', 58.9, 'Alimentação', 'Conta principal');
+    txRecente(0, 8, 30, 'despesa', 'Assinatura streaming', 29.99, 'Lazer', 'Cartão de crédito');
+    txRecente(1, 18, 0, 'receita', 'Salário', 1250, 'Receita', 'Conta principal');
+    txRecente(1, 12, 30, 'despesa', 'Posto de gasolina', 45, 'Transporte', 'Cartão de crédito');
+    txRecente(1, 9, 10, 'despesa', 'Farmácia Nova Vida', 32.5, 'Saúde', 'Conta principal');
+    txRecente(2, 16, 20, 'receita', 'Freelance design', 480, 'Receita', 'Conta principal');
+    txRecente(3, 8, 0, 'despesa', 'Aluguel', 1200, 'Moradia', 'Conta principal');
+    txRecente(4, 20, 45, 'despesa', 'iFood', 42.3, 'Alimentação', 'Cartão de crédito');
 
-    tx(0, 5, 8, 0, 'despesa', 'Aluguel', 1500, 'Moradia');
+    txMes(5, 9, 0, 'receita', 'Pagamento mensal', 6800, 'Salário');
+    txMes(15, 16, 20, 'receita', 'Freelance site institucional', 590, 'Freelance');
 
-    tx(0, 24, 10, 15, 'despesa', 'Mercado São Luiz', 58.9, 'Alimentação');
-    tx(0, 8, 19, 10, 'despesa', 'Supermercado Extra', 512.4, 'Alimentação');
-    tx(0, 12, 20, 45, 'despesa', 'iFood', 86.7, 'Alimentação');
-    tx(0, 17, 7, 50, 'despesa', 'Padaria Pão Quente', 42, 'Alimentação');
-    tx(0, 19, 13, 0, 'despesa', 'Restaurante Japonês', 280, 'Alimentação');
+    txMes(5, 8, 5, 'despesa', 'Condomínio', 300, 'Moradia');
 
-    tx(0, 23, 18, 42, 'despesa', 'Assinatura streaming', 29.99, 'Lazer');
-    tx(0, 10, 21, 0, 'despesa', 'Show no Ibirapuera', 450, 'Lazer');
-    tx(0, 14, 19, 30, 'despesa', 'Cinema', 96, 'Lazer');
-    tx(0, 18, 22, 15, 'despesa', 'Bar com amigos', 144.01, 'Lazer');
+    txMes(8, 19, 10, 'despesa', 'Supermercado Extra', 556.8, 'Alimentação');
+    txMes(17, 7, 50, 'despesa', 'Padaria Pão Quente', 42, 'Alimentação');
+    txMes(19, 13, 0, 'despesa', 'Restaurante Japonês', 280, 'Alimentação');
 
-    tx(0, 21, 9, 30, 'despesa', 'Posto de gasolina', 45, 'Transporte');
-    tx(0, 3, 8, 10, 'despesa', 'Combustível', 290, 'Transporte');
-    tx(0, 9, 23, 40, 'despesa', 'Uber', 85, 'Transporte');
-    tx(0, 16, 12, 0, 'despesa', 'Estacionamento mensal', 200, 'Transporte');
+    txMes(10, 21, 0, 'despesa', 'Show no Ibirapuera', 450, 'Lazer');
+    txMes(14, 19, 30, 'despesa', 'Cinema', 96, 'Lazer');
+    txMes(18, 22, 15, 'despesa', 'Bar com amigos', 144.01, 'Lazer');
 
-    tx(0, 2, 7, 0, 'despesa', 'Academia', 250, 'Saúde');
-    tx(0, 11, 17, 25, 'despesa', 'Farmácia', 160, 'Saúde');
-    tx(0, 7, 20, 0, 'despesa', 'Curso online', 300, 'Educação');
-    tx(0, 13, 15, 35, 'despesa', 'Livraria', 150, 'Compras');
+    txMes(3, 8, 10, 'despesa', 'Combustível', 290, 'Transporte');
+    txMes(9, 23, 40, 'despesa', 'Uber', 85, 'Transporte');
+    txMes(16, 12, 0, 'despesa', 'Estacionamento mensal', 200, 'Transporte');
+
+    txMes(2, 7, 0, 'despesa', 'Academia', 250, 'Saúde');
+    txMes(11, 17, 25, 'despesa', 'Consulta médica', 127.5, 'Saúde');
+    txMes(7, 20, 0, 'despesa', 'Curso online', 300, 'Educação');
+    txMes(13, 15, 35, 'despesa', 'Livraria', 150, 'Compras');
+
+    // "Conta" não existe no backend: o front guarda em localStorage (js/contas.js).
+    lsSet('nexum-tx-contas', JSON.stringify(contas));
 
     // ---- Meses anteriores ----
     // [receita, despesa]. Mês -1 = 8.492 / 4.865 → variações de +7,4% e −3,8%.
@@ -149,7 +171,7 @@
   var db;
   function load() {
     var raw = lsGet(DB_KEY);
-    if (raw) { try { db = JSON.parse(raw); return; } catch (e) {} }
+    if (raw) { try { db = JSON.parse(raw); if (db.version === VERSION) return; } catch (e) {} }
     db = seed();
     save();
   }

@@ -1,0 +1,200 @@
+/* Transações — mobile base, desktop >= 1024px */
+
+.app-main--surface { background: var(--bg-surface); }
+
+.txp {
+  padding: 50px 20px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.txp .ph { min-height: 38px; }
+
+.txp-tools {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.txp-search-ic { display: flex; }
+
+/* Chips com rolagem horizontal própria se não couberem (sem scroll na página) */
+.txp-filters {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  margin: -2px -20px;
+  padding: 2px 20px;
+}
+
+.txp-filters::-webkit-scrollbar { display: none; }
+
+.txp-f-periodo { order: 1; }
+.txp-f-categoria { order: 2; }
+.txp-f-conta { order: 3; }
+
+/* Grupos por dia (mobile) */
+.txp-groups {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.txp-day {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.txp-day-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-secondary);
+}
+
+.txp-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+}
+
+.txp-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  text-align: left;
+}
+
+.txp-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.txp-name,
+.txp-cat {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.txp-name {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.txp-cat {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--text-secondary);
+}
+
+.txp-value {
+  flex-shrink: 0;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-primary);
+  white-space: nowrap;
+}
+
+.txp-value.is-income { color: var(--success); }
+
+.txp-divider {
+  height: 1px;
+  background: var(--border);
+}
+
+.txp-row:focus-visible,
+.txp-tr:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 8px;
+}
+
+/* ===== DESKTOP ===== */
+@media (min-width: 1024px) {
+  .txp {
+    padding: 40px;
+    gap: 24px;
+  }
+
+  .txp .ph { min-height: 0; }
+
+  .txp-tools {
+    flex-direction: row;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+  }
+
+  .txp-search {
+    flex: 0 1 280px;
+    min-width: 160px;
+  }
+
+  .txp-filters {
+    gap: 12px;
+    margin: -2px;
+    padding: 2px;
+    min-width: 0;
+  }
+
+  .txp-f-categoria { order: 1; }
+  .txp-f-periodo { order: 2; }
+  .txp-f-conta { order: 3; }
+
+  .txp-table.only-d {
+    display: block !important;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+  }
+
+  .txp-tr {
+    display: grid;
+    grid-template-columns: minmax(0, 300px) minmax(0, 180px) minmax(0, 180px) minmax(0, 140px) minmax(0, 140px);
+    gap: 16px;
+    align-items: center;
+    width: 100%;
+    padding: 14px 24px;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+    text-align: left;
+  }
+
+  #tx-rows > .txp-tr:last-child { border-bottom: none; }
+
+  .txp-tr > span {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  .txp-th {
+    align-items: start;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-secondary);
+  }
+
+  button.txp-tr { transition: background-color var(--ease); }
+  button.txp-tr:hover { background: var(--bg-surface); }
+
+  .txp-td-desc { font-weight: 500; color: var(--text-primary); }
+  .txp-td-muted { font-weight: 400; color: var(--text-secondary); }
+  .txp-td-valor { font-weight: 700; color: var(--text-primary); }
+  .txp-td-valor.is-income { color: var(--success); }
+
+  .txp-table .empty-state { padding: 24px; }
+}
