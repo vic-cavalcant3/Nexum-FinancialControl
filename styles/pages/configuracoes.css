@@ -1,0 +1,171 @@
+/* Configurações — mobile base, desktop >= 1024px */
+
+.app-main--surface { background: var(--bg-surface); }
+
+/* Mobile: status bar do Figma (42px) + gap 16 */
+.cfp {
+  padding: 58px 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.cfp .bh { margin-bottom: 4px; }
+
+.cf-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 16px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+}
+
+.cf-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+/* Perfil */
+.cf-profile {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.cf-avatar {
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+.cf-profile-text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.cf-name,
+.cf-email {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.cf-name { font-size: 14px; font-weight: 700; color: var(--text-primary); }
+.cf-email { font-size: 12px; font-weight: 400; color: var(--text-secondary); }
+
+.cf-edit {
+  flex-shrink: 0;
+  padding: 8px 14px;
+  border-radius: var(--radius-full);
+  background: var(--bg-surface);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-primary);
+  transition: background-color var(--ease), color var(--ease);
+}
+
+.cf-edit:hover { background: var(--accent-soft); color: var(--accent); }
+[data-theme="dark"] .cf-edit:hover { color: var(--link); }
+
+/* Linhas (Figma: divisor de 1x1px, ou seja, só o espaço: 14 + 1 + 14) */
+.cf-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 29px;
+}
+
+.cf-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  text-align: left;
+}
+
+.cf-row-text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.cf-row-title {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.cf-row-title.is-danger { color: var(--danger); }
+
+.cf-row-sub {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--text-secondary);
+}
+
+.cf-chev {
+  flex-shrink: 0;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-secondary);
+}
+
+.cf-link { border-radius: 8px; }
+.cf-link:hover .cf-row-title:not(.is-danger) { color: var(--accent); }
+[data-theme="dark"] .cf-link:hover .cf-row-title:not(.is-danger) { color: var(--link); }
+
+.cf-link:focus-visible,
+.cf-edit:focus-visible,
+.theme-switch button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* Tema: no mobile o seletor desce para baixo do texto */
+.cf-row--theme { flex-wrap: wrap; }
+.cf-row--theme .theme-switch button { padding: 6px 12px; font-size: 13px; }
+
+/* ===== DESKTOP ===== */
+@media (min-width: 1024px) {
+  .cfp {
+    padding: 40px;
+    gap: 24px;
+  }
+
+  .cfp .ph.only-d { display: flex !important; }
+
+  .cf-panel {
+    gap: 16px;
+    padding: 24px;
+  }
+
+  .cf-title { font-size: 16px; }
+
+  .cf-profile { gap: 16px; }
+  .cf-avatar { width: 56px; height: 56px; }
+  .cf-name { font-size: 15px; }
+  .cf-email { font-size: 13px; }
+
+  .cf-edit {
+    padding: 11px 18px;
+    background: var(--bg-primary);
+    border: 1px solid var(--border);
+    font-size: 13px;
+  }
+
+  .cf-rows { gap: 33px; }
+  .cf-row.only-d { display: flex !important; }
+
+  .cf-row-title { font-size: 14px; }
+
+  .cf-row--theme { flex-wrap: nowrap; }
+}

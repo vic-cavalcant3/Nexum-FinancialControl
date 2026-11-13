@@ -107,7 +107,9 @@
     $('pl-cards').innerHTML = html;
 
     var warn = $('pl-warn');
-    warn.hidden = !estourados.length;
+    // Configurações → "Alertas de orçamento" desligado esconde o aviso.
+    var alertasOn = U.store.get('nexum-prefs', {}).alertas !== false;
+    warn.hidden = !estourados.length || !alertasOn;
     if (estourados.length) {
       var nomes = listaNomes(estourados);
       var plural = estourados.length > 1;

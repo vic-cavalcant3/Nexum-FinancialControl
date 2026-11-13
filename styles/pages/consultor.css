@@ -2,14 +2,6 @@
 
 .app-main--surface { background: var(--bg-surface); }
 
-/* Figma mobile: tela de chat sem a nav inferior (volta pelo botão do topo) */
-@media (max-width: 1023px) {
-  body.is-chat .mnav,
-  body.is-chat .mnav-bubble,
-  body.is-chat .mnav-backdrop { display: none !important; }
-  body.is-chat .app-main { padding-bottom: 0; }
-}
-
 /* Coluna de altura total: mensagens rolam, sugestões e campo ficam embaixo */
 .csp {
   height: 100dvh;

@@ -14,16 +14,199 @@
   <link rel="stylesheet" href="../styles/base/reset.css">
   <link rel="stylesheet" href="../styles/base/components.css">
   <link rel="stylesheet" href="../styles/layout/shell.css">
+  <link rel="stylesheet" href="../styles/pages/configuracoes.css">
 </head>
-<body>
-  <main class="app-main">
-    <div class="page">
-      <p class="page-placeholder">Em construção</p>
+<body class="is-subpage">
+  <main class="app-main app-main--surface">
+    <div class="page cfp" id="cfp">
+      <header class="bh only-m">
+        <a class="bh-back" href="dashboard.html" aria-label="Voltar"></a>
+        <h1 class="bh-title">Configurações</h1>
+      </header>
+
+      <header class="ph only-d">
+        <div class="ph-text">
+          <h1 class="ph-title">Configurações</h1>
+          <p class="ph-sub">Gerencie sua conta e preferências do Nexum.</p>
+        </div>
+      </header>
+
+      <!-- Perfil -->
+      <section class="cf-panel" aria-labelledby="cf-perfil-t">
+        <h2 class="cf-title" id="cf-perfil-t">Perfil</h2>
+        <div class="cf-profile">
+          <span class="cf-avatar" aria-hidden="true"></span>
+          <div class="cf-profile-text">
+            <p class="cf-name" id="cf-nome"></p>
+            <p class="cf-email" id="cf-email"></p>
+          </div>
+          <button type="button" class="cf-edit" id="cf-editar">
+            <span class="only-m">Editar</span><span class="only-d">Editar perfil</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- Preferências -->
+      <section class="cf-panel" aria-labelledby="cf-pref-t">
+        <h2 class="cf-title" id="cf-pref-t">Preferências</h2>
+        <div class="cf-rows">
+          <div class="cf-row">
+            <div class="cf-row-text">
+              <p class="cf-row-title" id="pref-email-t">Notificações por e-mail</p>
+              <p class="cf-row-sub">
+                <span class="only-m">Resumos semanais</span>
+                <span class="only-d">Receba resumos semanais das suas finanças</span>
+              </p>
+            </div>
+            <button type="button" class="switch" role="switch" data-pref="email" aria-labelledby="pref-email-t"></button>
+          </div>
+          <div class="cf-row">
+            <div class="cf-row-text">
+              <p class="cf-row-title" id="pref-alertas-t">Alertas de orçamento</p>
+              <p class="cf-row-sub">
+                <span class="only-m">Aviso ao ultrapassar limite</span>
+                <span class="only-d">Avisar quando uma categoria ultrapassar o limite</span>
+              </p>
+            </div>
+            <button type="button" class="switch" role="switch" data-pref="alertas" aria-labelledby="pref-alertas-t"></button>
+          </div>
+          <div class="cf-row only-d">
+            <div class="cf-row-text">
+              <p class="cf-row-title" id="pref-ia-t">Sugestões do Consultor IA</p>
+              <p class="cf-row-sub">Receber recomendações automáticas</p>
+            </div>
+            <button type="button" class="switch" role="switch" data-pref="ia" aria-labelledby="pref-ia-t"></button>
+          </div>
+          <div class="cf-row cf-row--theme">
+            <div class="cf-row-text">
+              <p class="cf-row-title" id="pref-tema-t">Tema</p>
+              <p class="cf-row-sub">Sistema, claro ou escuro</p>
+            </div>
+            <div class="theme-switch" role="radiogroup" aria-labelledby="pref-tema-t">
+              <button type="button" role="radio" data-theme-option="system">Sistema</button>
+              <button type="button" role="radio" data-theme-option="light">Claro</button>
+              <button type="button" role="radio" data-theme-option="dark">Escuro</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Segurança -->
+      <section class="cf-panel" aria-labelledby="cf-seg-t">
+        <h2 class="cf-title" id="cf-seg-t">Segurança</h2>
+        <div class="cf-rows">
+          <button type="button" class="cf-row cf-link" id="cf-senha">
+            <span class="cf-row-text">
+              <span class="cf-row-title">Alterar senha</span>
+              <span class="cf-row-sub" id="cf-senha-sub">Última alteração há 3 meses</span>
+            </span>
+            <span class="cf-chev" aria-hidden="true">›</span>
+          </button>
+          <button type="button" class="cf-row cf-link only-d" id="cf-2fa">
+            <span class="cf-row-text">
+              <span class="cf-row-title">Autenticação em duas etapas</span>
+              <span class="cf-row-sub">Desativada</span>
+            </span>
+            <span class="cf-chev" aria-hidden="true">›</span>
+          </button>
+          <button type="button" class="cf-row cf-link" id="cf-sair">
+            <span class="cf-row-text">
+              <span class="cf-row-title">Sair da conta</span>
+              <span class="cf-row-sub">Encerrar a sessão neste dispositivo</span>
+            </span>
+            <span class="cf-chev" aria-hidden="true">›</span>
+          </button>
+          <button type="button" class="cf-row cf-link" id="cf-excluir">
+            <span class="cf-row-text">
+              <span class="cf-row-title is-danger">Excluir conta</span>
+              <span class="cf-row-sub">
+                <span class="only-m">Remove tudo permanentemente</span>
+                <span class="only-d">Remove permanentemente todos os seus dados</span>
+              </span>
+            </span>
+            <span class="cf-chev" aria-hidden="true">›</span>
+          </button>
+        </div>
+      </section>
     </div>
   </main>
+
+  <!-- Modal: editar perfil -->
+  <div class="modal" id="modal-perfil" hidden role="dialog" aria-modal="true" aria-labelledby="modal-perfil-t">
+    <form class="modal-card" id="form-perfil" novalidate>
+      <div class="modal-head">
+        <h2 class="modal-title" id="modal-perfil-t">Editar perfil</h2>
+        <button type="button" class="modal-close" data-modal-close aria-label="Fechar"></button>
+      </div>
+      <label class="field">
+        <span class="field-label">Nome</span>
+        <input class="field-input" id="pf-nome" type="text" autocomplete="name" maxlength="100" required>
+      </label>
+      <label class="field">
+        <span class="field-label">E-mail</span>
+        <input class="field-input" id="pf-email" type="email" autocomplete="email" maxlength="150" required>
+      </label>
+      <p class="field-error" id="pf-erro" role="alert" hidden></p>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-secondary" data-modal-close>Cancelar</button>
+        <button type="submit" class="btn btn-primary" id="pf-salvar">Salvar</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Modal: alterar senha -->
+  <div class="modal" id="modal-senha" hidden role="dialog" aria-modal="true" aria-labelledby="modal-senha-t">
+    <form class="modal-card" id="form-senha" novalidate>
+      <div class="modal-head">
+        <h2 class="modal-title" id="modal-senha-t">Alterar senha</h2>
+        <button type="button" class="modal-close" data-modal-close aria-label="Fechar"></button>
+      </div>
+      <label class="field">
+        <span class="field-label">Senha atual</span>
+        <input class="field-input" id="sn-atual" type="password" autocomplete="current-password" required>
+      </label>
+      <label class="field">
+        <span class="field-label">Nova senha</span>
+        <input class="field-input" id="sn-nova" type="password" autocomplete="new-password" minlength="6" required>
+      </label>
+      <label class="field">
+        <span class="field-label">Confirmar nova senha</span>
+        <input class="field-input" id="sn-conf" type="password" autocomplete="new-password" required>
+      </label>
+      <p class="field-error" id="sn-erro" role="alert" hidden></p>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-secondary" data-modal-close>Cancelar</button>
+        <button type="submit" class="btn btn-primary" id="sn-salvar">Alterar senha</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Modal: excluir conta -->
+  <div class="modal" id="modal-excluir" hidden role="dialog" aria-modal="true" aria-labelledby="modal-excluir-t">
+    <form class="modal-card" id="form-excluir" novalidate>
+      <div class="modal-head">
+        <h2 class="modal-title" id="modal-excluir-t">Excluir conta</h2>
+        <button type="button" class="modal-close" data-modal-close aria-label="Fechar"></button>
+      </div>
+      <p class="modal-desc">Isso remove sua conta e todos os seus dados de forma permanente. Para confirmar, digite <strong>EXCLUIR</strong>.</p>
+      <label class="field">
+        <span class="sr-only">Digite EXCLUIR</span>
+        <input class="field-input" id="ex-conf" type="text" autocomplete="off" placeholder="EXCLUIR">
+      </label>
+      <p class="field-error" id="ex-erro" role="alert" hidden></p>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-secondary" data-modal-close>Cancelar</button>
+        <button type="submit" class="btn btn-secondary btn-danger-text" id="ex-ok" disabled>Excluir conta</button>
+      </div>
+    </form>
+  </div>
 
   <script src="../js/icons.js"></script>
   <script src="../js/layout.js"></script>
   <script>renderLayout('configuracoes');</script>
+  <script src="../js/util.js"></script>
+  <script src="../js/modal.js"></script>
+  <script src="../js/toast.js"></script>
+  <script src="../js/pages/configuracoes.js"></script>
 </body>
 </html>
