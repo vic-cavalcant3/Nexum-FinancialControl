@@ -14,16 +14,82 @@
   <link rel="stylesheet" href="../styles/base/reset.css">
   <link rel="stylesheet" href="../styles/base/components.css">
   <link rel="stylesheet" href="../styles/layout/shell.css">
+  <link rel="stylesheet" href="../styles/pages/relatorios.css">
 </head>
 <body>
-  <main class="app-main">
-    <div class="page">
-      <p class="page-placeholder">Em construção</p>
+  <main class="app-main app-main--surface">
+    <div class="page rlp" id="rlp">
+      <header class="ph">
+        <div class="ph-text">
+          <h1 class="ph-title">Relatórios</h1>
+          <p class="ph-sub only-d">Análise completa da sua vida financeira.</p>
+        </div>
+        <label class="filter rl-periodo only-d">
+          <span class="filter-text">Últimos 6 meses</span>
+          <span class="sr-only">Período</span>
+          <select id="rl-periodo">
+            <option value="3">Últimos 3 meses</option>
+            <option value="6" selected>Últimos 6 meses</option>
+            <option value="12">Últimos 12 meses</option>
+          </select>
+        </label>
+        <button type="button" class="btn btn-secondary ph-btn rl-export only-d" id="rl-export">Exportar PDF</button>
+      </header>
+
+      <div class="load-alert" id="rl-alert" role="alert" hidden>
+        <span>Não foi possível carregar seus relatórios.</span>
+        <button type="button" id="rl-retry">Tentar de novo</button>
+      </div>
+
+      <section class="rl-stats" aria-label="Resumo do período">
+        <div class="rl-stat">
+          <p class="rl-stat-label">Receita média</p>
+          <p class="rl-stat-value is-income" data-slot="receita"></p>
+          <p class="rl-stat-delta only-d" data-slot="receita-delta"></p>
+        </div>
+        <div class="rl-stat">
+          <p class="rl-stat-label">Despesa média</p>
+          <p class="rl-stat-value" data-slot="despesa"></p>
+          <p class="rl-stat-delta only-d" data-slot="despesa-delta"></p>
+        </div>
+        <div class="rl-stat only-d">
+          <p class="rl-stat-label">Economia acumulada</p>
+          <p class="rl-stat-value" data-slot="economia"></p>
+          <p class="rl-stat-delta" data-slot="economia-delta"></p>
+        </div>
+        <div class="rl-stat only-d">
+          <p class="rl-stat-label">Categoria com mais gasto</p>
+          <p class="rl-stat-value" data-slot="top"></p>
+          <p class="rl-stat-delta is-danger" data-slot="top-sub"></p>
+        </div>
+      </section>
+
+      <section class="rl-card" aria-labelledby="rl-chart-title">
+        <h2 class="rl-card-title" id="rl-chart-title">
+          <span class="only-m">Receitas vs Despesas</span>
+          <span class="only-d" data-slot="chart-title">Receitas vs Despesas · 6 meses</span>
+        </h2>
+        <div class="rl-legend only-d" aria-hidden="true">
+          <span><i class="rl-dot is-income"></i>Receitas</span>
+          <span><i class="rl-dot is-expense"></i>Despesas</span>
+        </div>
+        <div class="rl-bars" id="rl-bars" role="img" aria-label="Receitas e despesas por mês"></div>
+      </section>
+
+      <section class="rl-card rl-rank-card" aria-labelledby="rl-rank-title">
+        <h2 class="rl-card-title" id="rl-rank-title">
+          <span class="only-m">Onde seu dinheiro mais foi</span>
+          <span class="only-d" data-slot="rank-title">Onde seu dinheiro mais foi (últimos 6 meses)</span>
+        </h2>
+        <ol class="rl-rank" id="rl-rank"></ol>
+      </section>
     </div>
   </main>
 
   <script src="../js/icons.js"></script>
   <script src="../js/layout.js"></script>
   <script>renderLayout('relatorios');</script>
+  <script src="../js/util.js"></script>
+  <script src="../js/pages/relatorios.js"></script>
 </body>
 </html>

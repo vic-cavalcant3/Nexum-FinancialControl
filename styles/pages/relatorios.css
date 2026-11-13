@@ -1,0 +1,276 @@
+/* Relatórios — mobile base, desktop >= 1024px */
+
+.app-main--surface { background: var(--bg-surface); }
+
+/* Mobile: status bar do Figma (42px) + padding 8 */
+.rlp {
+  padding: 50px 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+/* ---------- Resumo ---------- */
+.rl-stats {
+  display: flex;
+  gap: 10px;
+}
+
+.rl-stat {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 14px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  white-space: nowrap;
+}
+
+.rl-stat-label {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.rl-stat-value {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.rl-stat-value.is-income { color: var(--success); }
+
+.rl-stat-delta {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.rl-stat-delta.is-good { color: var(--success); }
+.rl-stat-delta.is-danger,
+.rl-stat-delta.is-bad { color: var(--danger); }
+
+/* ---------- Cards ---------- */
+.rl-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 18px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+}
+
+.rl-rank-card { gap: 14px; }
+
+.rl-card-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+/* Gráfico de barras */
+.rl-bars {
+  --bar-max: 64px;
+  --bar-w: 9px;
+  --bar-gap: 3px;
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  min-height: calc(var(--bar-max) + 18px);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.rl-bars::-webkit-scrollbar { display: none; }
+
+.rl-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.rl-pair {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--bar-gap);
+}
+
+.rl-bar {
+  width: var(--bar-w);
+  min-height: 2px;
+  border-radius: 4px;
+  background: var(--accent);
+}
+
+.rl-bar.is-expense { background: var(--chart-muted); }
+
+.rl-month {
+  font-size: 10px;
+  font-weight: 400;
+  color: var(--text-secondary);
+}
+
+.rl-legend {
+  gap: 20px;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.rl-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.rl-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+.rl-dot.is-expense { background: var(--chart-muted); }
+
+/* Ranking */
+.rl-rank {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.rl-rank-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.rl-rank-n {
+  width: 20px;
+  flex-shrink: 0;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-secondary);
+}
+
+.rl-rank-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.rl-rank-head {
+  display: flex;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--text-primary);
+}
+
+.rl-rank-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-weight: 500;
+}
+
+.rl-rank-value {
+  flex-shrink: 0;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-primary);
+  white-space: nowrap;
+}
+
+.rl-track {
+  height: 6px;
+  overflow: hidden;
+  border-radius: 4px;
+  background: var(--border);
+}
+
+/* Figma: maior categoria ocupa 300 de 310px no mobile e 600px no desktop */
+.rl-fill {
+  display: block;
+  height: 100%;
+  width: calc(var(--f) * 96.8%);
+  border-radius: 4px;
+  background: var(--accent);
+}
+
+.rl-empty {
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+/* ===== DESKTOP ===== */
+@media (min-width: 1024px) {
+  .rlp {
+    padding: 40px;
+    gap: 24px;
+  }
+
+  .rlp .ph .filter.only-d { display: inline-flex !important; }
+  .rl-export { padding: 12px 20px; }
+
+  .rl-stats { gap: 20px; }
+
+  .rl-stat {
+    gap: 8px;
+    padding: 20px;
+    border-radius: 16px;
+  }
+
+  .rl-stat.only-d { display: flex !important; }
+
+  .rl-stat-label { font-size: 12px; }
+  .rl-stat-value,
+  .rl-stat-value.is-income { font-size: 26px; color: var(--text-primary); }
+
+  .rl-card {
+    gap: 16px;
+    padding: 24px;
+  }
+
+  .rl-card-title { font-size: 16px; }
+
+  .rl-legend.only-d { display: flex !important; }
+
+  .rl-bars {
+    --bar-max: 175px;
+    --bar-w: 20px;
+    --bar-gap: 4px;
+    gap: 28px;
+    min-height: 220px;
+  }
+
+  .rl-col { gap: 8px; }
+  .rl-bar { border-radius: 6px; }
+  .rl-month { font-size: 11px; }
+
+  .rl-rank { gap: 16px; }
+  .rl-rank-row.only-d { display: flex !important; }
+  .rl-fill { width: min(calc(var(--f) * 600px), 100%); }
+}
+
+/* ===== Exportar PDF (impressão) ===== */
+@media print {
+  .sidebar, .mnav, .mnav-bubble, .mnav-backdrop, .mock-badge, .rl-periodo, .rl-export, .load-alert { display: none !important; }
+  .app-main { margin-left: 0 !important; padding: 0 !important; }
+  .rlp { padding: 0 !important; }
+  .rl-card, .rl-stat { break-inside: avoid; }
+  * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}

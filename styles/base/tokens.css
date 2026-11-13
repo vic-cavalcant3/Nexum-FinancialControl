@@ -21,6 +21,7 @@
   --warning: #b8860b;
   --warning-soft: rgba(184, 134, 11, 0.14);
   --warning-border: rgba(184, 134, 11, 0.45);
+  --chart-muted: #d9d4e5; /* barra "Despesas" dos gráficos (igual nos dois temas) */
 
   /* Modais */
   --overlay: rgba(0, 0, 0, 0.45);
