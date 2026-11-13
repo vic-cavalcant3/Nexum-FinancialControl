@@ -14,16 +14,81 @@
   <link rel="stylesheet" href="../styles/base/reset.css">
   <link rel="stylesheet" href="../styles/base/components.css">
   <link rel="stylesheet" href="../styles/layout/shell.css">
+  <link rel="stylesheet" href="../styles/pages/metas.css">
 </head>
 <body>
-  <main class="app-main">
-    <div class="page">
-      <p class="page-placeholder">Em construção</p>
+  <main class="app-main app-main--surface">
+    <div class="page mtp" id="mtp">
+      <header class="ph">
+        <div class="ph-text">
+          <h1 class="ph-title">Metas</h1>
+          <p class="ph-sub only-d">Acompanhe o progresso dos seus objetivos financeiros.</p>
+        </div>
+        <button type="button" class="ph-add only-m" data-nova aria-label="Nova meta"></button>
+        <button type="button" class="btn btn-primary ph-btn only-d" data-nova>+ Nova meta</button>
+      </header>
+
+      <div class="load-alert" id="mt-alert" role="alert" hidden>
+        <span>Não foi possível carregar suas metas.</span>
+        <button type="button" id="mt-retry">Tentar de novo</button>
+      </div>
+
+      <section class="mt-grid" id="mt-grid" aria-label="Suas metas" aria-live="polite"></section>
     </div>
   </main>
+
+  <!-- Modal: nova / editar meta -->
+  <div class="modal" id="modal-meta" hidden role="dialog" aria-modal="true" aria-labelledby="modal-meta-title">
+    <form class="modal-card modal-card--meta" id="form-meta" novalidate>
+      <div class="modal-head">
+        <h2 class="modal-title" id="modal-meta-title">Nova meta</h2>
+        <button type="button" class="modal-close" data-modal-close aria-label="Fechar"></button>
+      </div>
+
+      <label class="field">
+        <span class="field-label">Nome da meta</span>
+        <input class="field-input" id="mt-nome" type="text" placeholder="Ex: Viagem para o Japão" maxlength="255" required>
+      </label>
+
+      <div class="field-row">
+        <label class="field">
+          <span class="field-label">Valor objetivo</span>
+          <input class="field-input" id="mt-alvo" type="text" inputmode="numeric" placeholder="R$ 0,00" required>
+        </label>
+        <label class="field">
+          <span class="field-label">Já guardado</span>
+          <input class="field-input" id="mt-atual" type="text" inputmode="numeric" placeholder="R$ 0,00">
+        </label>
+      </div>
+
+      <label class="field">
+        <span class="field-label">Data prevista</span>
+        <input class="field-input" id="mt-prazo" type="date" required>
+      </label>
+
+      <label class="field">
+        <span class="field-label">Ícone</span>
+        <select class="field-input" id="mt-icone">
+          <option value="">Selecionar ícone</option>
+        </select>
+      </label>
+
+      <p class="field-error" id="mt-erro" role="alert" hidden></p>
+
+      <div class="modal-actions">
+        <button type="button" class="btn btn-secondary" id="mt-cancelar" data-modal-close>Cancelar</button>
+        <button type="button" class="btn btn-secondary btn-danger-text" id="mt-excluir" hidden>Excluir</button>
+        <button type="submit" class="btn btn-primary" id="mt-salvar">Criar meta</button>
+      </div>
+    </form>
+  </div>
 
   <script src="../js/icons.js"></script>
   <script src="../js/layout.js"></script>
   <script>renderLayout('metas');</script>
+  <script src="../js/util.js"></script>
+  <script src="../js/modal.js"></script>
+  <script src="../js/toast.js"></script>
+  <script src="../js/pages/metas.js"></script>
 </body>
 </html>

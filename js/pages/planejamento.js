@@ -185,7 +185,7 @@
   });
 
   function sucesso() {
-    showSuccess('Orçamento atualizado!', 'Os novos limites por categoria foram salvos.', null, { botao: 'Ver planejamento' });
+    showSuccess('Orçamento atualizado!', 'Os novos limites por categoria foram salvos.', null, { botao: 'Ver planejamento', compacto: true });
   }
 
   $('form-orc').addEventListener('submit', function (e) {

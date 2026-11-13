@@ -8,7 +8,7 @@
   var FLAG_KEY = 'nexum-mock';
   var DB_KEY = 'nexum-mock-db';
   var DELAY = 400;
-  var VERSION = 2; // mude para recriar os dados salvos
+  var VERSION = 3; // mude para recriar os dados salvos
 
   function lsGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
   function lsSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
@@ -147,8 +147,11 @@
     // Ajuste de saldo inicial (mês −6, fora do gráfico) para o saldo total fechar em R$ 18.450.
     tx(6, 10, 12, 0, 'despesa', 'Quitação do cartão de crédito', 5342, 'Outros');
 
-    // ---- Metas (ordem = data_prazo asc, como no backend) ----
-    function meta(descricao, alvo, atual, aporte, mesesPrazo) {
+    // ---- Metas (Figma: tela Metas). Prazo em meses a partir do mês atual. ----
+    // O ícone da meta não existe no backend: o front guarda em localStorage (U.iconeMeta).
+    var icones = {};
+    function meta(descricao, alvo, atual, aporte, mesesPrazo, icone) {
+      icones[db.seq.meta + 1] = icone;
       db.metas.push({
         id_meta: ++db.seq.meta,
         id_usuario: 1,
@@ -161,9 +164,14 @@
         status_meta: 'em_andamento'
       });
     }
-    meta('Viagem', 10000, 6900, 600, 6);       // 69%
-    meta('Reserva de emergência', 15000, 10950, 800, 8); // 73%
-    meta('Notebook novo', 6000, 2820, 400, 10);  // 47%
+    // ritmo = ceil(faltam / aporte): 3, 2, 4, 28, 6 e 18 meses
+    meta('Viagem para Bali', 5000, 3450, 600, 1, 'viagem');            // 69%
+    meta('Reserva de emergência', 3000, 2200, 500, 0, 'reserva');      // 73%
+    meta('Notebook novo', 1800, 850, 250, 2, 'consumo');               // 47%
+    meta('Entrada do apartamento', 40000, 12000, 1000, 19, 'imovel'); // 30%
+    meta('Curso de especialização', 2500, 600, 320, 4, 'estudo');     // 24%
+    meta('Troca de carro', 25000, 8000, 950, 10, 'veiculo');          // 32%
+    lsSet('nexum-meta-icones', JSON.stringify(icones));
 
     return db;
   }

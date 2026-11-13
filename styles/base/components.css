@@ -304,7 +304,8 @@ select.field-input {
   cursor: pointer;
 }
 
-select.field-input.is-empty { color: var(--text-secondary); }
+select.field-input.is-empty,
+input[type="date"].field-input.is-empty { color: var(--text-secondary); }
 
 input[type="date"].field-input { height: 43px; padding-top: 0; padding-bottom: 0; }
 input[type="date"].field-input::-webkit-calendar-picker-indicator { opacity: 0.5; cursor: pointer; }
@@ -729,3 +730,7 @@ body.has-modal { overflow: hidden; }
 [data-theme="dark"] .pbar-fill { background: var(--link); }
 .pbar-fill.is-warning { background: var(--warning); }
 .pbar-fill.is-danger { background: var(--danger); }
+
+/* Sucesso "compacto" (Meta criada / Orçamento atualizado) */
+.modal-success.is-compact .success-icon { border-radius: 26px; }
+.modal-success.is-compact .success-desc { font-size: 12.5px; }

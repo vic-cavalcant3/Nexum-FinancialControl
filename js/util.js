@@ -99,5 +99,22 @@
   };
   U.setOrcamento = function (lista) { U.store.set(ORC_KEY, lista); };
 
+  // Ícone da meta (e o rótulo de tipo que aparece abaixo do nome): fica no navegador.
+  var META_ICONES_KEY = 'nexum-meta-icones';
+  U.META_ICONES = {
+    viagem: { nome: 'Viagem', icon: 'goal-send', tipo: 'Meta de experiência' },
+    reserva: { nome: 'Reserva', icon: 'goal-shield', tipo: 'Segurança financeira' },
+    consumo: { nome: 'Compra', icon: 'goal-laptop', tipo: 'Meta de consumo' },
+    imovel: { nome: 'Imóvel', icon: 'cat-home', tipo: 'Meta de patrimônio' },
+    estudo: { nome: 'Estudos', icon: 'goal-cap', tipo: 'Desenvolvimento' },
+    veiculo: { nome: 'Veículo', icon: 'cat-car', tipo: 'Meta de patrimônio' }
+  };
+  U.iconeMeta = function (id) { return U.store.get(META_ICONES_KEY, {})[id] || ''; };
+  U.setIconeMeta = function (id, chave) {
+    var m = U.store.get(META_ICONES_KEY, {});
+    if (chave) m[id] = chave; else delete m[id];
+    U.store.set(META_ICONES_KEY, m);
+  };
+
   window.U = U;
 })();

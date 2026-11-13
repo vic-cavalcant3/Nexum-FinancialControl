@@ -1,0 +1,273 @@
+/* Metas — mobile base, desktop >= 1024px */
+
+.app-main--surface { background: var(--bg-surface); }
+
+/* Mobile: status bar do Figma (42px) + padding 8 */
+.mtp {
+  padding: 50px 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.mtp .ph { min-height: 38px; }
+
+.mt-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 16px;
+}
+
+/* ---------- Card ---------- */
+.mtc {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+  width: 100%;
+  padding: 16px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  text-align: left;
+  transition: border-color var(--ease);
+}
+
+button.mtc:hover { border-color: var(--accent); }
+[data-theme="dark"] button.mtc:hover { border-color: var(--link); }
+
+button.mtc:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.mtc-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-width: 0;
+}
+
+.mtc-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.mtc-tile {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border-radius: 12px;
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+[data-theme="dark"] .mtc-tile { color: var(--link); }
+
+.mtc-tile svg { width: 20px; height: 20px; }
+/* Todos os ícones do Figma usam traço 1.8px, em qualquer tamanho */
+.mtc-tile svg *, .mtc-pace svg * { vector-effect: non-scaling-stroke; }
+
+.mtc-titles {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.mtc-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.mtc-kind,
+.mtc-cap {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+}
+
+.mtc-kind {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--accent);
+}
+
+[data-theme="dark"] .mtc-kind { color: var(--link); }
+
+.mtc-cap { color: var(--text-secondary); }
+
+.mtc-deadline {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.mtc-date {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+/* Valores + barra */
+.mtc-progress {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.mtc-amount {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+.mtc-amount-left {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.mtc-values {
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+  min-width: 0;
+}
+
+.mtc-current {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.mtc-target {
+  padding-bottom: 2px;
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--text-secondary);
+}
+
+.mtc-pct {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+[data-theme="dark"] .mtc-pct,
+[data-theme="dark"] .mtc-done { color: var(--link); }
+
+.mtc-bar {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.mtc-labels {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.mtc-done { font-weight: 600; color: var(--accent); }
+.mtc-left { font-weight: 400; color: var(--text-secondary); }
+
+/* Pílula de ritmo */
+.mtc-pace {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+[data-theme="dark"] .mtc-pace { color: var(--link); }
+
+.mtc-pace svg { width: 16px; height: 16px; flex-shrink: 0; }
+
+.mtc-pace-text {
+  flex: 1;
+  min-width: 0;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+/* Modal */
+.mt-empty {
+  padding: 32px 16px;
+  background: var(--bg-elevated);
+  border: 1px dashed var(--border);
+  border-radius: 16px;
+}
+
+/* ===== DESKTOP ===== */
+@media (min-width: 1024px) {
+  .mtp {
+    padding: 40px;
+    gap: 24px;
+  }
+
+  .mtp .ph { min-height: 0; }
+
+  .mt-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+  }
+
+  .mtc {
+    gap: 16px;
+    padding: 22px;
+  }
+
+  .mtc-title { gap: 12px; }
+
+  .mtc-tile { width: 44px; height: 44px; }
+  .mtc-tile svg { width: 22px; height: 22px; }
+
+  .mtc-name { font-size: 17px; }
+  .mtc-date { font-size: 14px; }
+
+  /* Valores à esquerda, barra (250px) à direita */
+  .mtc-progress {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 12px 20px;
+  }
+
+  .mtc-current { font-size: 28px; }
+  .mtc-target { padding-bottom: 3px; font-size: 14px; }
+
+  .mtc-bar { flex: 0 1 250px; min-width: 180px; }
+  .mtc-labels.only-d { display: flex !important; }
+  .mtc-bar .pbar { height: 8px; }
+
+  .mtc-pace { padding: 11px 14px; }
+  .mtc-pace-text { font-size: 13px; }
+
+  .modal-card.modal-card--meta { width: 440px; }
+}
