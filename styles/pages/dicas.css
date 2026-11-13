@@ -1,0 +1,258 @@
+/* Dicas — mobile base, desktop >= 1024px */
+
+.app-main--surface { background: var(--bg-surface); }
+
+/* Mobile: status bar do Figma (42px) + padding 8 */
+.dcp {
+  padding: 50px 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.dc-body {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* ---------- Filtros ---------- */
+.dc-filters {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  margin: -2px -20px;
+  padding: 2px 20px;
+}
+
+.dc-filters::-webkit-scrollbar { display: none; }
+
+.dc-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 34px;
+  flex-shrink: 0;
+  padding: 0 12px 0 10px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-primary);
+  white-space: nowrap;
+  transition: background-color var(--ease), border-color var(--ease), color var(--ease);
+}
+
+.dc-chip svg {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  color: var(--text-secondary);
+}
+
+.dc-chip svg * { vector-effect: non-scaling-stroke; }
+
+.dc-count {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.dc-chip:hover { border-color: var(--accent); }
+
+.dc-chip[aria-selected="true"] {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--on-accent);
+}
+
+.dc-chip[aria-selected="true"] svg,
+.dc-chip[aria-selected="true"] .dc-count { color: var(--on-accent); }
+
+.dc-chip:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* ---------- Linha do tempo ---------- */
+.dc-timeline {
+  display: flex;
+  flex-direction: column;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.dc-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding-bottom: 12px;
+}
+
+.dc-item:last-child { padding-bottom: 0; }
+
+.dc-rail {
+  align-self: stretch;
+  width: 12px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 18px;
+}
+
+/* Figma: bolinha 12px com contorno de 3px da cor do fundo */
+.dc-dot {
+  width: 12px;
+  height: 12px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 0 3px var(--bg-primary);
+}
+
+.dc-line {
+  flex: 1;
+  width: 2px;
+  min-height: 1px;
+  margin-top: 6px;
+  background: var(--border);
+}
+
+.dc-card {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 14px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+}
+
+.dc-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.dc-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 8px;
+  border-radius: var(--radius-full);
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.72px;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+[data-theme="dark"] .dc-pill { color: var(--link); }
+
+.dc-pill svg { width: 12px; height: 12px; }
+.dc-pill svg * { vector-effect: non-scaling-stroke; }
+
+.dc-when {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
+}
+
+.dc-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.dc-desc {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--text-secondary);
+}
+
+.dc-info {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--accent);
+}
+
+[data-theme="dark"] .dc-info { color: var(--link); }
+
+/* Coluna de data (desktop) */
+.dc-date {
+  width: 72px;
+  flex-shrink: 0;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  padding-top: 18px;
+  white-space: nowrap;
+}
+
+.dc-date-main { font-size: 14px; font-weight: 600; color: var(--text-primary); }
+.dc-date-sub { font-size: 11px; font-weight: 400; color: var(--text-secondary); }
+
+/* ===== DESKTOP ===== */
+@media (min-width: 1024px) {
+  .dcp {
+    padding: 40px;
+    gap: 24px;
+  }
+
+  .dc-body { gap: 22px; }
+
+  .dc-filters {
+    gap: 10px;
+    margin: -2px;
+    padding: 2px;
+  }
+
+  .dc-chip {
+    gap: 8px;
+    height: 36px;
+    padding: 0 16px 0 14px;
+    font-size: 13px;
+  }
+
+  .dc-chip svg { width: 16px; height: 16px; }
+
+  .dc-timeline { max-width: 838px; }
+
+  .dc-item { gap: 16px; padding-bottom: 14px; }
+
+  .dc-date.only-d { display: flex !important; }
+
+  .dc-rail { width: 14px; padding-top: 21px; }
+
+  /* Último item do desktop: só a bolinha */
+  .dc-item:last-child .dc-line { display: none; }
+
+  .dc-card {
+    gap: 8px;
+    padding: 18px 20px;
+  }
+
+  .dc-pill {
+    gap: 6px;
+    padding: 5px 10px;
+    font-size: 10px;
+    letter-spacing: 0.8px;
+  }
+
+  .dc-pill svg { width: 14px; height: 14px; }
+
+  .dc-when {
+    font-weight: 400;
+    color: var(--text-secondary);
+  }
+
+  .dc-title { font-size: 17px; }
+  .dc-desc { font-size: 13px; }
+}

@@ -14,16 +14,35 @@
   <link rel="stylesheet" href="../styles/base/reset.css">
   <link rel="stylesheet" href="../styles/base/components.css">
   <link rel="stylesheet" href="../styles/layout/shell.css">
+  <link rel="stylesheet" href="../styles/pages/dicas.css">
 </head>
 <body>
-  <main class="app-main">
-    <div class="page">
-      <p class="page-placeholder">Em construção</p>
+  <main class="app-main app-main--surface">
+    <div class="page dcp" id="dcp">
+      <header class="ph">
+        <div class="ph-text">
+          <h1 class="ph-title">Dicas</h1>
+          <p class="ph-sub only-d">Livros, vídeos e conteúdos para cuidar melhor do seu dinheiro.</p>
+        </div>
+      </header>
+
+      <div class="dc-body">
+        <div class="dc-filters" id="dc-filters" role="tablist" aria-label="Filtrar dicas">
+          <button type="button" role="tab" class="dc-chip" data-f="todas" data-icon="tip-grid">Todas</button>
+          <button type="button" role="tab" class="dc-chip" data-f="livros" data-icon="tip-book">Livros</button>
+          <button type="button" role="tab" class="dc-chip" data-f="videos" data-icon="tip-play">Vídeos</button>
+          <button type="button" role="tab" class="dc-chip" data-f="outros" data-icon="tip-other">Outros</button>
+        </div>
+
+        <ol class="dc-timeline" id="dc-timeline" aria-live="polite"></ol>
+      </div>
     </div>
   </main>
 
   <script src="../js/icons.js"></script>
   <script src="../js/layout.js"></script>
   <script>renderLayout('dicas');</script>
+  <script src="../js/util.js"></script>
+  <script src="../js/pages/dicas.js"></script>
 </body>
 </html>
