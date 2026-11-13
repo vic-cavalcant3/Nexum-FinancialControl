@@ -663,3 +663,69 @@ body.has-modal { overflow: hidden; }
   color: var(--link);
   white-space: nowrap;
 }
+
+/* ============ Cabeçalho com "voltar" (mobile) ============ */
+.bh {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 0;
+}
+
+.bh-back {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border-radius: 12px;
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+}
+
+.bh-back svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* Figma: seta preenchida no claro, só contorno no escuro */
+[data-theme="dark"] .bh-back svg path { fill: none; }
+
+.bh-back:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.bh-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+/* Texto de apoio abaixo do título do modal */
+.modal-desc {
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--text-secondary);
+}
+
+/* Barra de progresso */
+.pbar {
+  height: 6px;
+  width: 100%;
+  overflow: hidden;
+  border-radius: var(--radius-full);
+  background: var(--border);
+}
+
+.pbar-fill {
+  display: block;
+  height: 100%;
+  border-radius: var(--radius-full);
+  background: var(--accent);
+}
+
+[data-theme="dark"] .pbar-fill { background: var(--link); }
+.pbar-fill.is-warning { background: var(--warning); }
+.pbar-fill.is-danger { background: var(--danger); }

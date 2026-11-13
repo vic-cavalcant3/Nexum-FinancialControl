@@ -82,5 +82,22 @@
     U.store.set(CONTAS_KEY, m);
   };
 
+  // Orçamento (limite mensal por categoria): o backend não tem esse recurso, então fica no navegador.
+  // Valores iniciais = Figma (Editar orçamento).
+  var ORC_KEY = 'nexum-orcamento';
+  U.ORCAMENTO_PADRAO = [
+    { nome: 'Moradia', limite: 1500 },
+    { nome: 'Alimentação', limite: 900 },
+    { nome: 'Transporte', limite: 700 },
+    { nome: 'Lazer', limite: 500 },
+    { nome: 'Saúde', limite: 400 },
+    { nome: 'Outros', limite: 700 }
+  ];
+  U.orcamento = function () {
+    var o = U.store.get(ORC_KEY, null);
+    return Array.isArray(o) && o.length ? o : U.ORCAMENTO_PADRAO.map(function (c) { return { nome: c.nome, limite: c.limite }; });
+  };
+  U.setOrcamento = function (lista) { U.store.set(ORC_KEY, lista); };
+
   window.U = U;
 })();

@@ -93,7 +93,9 @@
   };
 
   // Modal de sucesso reutilizável (Transação salva / Meta criada / Orçamento atualizado)
-  window.showSuccess = function (titulo, texto, onDone) {
+  // opts: { botao: 'Concluir' }
+  window.showSuccess = function (titulo, texto, onDone, opts) {
+    opts = opts || {};
     var el = document.getElementById('modal-sucesso');
     if (!el) {
       el = document.createElement('div');
@@ -116,6 +118,7 @@
     }
     el.querySelector('.success-title').textContent = titulo;
     el.querySelector('.success-desc').textContent = texto;
+    el.querySelector('.btn').textContent = opts.botao || 'Concluir';
     open(el, { onClose: onDone });
   };
 })();

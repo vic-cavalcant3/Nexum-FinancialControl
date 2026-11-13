@@ -18,6 +18,9 @@
   --success: #1c7c3e;
   --success-soft: #d9f2e0;
   --danger: #c0392b;
+  --warning: #b8860b;
+  --warning-soft: rgba(184, 134, 11, 0.14);
+  --warning-border: rgba(184, 134, 11, 0.45);
 
   /* Modais */
   --overlay: rgba(0, 0, 0, 0.45);

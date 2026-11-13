@@ -14,16 +14,106 @@
   <link rel="stylesheet" href="../styles/base/reset.css">
   <link rel="stylesheet" href="../styles/base/components.css">
   <link rel="stylesheet" href="../styles/layout/shell.css">
+  <link rel="stylesheet" href="../styles/pages/planejamento.css">
 </head>
 <body>
-  <main class="app-main">
-    <div class="page">
-      <p class="page-placeholder">Em construção</p>
+  <main class="app-main app-main--surface">
+    <div class="page plp" id="plp">
+      <!-- MOBILE: voltar + título -->
+      <header class="bh only-m">
+        <a class="bh-back" href="dashboard.html" aria-label="Voltar"></a>
+        <h1 class="bh-title">Planejamento</h1>
+      </header>
+
+      <!-- DESKTOP: título + subtítulo + botão -->
+      <header class="ph only-d">
+        <div class="ph-text">
+          <h1 class="ph-title">Planejamento</h1>
+          <p class="ph-sub">Defina limites por categoria e acompanhe seu orçamento mensal.</p>
+        </div>
+        <button type="button" class="btn btn-primary ph-btn" data-editar>Editar orçamento</button>
+      </header>
+
+      <div class="load-alert" id="pl-alert" role="alert" hidden>
+        <span>Não foi possível carregar seus gastos.</span>
+        <button type="button" id="pl-retry">Tentar de novo</button>
+      </div>
+
+      <section class="pl-stats" aria-label="Resumo do mês">
+        <div class="pl-stat">
+          <p class="pl-stat-label">Orçado</p>
+          <p class="pl-stat-value" data-slot="orcado"></p>
+          <p class="pl-stat-sub only-d">total do mês</p>
+        </div>
+        <div class="pl-stat">
+          <p class="pl-stat-label">Gasto</p>
+          <p class="pl-stat-value is-accent" data-slot="gasto"></p>
+          <p class="pl-stat-sub only-d" data-slot="gasto-sub"></p>
+        </div>
+        <div class="pl-stat">
+          <p class="pl-stat-label">Restante</p>
+          <p class="pl-stat-value is-success" data-slot="restante"></p>
+          <p class="pl-stat-sub only-d" data-slot="restante-sub"></p>
+        </div>
+      </section>
+
+      <div class="pl-warn" id="pl-warn" role="status" hidden>
+        <span class="pl-warn-ic" aria-hidden="true"></span>
+        <p class="pl-warn-text"></p>
+        <button type="button" class="pl-warn-link only-d" id="pl-warn-link">VER DETALHES</button>
+      </div>
+
+      <section class="pl-cards" id="pl-cards" aria-label="Categorias"></section>
+
+      <button type="button" class="pl-edit-m only-m" data-editar>Editar orçamento</button>
     </div>
   </main>
+
+  <!-- Modal: editar orçamento -->
+  <div class="modal" id="modal-orc" hidden role="dialog" aria-modal="true" aria-labelledby="modal-orc-title">
+    <form class="modal-card modal-card--orc" id="form-orc" novalidate>
+      <div class="modal-head">
+        <h2 class="modal-title" id="modal-orc-title">Editar orçamento</h2>
+        <button type="button" class="modal-close" data-modal-close aria-label="Fechar"></button>
+      </div>
+      <p class="modal-desc">Defina o limite mensal de cada categoria.</p>
+      <div class="orc-fields" id="orc-fields"></div>
+      <p class="field-error" id="orc-erro" role="alert" hidden></p>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-secondary" data-modal-close>Cancelar</button>
+        <button type="submit" class="btn btn-primary">Salvar alterações</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Modal: nova categoria no orçamento -->
+  <div class="modal" id="modal-cat" hidden role="dialog" aria-modal="true" aria-labelledby="modal-cat-title">
+    <form class="modal-card" id="form-cat" novalidate>
+      <div class="modal-head">
+        <h2 class="modal-title" id="modal-cat-title">Nova categoria</h2>
+        <button type="button" class="modal-close" data-modal-close aria-label="Fechar"></button>
+      </div>
+      <label class="field">
+        <span class="field-label">Categoria</span>
+        <select class="field-input" id="cat-nome"></select>
+      </label>
+      <label class="field">
+        <span class="field-label">Limite mensal</span>
+        <input class="field-input" id="cat-limite" type="text" inputmode="numeric" placeholder="R$ 0,00">
+      </label>
+      <p class="field-error" id="cat-erro" role="alert" hidden></p>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-secondary" data-modal-close>Cancelar</button>
+        <button type="submit" class="btn btn-primary">Adicionar</button>
+      </div>
+    </form>
+  </div>
 
   <script src="../js/icons.js"></script>
   <script src="../js/layout.js"></script>
   <script>renderLayout('planejamento');</script>
+  <script src="../js/util.js"></script>
+  <script src="../js/modal.js"></script>
+  <script src="../js/pages/planejamento.js"></script>
 </body>
 </html>

@@ -1,0 +1,377 @@
+/* Planejamento — mobile base, desktop >= 1024px */
+
+.app-main--surface { background: var(--bg-surface); }
+
+/* Mobile: status bar do Figma (42px) + gap 16 ficam como respiro no topo */
+.plp {
+  padding: 58px 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.plp .bh { margin-bottom: 4px; }
+
+/* ---------- Resumo ---------- */
+.pl-stats {
+  display: flex;
+  gap: 10px;
+}
+
+.pl-stat {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 14px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  white-space: nowrap;
+}
+
+.pl-stat-label {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.pl-stat-value {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.pl-stat-value.is-accent { color: var(--accent); }
+.pl-stat-value.is-success { color: var(--success); }
+.pl-stat-value.is-danger { color: var(--danger); }
+[data-theme="dark"] .pl-stat-value.is-accent { color: var(--link); }
+
+.pl-stat-sub {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--text-secondary);
+}
+
+/* ---------- Alerta ---------- */
+.pl-warn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 14px;
+  background: var(--warning-soft);
+  border: 1px solid var(--warning-border);
+  border-radius: 12px;
+  color: var(--warning);
+}
+
+.pl-warn[hidden] { display: none; }
+
+.pl-warn-ic { display: flex; flex-shrink: 0; }
+.pl-warn-ic svg { width: 18px; height: 18px; }
+
+.pl-warn-text {
+  flex: 1;
+  min-width: 0;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.pl-warn-link {
+  flex-shrink: 0;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.72px;
+  color: var(--warning);
+  white-space: nowrap;
+}
+
+.pl-warn-link:hover { text-decoration: underline; }
+
+/* ---------- Cards de categoria ---------- */
+.pl-cards {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.plc {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+  padding: 14px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  transition: box-shadow 160ms ease-out;
+}
+
+.plc.is-highlight { box-shadow: 0 0 0 2px var(--warning); }
+
+.plc-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.plc-tile {
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border-radius: 12px;
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+[data-theme="dark"] .plc-tile { color: var(--link); }
+
+.plc-tile svg { width: 18px; height: 18px; }
+
+.plc-titles {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.plc-name,
+.plc-desc {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.plc-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.plc-desc {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--text-secondary);
+}
+
+.plc-spent {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.plc-spent-value {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.plc-pct {
+  font-weight: 700;
+  color: var(--accent);
+}
+
+[data-theme="dark"] .plc-pct { color: var(--link); }
+.plc-pct.is-warning { color: var(--warning); }
+.plc-pct.is-danger { color: var(--danger); }
+
+.plc-limit {
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+.plc-edit {
+  width: 100%;
+  height: 38px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  transition: background-color var(--ease), color var(--ease);
+}
+
+.plc-edit:hover {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+[data-theme="dark"] .plc-edit:hover { color: var(--link); }
+
+/* Card "Nova Categoria" (desktop) */
+.plc-new {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 218px;
+  border: 1.5px dashed var(--border);
+  border-radius: 16px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  transition: border-color var(--ease), color var(--ease);
+}
+
+.plc-new:hover { border-color: var(--accent); color: var(--text-primary); }
+
+.plc-new-ic {
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-full);
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+[data-theme="dark"] .plc-new-ic { color: var(--link); }
+
+.plc-new-ic svg { width: 20px; height: 20px; }
+
+.plc-edit:focus-visible,
+.plc-new:focus-visible,
+.pl-warn-link:focus-visible,
+.pl-edit-m:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* Botão "Editar orçamento" (mobile) */
+.pl-edit-m {
+  width: 100%;
+  padding: 15px;
+  border-radius: 12px;
+  background: var(--accent);
+  color: var(--on-accent);
+  font-size: 15px;
+  font-weight: 700;
+  transition: background-color var(--ease);
+}
+
+.pl-edit-m:hover { background: var(--accent-hover); }
+
+/* ---------- Modal Editar orçamento ---------- */
+.orc-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.orc-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.orc-label {
+  flex: 1;
+  min-width: 0;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.orc-input {
+  width: 120px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 12px;
+  background: var(--bg-primary);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 13px;
+  color: var(--text-primary);
+  cursor: text;
+}
+
+.orc-input:focus-within { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+[data-theme="dark"] .orc-input:focus-within { border-color: var(--link); box-shadow: 0 0 0 1px var(--link); }
+.orc-input.is-error { border-color: var(--danger); }
+
+.orc-input input {
+  flex: 1;
+  min-width: 0;
+  padding: 0;
+  border: none;
+  background: none;
+  font-size: 13px;
+  line-height: normal;
+  color: var(--text-primary);
+}
+
+.orc-input input:focus { outline: none; }
+
+/* ===== DESKTOP ===== */
+@media (min-width: 1024px) {
+  .plp {
+    padding: 40px;
+    gap: 24px;
+  }
+
+  .plp .ph.only-d { display: flex !important; }
+  .plc-new.only-d { display: flex !important; }
+
+  .pl-stats { gap: 20px; }
+
+  .pl-stat {
+    gap: 8px;
+    padding: 20px;
+    border-radius: 16px;
+  }
+
+  .pl-stat-label { font-size: 12px; }
+  .pl-stat-value { font-size: 26px; }
+
+  .pl-warn { padding: 16px 20px; }
+  .pl-warn-ic svg { width: 22px; height: 22px; }
+  .pl-warn-text { font-size: 14px; }
+
+  .pl-cards {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 20px;
+  }
+
+  .plc {
+    gap: 14px;
+    padding: 20px;
+    border-radius: 16px;
+  }
+
+  .plc-head { gap: 12px; }
+
+  .plc-tile { width: 44px; height: 44px; }
+  .plc-tile svg { width: 22px; height: 22px; }
+  /* Ícones de 18 ampliados para 22: traço fica com a mesma espessura do Figma (1.8px) */
+  .plc-tile svg *, .pl-warn-ic svg * { vector-effect: non-scaling-stroke; }
+
+  .plc-name { font-size: 16px; }
+  .plc-spent { font-size: 14px; }
+
+  .plc .pbar { height: 8px; }
+
+  .plc-limit {
+    align-self: flex-end;
+    font-weight: 600;
+    letter-spacing: 0.66px;
+    text-transform: uppercase;
+  }
+
+  .modal-card.modal-card--orc { width: 480px; }
+}
