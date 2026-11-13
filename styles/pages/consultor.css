@@ -1,0 +1,259 @@
+/* Consultor IA — mobile base, desktop >= 1024px */
+
+.app-main--surface { background: var(--bg-surface); }
+
+/* Figma mobile: tela de chat sem a nav inferior (volta pelo botão do topo) */
+@media (max-width: 1023px) {
+  body.is-chat .mnav,
+  body.is-chat .mnav-bubble,
+  body.is-chat .mnav-backdrop { display: none !important; }
+  body.is-chat .app-main { padding-bottom: 0; }
+}
+
+/* Coluna de altura total: mensagens rolam, sugestões e campo ficam embaixo */
+.csp {
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  padding-top: 58px; /* status bar do Figma (42) + gap 16 */
+}
+
+.csp .bh {
+  flex-shrink: 0;
+  margin: 0 20px 16px;
+}
+
+/* ---------- Mensagens ---------- */
+.cs-chat {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 4px 20px 16px;
+  overscroll-behavior: contain;
+}
+
+.cs-chat:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+
+.cs-msg {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  max-width: 318px;
+  width: 100%;
+}
+
+.cs-avatar {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border-radius: 8px;
+  background: var(--accent);
+  color: var(--on-accent);
+}
+
+.cs-avatar svg { width: 14px; height: 14px; }
+
+.cs-bubble {
+  min-width: 0;
+  padding: 10px 14px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 400;
+  line-height: normal;
+  overflow-wrap: anywhere;
+  white-space: pre-line;
+}
+
+.cs-msg .cs-bubble {
+  flex: 1;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+}
+
+/* Mensagem do usuário: alinhada à esquerda, como no Figma */
+.cs-user {
+  max-width: 318px;
+  background: var(--accent);
+  color: var(--on-accent);
+}
+
+/* Indicador "digitando" */
+.cs-typing {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 16px;
+}
+
+.cs-typing i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--text-secondary);
+  animation: cs-dot 1s ease-in-out infinite;
+}
+
+.cs-typing i:nth-child(2) { animation-delay: 0.15s; }
+.cs-typing i:nth-child(3) { animation-delay: 0.3s; }
+
+@keyframes cs-dot {
+  0%, 80%, 100% { opacity: 0.3; transform: translateY(0); }
+  40% { opacity: 1; transform: translateY(-2px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cs-typing i { animation: none; opacity: 0.6; }
+}
+
+/* ---------- Sugestões ---------- */
+.cs-suggest {
+  flex-shrink: 0;
+  display: flex;
+  gap: 8px;
+  padding: 0 20px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.cs-suggest::-webkit-scrollbar { display: none; }
+
+.cs-chip {
+  flex-shrink: 0;
+  padding: 8px 14px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--accent);
+  white-space: nowrap;
+  transition: border-color var(--ease), background-color var(--ease);
+}
+
+[data-theme="dark"] .cs-chip { color: var(--link); }
+
+.cs-chip:hover { border-color: var(--accent); background: var(--accent-soft); }
+.cs-chip:disabled { opacity: 0.6; cursor: default; }
+
+.cs-chip:focus-visible,
+.cs-send:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* ---------- Campo ---------- */
+.cs-input-row {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 20px calc(24px + env(safe-area-inset-bottom, 0px));
+}
+
+.cs-input {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  padding: 13px 16px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+}
+
+.cs-input:focus-within { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+[data-theme="dark"] .cs-input:focus-within { border-color: var(--link); box-shadow: 0 0 0 1px var(--link); }
+
+.cs-input input {
+  flex: 1;
+  min-width: 0;
+  padding: 0;
+  border: none;
+  background: none;
+  font-size: 14px;
+  line-height: normal;
+  color: var(--text-primary);
+}
+
+.cs-input input::placeholder { color: var(--text-secondary); }
+.cs-input input:focus { outline: none; }
+
+.cs-send {
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border-radius: var(--radius-full);
+  background: var(--accent);
+  color: var(--on-accent);
+  transition: background-color var(--ease), opacity var(--ease);
+}
+
+.cs-send:hover { background: var(--accent-hover); }
+.cs-send:disabled { opacity: 0.6; cursor: default; }
+
+.cs-send svg { width: 16px; height: 16px; }
+.cs-send svg * { vector-effect: non-scaling-stroke; }
+
+/* ===== DESKTOP ===== */
+@media (min-width: 1024px) {
+  .csp {
+    padding: 40px;
+  }
+
+  .csp .ph.only-d { display: flex !important; margin-bottom: 20px; flex-shrink: 0; }
+
+  .cs-chat {
+    gap: 16px;
+    padding: 24px;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+  }
+
+  .cs-msg { gap: 12px; max-width: 744px; }
+
+  .cs-avatar { width: 32px; height: 32px; border-radius: 12px; }
+  .cs-avatar svg { width: 16px; height: 16px; }
+
+  .cs-bubble { padding: 12px 16px; font-size: 14px; }
+
+  .cs-msg .cs-bubble {
+    background: var(--bg-surface);
+    border-color: transparent;
+  }
+
+  .cs-user { max-width: 700px; }
+
+  .cs-suggest {
+    gap: 10px;
+    padding: 0;
+    margin-top: 20px;
+  }
+
+  .cs-chip.only-d { display: inline-block !important; }
+  .cs-chip { padding: 9px 16px; font-size: 13px; }
+
+  .cs-input-row {
+    gap: 12px;
+    padding: 0;
+    margin-top: 20px;
+  }
+
+  .cs-input {
+    padding: 14px 18px;
+    background: var(--bg-primary);
+  }
+
+  .cs-send { width: 48px; height: 48px; }
+  .cs-send svg { width: 18px; height: 18px; }
+}

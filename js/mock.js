@@ -14,6 +14,118 @@
   function lsSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
   function lsDel(k) { try { localStorage.removeItem(k); } catch (e) {} }
 
+  // ===================== CONSULTOR IA (simulado) =====================
+  // Não existe endpoint de IA no backend: as respostas são montadas aqui, com atraso,
+  // a partir dos dados reais do usuário (Transacoes / Metas do js/api.js).
+  // Fica fora da chave do mock: o Consultor funciona com ou sem backend.
+  // Uso: consultorSimulado('Como economizar mais?').then(texto => ...)
+  (function () {
+    var brl = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 });
+    var pctF = new Intl.NumberFormat('pt-BR', { maximumFractionDigits: 0 });
+    function n(v) { v = Number(v); return isFinite(v) ? v : 0; }
+    function semAcento(s) { return String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, ''); }
+    function mesmoMes(d, ref) { return d.getFullYear() === ref.getFullYear() && d.getMonth() === ref.getMonth(); }
+
+    function resumo(txs) {
+      var hoje = new Date();
+      var ant = new Date(hoje.getFullYear(), hoje.getMonth() - 1, 1);
+      var r = { rec: 0, desp: 0, recAnt: 0, despAnt: 0, cats: {}, catsAnt: {}, meses: {} };
+      txs.forEach(function (t) {
+        var d = new Date(t.data), v = n(t.valor), cat = (t.categoria && t.categoria.nome) || 'Outros';
+        var k = d.getFullYear() * 12 + d.getMonth();
+        r.meses[k] = r.meses[k] || { rec: 0, desp: 0 };
+        if (t.tipo === 'receita') r.meses[k].rec += v; else r.meses[k].desp += v;
+        if (mesmoMes(d, hoje)) {
+          if (t.tipo === 'receita') r.rec += v; else { r.desp += v; r.cats[cat] = (r.cats[cat] || 0) + v; }
+        } else if (mesmoMes(d, ant)) {
+          if (t.tipo === 'receita') r.recAnt += v; else { r.despAnt += v; r.catsAnt[cat] = (r.catsAnt[cat] || 0) + v; }
+        }
+      });
+      // Economia média mensal dos meses com movimento (até 6)
+      var ks = Object.keys(r.meses).map(Number).sort().slice(-6);
+      r.ecoMedia = ks.length ? ks.reduce(function (s, k) { return s + r.meses[k].rec - r.meses[k].desp; }, 0) / ks.length : 0;
+      return r;
+    }
+
+    function topCategoria(cats) {
+      var top = null;
+      Object.keys(cats).forEach(function (c) { if (!top || cats[c] > cats[top]) top = c; });
+      return top;
+    }
+
+    function economizar(r) {
+      var top = topCategoria(r.cats);
+      if (!top) return 'Ainda não encontrei despesas neste mês. Registre seus gastos em Transações e eu te mostro onde dá pra economizar.';
+      var corte = Math.round(r.cats[top] * 0.1 / 10) * 10;
+      var taxa = r.rec > 0 ? (r.rec - r.desp) / r.rec * 100 : 0;
+      return 'Seu maior gasto este mês é ' + top + ' (' + brl.format(r.cats[top]) + '). Cortando 10% dali, você guarda ' +
+        brl.format(corte) + ' a mais por mês. Hoje você economiza ' + pctF.format(Math.max(0, taxa)) +
+        '% da sua renda — a meta ideal é chegar a 20%. Quer que eu ajuste esse limite no Planejamento?';
+    }
+
+    function aposentadoria(r) {
+      var mensal = Math.max(0, r.ecoMedia);
+      if (!mensal) return 'Para simular sua aposentadoria preciso de alguns meses de receitas e despesas registradas. Que tal começar por Transações?';
+      // 25 anos, 0,6% ao mês
+      var i = 0.006, m = 25 * 12;
+      var total = mensal * ((Math.pow(1 + i, m) - 1) / i);
+      var renda = total * 0.004;
+      return 'Se você investir ' + brl.format(mensal) + ' por mês (sua economia média) a 0,6% ao mês, em 25 anos terá cerca de ' +
+        brl.format(total) + '. Isso gera uma renda de aproximadamente ' + brl.format(renda) + ' por mês sem mexer no principal.';
+    }
+
+    function metaViagem(metas) {
+      var m = metas.filter(function (x) { return /viagem|viajar|ferias/.test(semAcento(x.descricao)); })[0] || metas[0];
+      if (!m) return 'Você ainda não tem metas. Crie uma em Metas e eu acompanho o seu ritmo com você.';
+      var alvo = n(m.valor_alvo), atual = n(m.valor_atual), aporte = n(m.aporte_mensal);
+      var faltam = Math.max(0, alvo - atual);
+      if (!faltam) return 'Parabéns! A meta "' + m.descricao + '" já foi alcançada.';
+      var meses = aporte > 0 ? Math.ceil(faltam / aporte) : null;
+      return 'Sua meta "' + m.descricao + '" está em ' + pctF.format(alvo ? atual / alvo * 100 : 0) + '%: faltam ' + brl.format(faltam) + '. ' +
+        (meses ? 'Guardando ' + brl.format(aporte) + ' por mês, você chega lá em ' + meses + (meses === 1 ? ' mês' : ' meses') +
+          '. Aumentando para ' + brl.format(Math.ceil(aporte * 1.25 / 10) * 10) + ', antecipa em cerca de ' +
+          Math.max(1, meses - Math.ceil(faltam / (aporte * 1.25))) + ' mês(es).' : 'Defina um valor mensal para eu calcular o prazo.');
+    }
+
+    function gastos(r) {
+      var linhas = Object.keys(r.cats).sort(function (a, b) { return r.cats[b] - r.cats[a]; }).slice(0, 3)
+        .map(function (c) { return c + ' (' + brl.format(r.cats[c]) + ')'; });
+      var v = r.despAnt ? (r.desp - r.despAnt) / r.despAnt * 100 : null;
+      return 'Neste mês você gastou ' + brl.format(r.desp) + (v !== null ? ' — ' + (v >= 0 ? 'alta' : 'queda') + ' de ' + pctF.format(Math.abs(v)) + '% em relação ao mês passado' : '') +
+        '. ' + (linhas.length ? 'Os maiores gastos foram: ' + linhas.join(', ') + '.' : '');
+    }
+
+    function saldo(r) {
+      var eco = r.rec - r.desp;
+      return 'Este mês entraram ' + brl.format(r.rec) + ' e saíram ' + brl.format(r.desp) + ', então você está ' +
+        (eco >= 0 ? 'com ' + brl.format(eco) + ' de sobra.' : 'no vermelho em ' + brl.format(-eco) + '. Vale revisar os gastos em Planejamento.');
+    }
+
+    function responder(texto, txs, metas) {
+      var q = semAcento(texto);
+      var r = resumo(txs);
+      if (/aposent/.test(q)) return aposentadoria(r);
+      if (/meta|viagem|objetivo/.test(q)) return metaViagem(metas);
+      if (/econom|poupar|guardar|cortar|reduzir/.test(q)) return economizar(r);
+      if (/gast|despes|categoria|onde/.test(q)) return gastos(r);
+      if (/saldo|sobr|receit|renda|quanto/.test(q)) return saldo(r);
+      if (/sim|pode|aplicar|ok|quero/.test(q)) return 'Combinado! Você pode revisar e salvar os novos limites em Planejamento → Editar orçamento.';
+      if (/oi|ola|bom dia|boa tarde|boa noite/.test(q)) return 'Oi! Posso analisar seus gastos, sugerir onde economizar, acompanhar suas metas ou simular sua aposentadoria. Por onde começamos?';
+      return 'Ainda estou aprendendo sobre esse assunto. Posso te ajudar com seus gastos, economia, metas ou aposentadoria — é só perguntar.';
+    }
+
+    window.consultorSimulado = function (texto) {
+      var espera = 900 + Math.min(1200, String(texto).length * 15);
+      var dados = Promise.all([
+        typeof Transacoes !== 'undefined' ? Transacoes.listar().catch(function () { return []; }) : [],
+        typeof Metas !== 'undefined' ? Metas.listar().catch(function () { return []; }) : []
+      ]);
+      return Promise.all([dados, new Promise(function (r) { setTimeout(r, espera); })]).then(function (res) {
+        return responder(texto, res[0][0] || [], res[0][1] || []);
+      });
+    };
+  })();
+
   var param = new URLSearchParams(window.location.search).get('mock');
   if (param === '1') lsSet(FLAG_KEY, '1');
   if (param === '0') lsDel(FLAG_KEY);

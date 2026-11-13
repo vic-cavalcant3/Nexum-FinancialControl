@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content">
   <meta name="color-scheme" content="light dark">
   <title>Consultor IA — Nexum</title>
   <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
@@ -14,16 +14,47 @@
   <link rel="stylesheet" href="../styles/base/reset.css">
   <link rel="stylesheet" href="../styles/base/components.css">
   <link rel="stylesheet" href="../styles/layout/shell.css">
+  <link rel="stylesheet" href="../styles/pages/consultor.css">
 </head>
-<body>
-  <main class="app-main">
-    <div class="page">
-      <p class="page-placeholder">Em construção</p>
+<body class="is-chat">
+  <main class="app-main app-main--surface">
+    <div class="page csp" id="csp">
+      <!-- MOBILE: voltar + título -->
+      <header class="bh only-m">
+        <a class="bh-back" href="dashboard.html" aria-label="Voltar"></a>
+        <h1 class="bh-title">Consultor IA</h1>
+      </header>
+
+      <!-- DESKTOP -->
+      <header class="ph only-d">
+        <div class="ph-text">
+          <h1 class="ph-title">Consultor IA</h1>
+          <p class="ph-sub">Converse sobre suas finanças e receba recomendações personalizadas.</p>
+        </div>
+      </header>
+
+      <section class="cs-chat" id="cs-chat" aria-label="Conversa com o Consultor IA" aria-live="polite" tabindex="0"></section>
+
+      <div class="cs-suggest" id="cs-suggest" role="group" aria-label="Sugestões">
+        <button type="button" class="cs-chip">Como economizar mais?</button>
+        <button type="button" class="cs-chip only-d">Analisar minha meta de viagem</button>
+        <button type="button" class="cs-chip">Simular aposentadoria</button>
+      </div>
+
+      <form class="cs-input-row" id="cs-form" autocomplete="off">
+        <label class="cs-input">
+          <span class="sr-only">Mensagem</span>
+          <input type="text" id="cs-texto" maxlength="500" placeholder="Pergunte algo...">
+        </label>
+        <button type="submit" class="cs-send" id="cs-send" aria-label="Enviar"></button>
+      </form>
     </div>
   </main>
 
   <script src="../js/icons.js"></script>
   <script src="../js/layout.js"></script>
   <script>renderLayout('consultor');</script>
+  <script src="../js/util.js"></script>
+  <script src="../js/pages/consultor.js"></script>
 </body>
 </html>
