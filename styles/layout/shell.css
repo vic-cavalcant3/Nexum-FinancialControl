@@ -286,11 +286,8 @@
   --nav-bottom: 14px;
   --nav-max: none;
   --nav-pill-pad: 5px;
-  --nav-tab-pad: 9px;
   --nav-tab-icon: 18px;
   --nav-tab-label: 13px;
-  --mais-size: 54px;
-  --mais-icon: 22px;
   --bubble-pad: 14px 12px 12px;
   --bubble-radius: 20px;
   --tile: 48px;
@@ -298,8 +295,12 @@
   --tile-icon: 20px;
   --tile-label: 11px;
   --tile-gap: 6px;
-  /* Altura da nav = botão Mais (é o elemento mais alto em todas as larguras) */
-  --nav-h: var(--mais-size);
+  /* Altura da nav: pílula e botão Mais têm a mesma altura em todas as larguras */
+  --nav-h: 48px;
+  /* Abas preenchem a pílula: altura - borda (2 x 1px) - padding da pílula */
+  --nav-tab-size: calc(var(--nav-h) - 2px - 2 * var(--nav-pill-pad));
+  /* Padding lateral que deixa a aba só-ícone redonda */
+  --nav-tab-pad: calc((var(--nav-tab-size) - var(--nav-tab-icon)) / 2);
 }
 
 /* 360–389px */
@@ -309,7 +310,6 @@
     --nav-gap: 12px;
     --nav-bottom: 16px;
     --nav-tab-icon: 20px;
-    --mais-size: 58px;
     --tile: 52px;
     --tile-gap: 8px;
   }
@@ -322,10 +322,7 @@
     --nav-gap: 14px;
     --nav-bottom: 19px;
     --nav-pill-pad: 6px;
-    --nav-tab-pad: 10px;
     --nav-tab-label: 14px;
-    --mais-size: 62px;
-    --mais-icon: 24px;
     --bubble-pad: 18px 18px 16px;
     --bubble-radius: 24px;
     --tile: 56px;
@@ -376,6 +373,8 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  box-sizing: border-box;
+  height: var(--nav-h);
   padding: var(--nav-pill-pad);
   background: var(--nav-bg);
   border: 1px solid var(--nav-border);
@@ -390,7 +389,8 @@
   display: flex;
   align-items: center;
   gap: 0;
-  padding: var(--nav-tab-pad);
+  height: var(--nav-tab-size);
+  padding: 0 var(--nav-tab-pad);
   border-radius: var(--radius-full);
   color: var(--nav-icon);
   transition: background-color 200ms ease-out, padding 200ms ease-out, gap 200ms ease-out, color 200ms ease-out;
@@ -426,7 +426,7 @@
 
 .mnav-tab.is-active {
   gap: 8px;
-  padding: var(--nav-tab-pad) calc(var(--nav-tab-pad) + 6px) var(--nav-tab-pad) calc(var(--nav-tab-pad) + 4px);
+  padding: 0 calc(var(--nav-tab-pad) + 6px) 0 calc(var(--nav-tab-pad) + 4px);
   background: var(--nav-active-bg);
   color: var(--nav-active-fg);
 }
@@ -439,7 +439,7 @@
 @media (max-width: 359px) {
   .mnav-tab.is-active {
     gap: 0;
-    padding: var(--nav-tab-pad);
+    padding: 0 var(--nav-tab-pad);
   }
 
   .mnav-tab.is-active .mnav-label {
@@ -448,8 +448,8 @@
 }
 
 .mnav-more {
-  width: var(--mais-size);
-  height: var(--mais-size);
+  width: var(--nav-h);
+  height: var(--nav-h);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -461,8 +461,8 @@
 }
 
 .mnav-more svg {
-  width: var(--mais-icon);
-  height: var(--mais-icon);
+  width: 22px;
+  height: 22px;
   transition: transform 200ms ease-out;
 }
 
