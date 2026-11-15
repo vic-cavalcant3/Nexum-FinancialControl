@@ -1,10 +1,15 @@
 // MODO MOCK — desenvolve o front sem backend.
 // Carregar logo DEPOIS de js/api.js. Não altera o api.js: só substitui window.apiFetch.
 //
-// Liga com ?mock=1 (fica salvo) ou rodando em localhost/127.0.0.1. ?mock=0 desliga (remove o salvo).
+// Liga com ?mock=1 (fica salvo), rodando em localhost/127.0.0.1 ou no deploy de teste
+// (nexumweb.onrender.com, enquanto MOCK_NO_DEPLOY = true). ?mock=0 desliga (remove o salvo).
 // Dados em memória, persistidos em localStorage 'nexum-mock-db'.
 // Console: nexumMock.reset() recria os dados iniciais.
 (function () {
+  // Deploy de teste no Render (sem backend). Mude para false quando o backend em Java estiver no ar.
+  var MOCK_NO_DEPLOY = true;
+  var DEPLOY_HOST = 'nexumweb.onrender.com';
+
   var FLAG_KEY = 'nexum-mock';
   var DB_KEY = 'nexum-mock-db';
   var DELAY = 400;
@@ -162,7 +167,8 @@
 
   var host = window.location.hostname;
   var local = host === 'localhost' || host === '127.0.0.1';
-  var enabled = param !== '0' && (lsGet(FLAG_KEY) === '1' || local);
+  var deploy = host === DEPLOY_HOST;
+  var enabled = param !== '0' && (lsGet(FLAG_KEY) === '1' || local || (deploy && MOCK_NO_DEPLOY));
   if (!enabled) return;
 
   // ===================== DADOS INICIAIS =====================
@@ -562,12 +568,12 @@
     db: function () { return db; }
   };
 
-  // ===================== SELO "MOCK" =====================
+  // ===================== SELO "MOCK" / "Versão de teste" =====================
   function badge() {
     if (document.querySelector('.mock-badge')) return;
     var el = document.createElement('div');
     el.className = 'mock-badge';
-    el.textContent = 'MOCK';
+    el.textContent = deploy ? 'Versão de teste' : 'MOCK';
     el.setAttribute('aria-hidden', 'true');
     document.body.appendChild(el);
   }
