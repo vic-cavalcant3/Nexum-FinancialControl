@@ -131,36 +131,6 @@
     };
   })();
 
-  // ===================== DICAS (conteúdo do Figma) =====================
-  // Não há API de conteúdo: lista fixa. "dias" = quantos dias atrás foi publicada.
-  // m = texto do mobile, d = texto do desktop (o Figma usa versões diferentes).
-  window.NEXUM_DICAS = [
-    { tipo: 'artigo', dias: 0, titulo: 'A regra 50/30/20 na prática',
-      m: 'Divida sua renda entre necessidades, desejos e poupança sem planilhas.',
-      d: 'Divida sua renda entre necessidades, desejos e poupança sem precisar de planilhas complicadas.',
-      info: '4 min de leitura' },
-    { tipo: 'video', dias: 2, titulo: 'Como montar sua reserva de emergência',
-      m: 'Defina o valor ideal e escolha onde guardar o dinheiro com segurança.',
-      d: 'Passo a passo para definir o valor ideal e escolher onde guardar o dinheiro com segurança.',
-      info: '12 min' },
-    { tipo: 'livro', dias: 9, titulo: 'Casais Inteligentes Enriquecem Juntos',
-      m: 'Planejamento financeiro a dois, da conversa ao patrimônio.',
-      d: 'Planejamento financeiro a dois: da conversa sobre dinheiro até a construção de patrimônio.',
-      info: 'Gustavo Cerbasi · 288 págs' },
-    { tipo: 'podcast', dias: 16, titulo: 'Primeiros passos nos investimentos',
-      m: 'Renda fixa, risco e prazo explicados de forma simples.',
-      d: 'Renda fixa, risco e prazo explicados de forma simples para quem está começando.',
-      info: '25 min' },
-    { tipo: 'video', dias: 25, titulo: 'Como sair das dívidas do cartão',
-      m: 'Renegocie juros e evite cair no rotativo de novo.',
-      d: 'Estratégias para renegociar juros, priorizar pagamentos e evitar cair no rotativo de novo.',
-      info: '9 min' },
-    { tipo: 'livro', dias: 38, titulo: 'Me Poupe!',
-      m: 'Hábitos de consumo consciente e dicas diretas para fazer o dinheiro sobrar no fim do mês.',
-      d: 'Hábitos de consumo consciente e dicas diretas para fazer o dinheiro sobrar no fim do mês.',
-      info: 'Nathalia Arcuri · 256 págs' }
-  ];
-
   var param = new URLSearchParams(window.location.search).get('mock');
   if (param === '1') lsSet(FLAG_KEY, '1');
   if (param === '0') lsDel(FLAG_KEY);

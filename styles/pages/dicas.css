@@ -129,7 +129,14 @@
   background: var(--bg-elevated);
   border: 1px solid var(--border);
   border-radius: 16px;
+  color: inherit;
+  text-decoration: none;
+  transition: border-color var(--ease);
 }
+
+/* Card inteiro é o link (abre em nova aba) */
+.dc-card:hover { border-color: var(--accent); }
+.dc-card:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
 .dc-top {
   display: flex;
@@ -138,7 +145,16 @@
   gap: 8px;
 }
 
-.dc-pill {
+.dc-tags {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+/* Selo "Grátis": mesmo formato da pílula de tipo, cores de sucesso */
+.dc-pill,
+.dc-free {
   display: inline-flex;
   align-items: center;
   gap: 5px;
@@ -153,12 +169,20 @@
   white-space: nowrap;
 }
 
+.dc-free {
+  background: var(--success-soft);
+  color: var(--success);
+}
+
 [data-theme="dark"] .dc-pill { color: var(--link); }
 
 .dc-pill svg { width: 12px; height: 12px; }
 .dc-pill svg * { vector-effect: non-scaling-stroke; }
 
 .dc-when {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
   font-size: 12px;
   font-weight: 600;
   color: var(--text-primary);
@@ -229,6 +253,9 @@
 
   .dc-date.only-d { display: flex !important; }
 
+  /* Coluna com o nome do grupo: largura para caber "Ferramentas" */
+  .dc-date { width: 88px; }
+
   .dc-rail { width: 14px; padding-top: 21px; }
 
   /* Último item do desktop: só a bolinha */
@@ -239,7 +266,8 @@
     padding: 18px 20px;
   }
 
-  .dc-pill {
+  .dc-pill,
+  .dc-free {
     gap: 6px;
     padding: 5px 10px;
     font-size: 10px;

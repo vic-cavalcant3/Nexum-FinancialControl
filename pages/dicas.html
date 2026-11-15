@@ -22,16 +22,19 @@
       <header class="ph">
         <div class="ph-text">
           <h1 class="ph-title">Dicas</h1>
-          <p class="ph-sub only-d">Livros, vídeos e conteúdos para cuidar melhor do seu dinheiro.</p>
+          <p class="ph-sub only-d">Livros, vídeos, podcasts, cursos e ferramentas para cuidar melhor do seu dinheiro.</p>
+          <p class="ph-sub dc-updated" id="dc-updated"></p>
         </div>
       </header>
 
       <div class="dc-body">
         <div class="dc-filters" id="dc-filters" role="tablist" aria-label="Filtrar dicas">
-          <button type="button" role="tab" class="dc-chip" data-f="todas" data-icon="tip-grid">Todas</button>
+          <button type="button" role="tab" class="dc-chip" data-f="todos" data-icon="tip-grid">Todos</button>
           <button type="button" role="tab" class="dc-chip" data-f="livros" data-icon="tip-book">Livros</button>
           <button type="button" role="tab" class="dc-chip" data-f="videos" data-icon="tip-play">Vídeos</button>
-          <button type="button" role="tab" class="dc-chip" data-f="outros" data-icon="tip-other">Outros</button>
+          <button type="button" role="tab" class="dc-chip" data-f="podcasts" data-icon="tip-other">Podcasts</button>
+          <button type="button" role="tab" class="dc-chip" data-f="cursos" data-icon="goal-cap">Cursos grátis</button>
+          <button type="button" role="tab" class="dc-chip" data-f="ferramentas" data-icon="goal-shield">Ferramentas</button>
         </div>
 
         <ol class="dc-timeline" id="dc-timeline" aria-live="polite"></ol>
@@ -43,6 +46,7 @@
   <script src="../js/layout.js"></script>
   <script>renderLayout('dicas');</script>
   <script src="../js/util.js"></script>
+  <script src="../js/data/dicas.js"></script>
   <script src="../js/pages/dicas.js"></script>
 </body>
 </html>
