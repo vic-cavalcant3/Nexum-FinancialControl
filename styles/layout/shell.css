@@ -3,7 +3,8 @@
 /* ============ CONTEÚDO ============ */
 .app-main {
   min-height: 100dvh;
-  padding-bottom: 110px; /* nav mobile não cobre o conteúdo */
+  /* nav mobile não cobre o conteúdo: altura da nav + distância do rodapé + 24px */
+  padding-bottom: calc(var(--nav-h) + var(--nav-bottom) + 24px + env(safe-area-inset-bottom, 0px));
 }
 
 .page {
@@ -278,14 +279,89 @@
 }
 
 /* ============ NAV MOBILE ============ */
+/* Tamanhos por largura de tela (mobile-first). Base: < 360px. */
+:root {
+  --nav-side: 12px;
+  --nav-gap: 10px;
+  --nav-bottom: 14px;
+  --nav-max: none;
+  --nav-pill-pad: 5px;
+  --nav-tab-pad: 9px;
+  --nav-tab-icon: 18px;
+  --nav-tab-label: 13px;
+  --mais-size: 54px;
+  --mais-icon: 22px;
+  --bubble-pad: 14px 12px 12px;
+  --bubble-radius: 20px;
+  --tile: 48px;
+  --tile-radius: 14px;
+  --tile-icon: 20px;
+  --tile-label: 11px;
+  --tile-gap: 6px;
+  /* Altura da nav = botão Mais (é o elemento mais alto em todas as larguras) */
+  --nav-h: var(--mais-size);
+}
+
+/* 360–389px */
+@media (min-width: 360px) {
+  :root {
+    --nav-side: 16px;
+    --nav-gap: 12px;
+    --nav-bottom: 16px;
+    --nav-tab-icon: 20px;
+    --mais-size: 58px;
+    --tile: 52px;
+    --tile-gap: 8px;
+  }
+}
+
+/* 390–429px (valores do Figma) */
+@media (min-width: 390px) {
+  :root {
+    --nav-side: 20px;
+    --nav-gap: 14px;
+    --nav-bottom: 19px;
+    --nav-pill-pad: 6px;
+    --nav-tab-pad: 10px;
+    --nav-tab-label: 14px;
+    --mais-size: 62px;
+    --mais-icon: 24px;
+    --bubble-pad: 18px 18px 16px;
+    --bubble-radius: 24px;
+    --tile: 56px;
+    --tile-radius: 16px;
+    --tile-icon: 22px;
+    --tile-label: 12px;
+    --tile-gap: 12px;
+  }
+}
+
+/* 430–599px */
+@media (min-width: 430px) {
+  :root { --nav-max: 440px; }
+}
+
+/* 600–1023px (tablet) */
+@media (min-width: 600px) {
+  :root {
+    --nav-max: 480px;
+    --nav-bottom: 24px;
+    --tile: 60px;
+    --tile-gap: 16px;
+  }
+}
+
 .mnav {
   position: fixed;
-  left: 20px;
-  bottom: calc(19px + env(safe-area-inset-bottom, 0px));
+  left: var(--nav-side);
+  right: var(--nav-side);
+  bottom: calc(var(--nav-bottom) + env(safe-area-inset-bottom, 0px));
   z-index: 60;
+  max-width: var(--nav-max);
+  margin-inline: auto;
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: var(--nav-gap);
 }
 
 @media (min-width: 1024px) {
@@ -295,10 +371,12 @@
 }
 
 .mnav-pill {
+  flex: 1;
+  min-width: 0;
   display: flex;
   align-items: center;
-  gap: 4px;
-  padding: 6px;
+  justify-content: space-between;
+  padding: var(--nav-pill-pad);
   background: var(--nav-bg);
   border: 1px solid var(--nav-border);
   border-radius: var(--radius-full);
@@ -307,18 +385,33 @@
 }
 
 .mnav-tab {
+  position: relative;
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   gap: 0;
-  padding: 10px;
+  padding: var(--nav-tab-pad);
   border-radius: var(--radius-full);
   color: var(--nav-icon);
   transition: background-color 200ms ease-out, padding 200ms ease-out, gap 200ms ease-out, color 200ms ease-out;
 }
 
+/* Área de toque mínima de 44px sem mudar o visual */
+.mnav-tab::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 100%;
+  height: 100%;
+  min-width: 44px;
+  min-height: 44px;
+  transform: translate(-50%, -50%);
+}
+
 .mnav-tab svg {
-  width: 20px;
-  height: 20px;
+  width: var(--nav-tab-icon);
+  height: var(--nav-tab-icon);
   flex-shrink: 0;
 }
 
@@ -326,14 +419,14 @@
   max-width: 0;
   overflow: hidden;
   white-space: nowrap;
-  font-size: 14px;
+  font-size: var(--nav-tab-label);
   font-weight: 500;
   transition: max-width 200ms ease-out;
 }
 
 .mnav-tab.is-active {
   gap: 8px;
-  padding: 10px 16px 10px 14px;
+  padding: var(--nav-tab-pad) calc(var(--nav-tab-pad) + 6px) var(--nav-tab-pad) calc(var(--nav-tab-pad) + 4px);
   background: var(--nav-active-bg);
   color: var(--nav-active-fg);
 }
@@ -342,9 +435,21 @@
   max-width: 120px;
 }
 
+/* < 360px: a aba ativa mostra só o ícone, com o fundo de ativo */
+@media (max-width: 359px) {
+  .mnav-tab.is-active {
+    gap: 0;
+    padding: var(--nav-tab-pad);
+  }
+
+  .mnav-tab.is-active .mnav-label {
+    max-width: 0;
+  }
+}
+
 .mnav-more {
-  width: 62px;
-  height: 62px;
+  width: var(--mais-size);
+  height: var(--mais-size);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -356,8 +461,8 @@
 }
 
 .mnav-more svg {
-  width: 24px;
-  height: 24px;
+  width: var(--mais-icon);
+  height: var(--mais-icon);
   transition: transform 200ms ease-out;
 }
 
@@ -372,49 +477,78 @@
   background: transparent;
 }
 
+/* Balão: alinhado com o container da nav (mesmo left/right/max-width) */
 .mnav-bubble {
   position: fixed;
-  left: 20px;
-  bottom: 96px;
+  left: var(--nav-side);
+  right: var(--nav-side);
+  bottom: calc(var(--nav-bottom) + env(safe-area-inset-bottom, 0px) + var(--nav-h) + 12px);
   z-index: 61;
-  display: flex;
-  gap: 16px;
-  padding: 18px 18px 16px;
+  max-width: var(--nav-max);
+  margin-inline: auto;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--tile-gap);
+  padding: var(--bubble-pad);
   background: var(--nav-bubble);
   border: 1px solid var(--nav-bubble-border);
-  border-radius: 24px;
+  border-radius: var(--bubble-radius);
   box-shadow: var(--nav-bubble-shadow);
   transition: background-color 200ms ease-out, border-color 200ms ease-out, box-shadow 200ms ease-out;
-  transform-origin: bottom left;
+  transform-origin: bottom right;
   animation: bubble-in 180ms ease-out both;
 }
 
+.mnav-bubble.is-closing {
+  animation: bubble-out 180ms ease-in both;
+}
+
 .mnav-bubble-item {
+  min-width: 0;
+  min-height: 44px;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 8px;
-  font-size: 12px;
+  font-size: var(--tile-label);
   font-weight: 500;
   color: var(--nav-label);
   transition: color 200ms ease-out;
 }
 
+/* Rótulo centralizado pode usar metade do gap de cada lado (sem invadir o vizinho) */
+.mnav-bubble-label {
+  max-width: calc(100% + var(--tile-gap));
+  margin-inline: calc(var(--tile-gap) / -2);
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  text-align: center;
+}
+
+.mnav-lbl-short { display: none; }
+
+@media (max-width: 359px) {
+  .mnav-lbl-full { display: none; }
+  .mnav-lbl-short { display: inline; }
+}
+
 .mnav-tile {
-  width: 56px;
-  height: 56px;
+  width: var(--tile);
+  height: var(--tile);
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 16px;
+  flex-shrink: 0;
+  border-radius: var(--tile-radius);
   background: var(--nav-tile);
   color: var(--nav-tile-icon);
   transition: background-color 200ms ease-out, color 200ms ease-out;
 }
 
 .mnav-tile svg {
-  width: 22px;
-  height: 22px;
+  width: var(--tile-icon);
+  height: var(--tile-icon);
 }
 
 @keyframes bubble-in {
@@ -422,7 +556,12 @@
   to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
+@keyframes bubble-out {
+  from { opacity: 1; transform: translateY(0) scale(1); }
+  to { opacity: 0; transform: translateY(8px) scale(0.96); }
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .mnav-bubble { animation: none; }
+  .mnav-bubble, .mnav-bubble.is-closing { animation: none; }
   .mnav-tab, .mnav-label, .mnav-more svg, .theme-toggle-pill { transition: none; }
 }

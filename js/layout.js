@@ -26,7 +26,7 @@
 
   var MAIS = [
     { id: 'planejamento', href: 'planejamento.html', label: 'Planejamento', icon: 'planejamento' },
-    { id: 'consultor', href: 'consultor.html', label: 'Consultor IA', icon: 'consultor' },
+    { id: 'consultor', href: 'consultor.html', label: 'Consultor IA', short: 'Consultor', icon: 'consultor' },
     { id: 'configuracoes', href: 'configuracoes.html', label: 'Config.', icon: 'config' },
     { id: 'dicas', href: 'dicas.html', label: 'Dicas', icon: 'dicas' }
   ];
@@ -84,7 +84,10 @@
 
     var mais = MAIS.map(function (m) {
       return '<a class="mnav-bubble-item" href="' + m.href + '"' + (m.id === active ? ' aria-current="page"' : '') + '>' +
-        '<span class="mnav-tile">' + ICONS[m.icon] + '</span><span>' + m.label + '</span></a>';
+        '<span class="mnav-tile">' + ICONS[m.icon] + '</span>' +
+        '<span class="mnav-bubble-label">' + (m.short
+          ? '<span class="mnav-lbl-full">' + m.label + '</span><span class="mnav-lbl-short">' + m.short + '</span>'
+          : m.label) + '</span></a>';
     }).join('');
 
     return '' +
@@ -118,19 +121,37 @@
     var bubble = document.getElementById('mnav-bubble');
     var backdrop = document.querySelector('.mnav-backdrop');
 
+    var reduzMovimento = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+    function isOpen() { return btn.getAttribute('aria-expanded') === 'true'; }
+
     function setOpen(open) {
       btn.setAttribute('aria-expanded', String(open));
       btn.setAttribute('aria-label', open ? 'Fechar' : 'Mais');
-      bubble.hidden = !open;
       backdrop.hidden = !open;
+      if (open) {
+        bubble.classList.remove('is-closing');
+        bubble.hidden = false;
+      } else if (!bubble.hidden) {
+        // Fecha com a animação inversa; com movimento reduzido, some na hora
+        if (reduzMovimento.matches) bubble.hidden = true;
+        else bubble.classList.add('is-closing');
+      }
     }
 
+    bubble.addEventListener('animationend', function (e) {
+      if (e.target === bubble && bubble.classList.contains('is-closing')) {
+        bubble.classList.remove('is-closing');
+        bubble.hidden = true;
+      }
+    });
+
     btn.addEventListener('click', function () {
-      setOpen(btn.getAttribute('aria-expanded') !== 'true');
+      setOpen(!isOpen());
     });
     backdrop.addEventListener('click', function () { setOpen(false); });
     document.addEventListener('keydown', function (e) {
-      if (e.key === 'Escape' && !bubble.hidden) { setOpen(false); btn.focus(); }
+      if (e.key === 'Escape' && isOpen()) { setOpen(false); btn.focus(); }
     });
   }
 
