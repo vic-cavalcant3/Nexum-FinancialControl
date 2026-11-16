@@ -170,7 +170,8 @@
       tipo: t.tipo,
       valor: U.num(t.valor),
       data: new Date(t.data),
-      conta: U.contaDe(t.id_transacao)
+      // A conta agora vem da API; o navegador fica de reserva para transações antigas.
+      conta: t.conta || U.contaDe(t.id_transacao)
     };
   }
 
@@ -334,7 +335,8 @@
       descricao: inDesc.value.trim(),
       valor: valor,
       data: d.toISOString(),
-      categoria_id: inCat.value ? Number(inCat.value) : null
+      categoria_id: inCat.value ? Number(inCat.value) : null,
+      conta: inConta.value || U.CONTAS[0]
     };
 
     ocupado(true);

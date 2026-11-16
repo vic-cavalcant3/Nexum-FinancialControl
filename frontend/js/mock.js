@@ -379,12 +379,52 @@
         if (t.tipo === 'receita') receitas += Number(t.valor);
         if (t.tipo === 'despesa') despesas += Number(t.valor);
       });
-      return { receitas: receitas, despesas: despesas, saldo: receitas - despesas };
+      // Igual à API Java: economias = receitas - despesas do mês; saldo = acumulado até o fim do mês.
+      var saldo = 0;
+      db.transacoes.forEach(function (t) {
+        if (new Date(t.data) <= r.fim) saldo += t.tipo === 'receita' ? Number(t.valor) : -Number(t.valor);
+      });
+      return {
+        mes: r.inicio.getMonth() + 1, ano: r.inicio.getFullYear(),
+        receitas: receitas, despesas: despesas, economias: receitas - despesas, saldo: saldo
+      };
     }
     if (method === 'GET' && path === '/transacoes/relatorio') {
-      return db.transacoes.slice()
-        .sort(function (a, b) { return new Date(a.data) - new Date(b.data); })
-        .map(function (t) { return outTransacao(t, true); });
+      // Totais por mês (do mais antigo ao atual) e despesas por categoria, como a API Java.
+      var nMeses = Number(query.meses) || 6;
+      var hojeR = new Date();
+      var ultimoR = query.mes
+        ? new Date(Number(query.ano) || hojeR.getFullYear(), Number(query.mes) - 1, 1)
+        : new Date(hojeR.getFullYear(), hojeR.getMonth(), 1);
+      var baldes = [];
+      for (var bi = nMeses - 1; bi >= 0; bi--) {
+        var ref = new Date(ultimoR.getFullYear(), ultimoR.getMonth() - bi, 1);
+        baldes.push({ mes: ref.getMonth() + 1, ano: ref.getFullYear(), receitas: 0, despesas: 0, economias: 0 });
+      }
+      var porCat = {}, totRec = 0, totDesp = 0;
+      db.transacoes.forEach(function (t) {
+        var d = new Date(t.data);
+        var b = baldes.filter(function (x) { return x.ano === d.getFullYear() && x.mes === d.getMonth() + 1; })[0];
+        if (!b) return;
+        var v = Number(t.valor);
+        if (t.tipo === 'receita') { b.receitas += v; totRec += v; return; }
+        b.despesas += v;
+        totDesp += v;
+        var c = findCategoria(t.categoria_id);
+        var k = c ? c.id : 'sem';
+        porCat[k] = porCat[k] || { categoria_id: c ? c.id : null, nome: c ? c.nome : 'Sem categoria', icone: c ? c.icone : null, total: 0 };
+        porCat[k].total += v;
+      });
+      baldes.forEach(function (b) { b.economias = b.receitas - b.despesas; });
+      return {
+        meses: nMeses, total_receitas: totRec, total_despesas: totDesp, economias: totRec - totDesp,
+        por_mes: baldes,
+        por_categoria: Object.keys(porCat).map(function (k) {
+          var x = porCat[k];
+          x.percentual = totDesp ? Math.round(x.total / totDesp * 1000) / 10 : 0;
+          return x;
+        }).sort(function (a, b) { return b.total - a.total; })
+      };
     }
     if (method === 'GET' && path === '/transacoes') {
       var lista = db.transacoes.slice();
@@ -394,6 +434,12 @@
       }
       if (query.tipo) lista = lista.filter(function (t) { return t.tipo === query.tipo; });
       if (query.categoria_id) lista = lista.filter(function (t) { return t.categoria_id === parseInt(query.categoria_id, 10); });
+      if (query.categoria) lista = lista.filter(function (t) {
+        var c = findCategoria(t.categoria_id);
+        return c && (String(c.id) === query.categoria || c.nome.toLowerCase() === query.categoria.toLowerCase());
+      });
+      if (query.conta) lista = lista.filter(function (t) { return (t.conta || '').toLowerCase() === query.conta.toLowerCase(); });
+      if (query.busca) lista = lista.filter(function (t) { return (t.descricao || '').toLowerCase().indexOf(query.busca.toLowerCase()) !== -1; });
       return lista
         .sort(function (a, b) { return new Date(b.data) - new Date(a.data); })
         .map(function (t) { return outTransacao(t, true); });
@@ -407,6 +453,7 @@
         valor: Number(body.valor),
         data: new Date(body.data).toISOString(),
         categoria_id: body.categoria_id ? Number(body.categoria_id) : null,
+        conta: body.conta || null,
         criado_em: new Date().toISOString()
       };
       db.transacoes.push(nova);
@@ -415,10 +462,12 @@
     }
     if ((m = path.match(/^\/transacoes\/(\d+)$/))) {
       var it = porId(db.transacoes, 'id_transacao', parseInt(m[1], 10));
-      if (it === -1) erro('Registro não encontrado.');
+      if (it === -1) erro('Transação não encontrada.');
+      if (method === 'GET') return outTransacao(db.transacoes[it], true);
       if (method === 'PUT') {
         var t = db.transacoes[it];
         aplicar(t, body, ['tipo', 'descricao', 'valor', 'data', 'categoria_id']);
+        if (body.conta != null) t.conta = body.conta || null; // sem "conta": mantém (igual à API)
         if (body.valor != null) t.valor = Number(body.valor);
         if (body.data) t.data = new Date(body.data).toISOString();
         save();
