@@ -1,10 +1,22 @@
-# Backend
-backend/.env
-backend/node_modules/
-
-# Env geral
+# Variáveis de ambiente (nunca commitar)
 .env
+.env.*
+!.env.example
 
-database/rodar-sql.js
+# Backend (Java/Maven)
+backend/target/
+target/
+*.class
+*.log
+.mvn/wrapper/maven-wrapper.jar
+
+# IDEs
+.idea/
+*.iml
+.vscode/
+.classpath
+.project
+.settings/
+
 # Prompts locais
 prompt.md

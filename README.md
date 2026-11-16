@@ -9,7 +9,7 @@
 
 O **Nexum** é uma aplicação web de controle financeiro pessoal que permite ao usuário categorizar gastos, criar orçamentos mensais, visualizar relatórios e receber sugestões personalizadas via inteligência artificial.
 
-Este repositório contém o **projeto completo** (frontend, backend e banco de dados). O nome do repositório ainda referencia apenas o frontend por motivos históricos, mas a aplicação já está toda aqui.
+Este repositório é um **monorepo** com o frontend e o backend da aplicação.
 
 > 🚧 O projeto está em desenvolvimento e novas funcionalidades podem ser adicionadas nas próximas versões.
 
@@ -18,15 +18,19 @@ Este repositório contém o **projeto completo** (frontend, backend e banco de d
 ## 📁 Estrutura do projeto
 
 ```
-nexum-frontend/
-├── backend/        # Lógica do servidor e regras de negócio
-├── components/      # Componentes reutilizáveis da interface
-├── database/         # Banco de dados / scripts relacionados
-├── js/                # Scripts JavaScript do frontend
-├── pages/             # Páginas da aplicação
-├── styles/base/       # Estilos base (CSS)
-└── index.html         # Página inicial
+Nexum-FinancialControl/
+├── frontend/              # Site estático (HTML, CSS e JavaScript)
+│   ├── index.html         # Splash / página inicial
+│   ├── 404.html
+│   ├── pages/             # Páginas da aplicação
+│   ├── styles/            # CSS (tokens, componentes, páginas)
+│   ├── js/                # Scripts (api.js, mock.js, páginas)
+│   └── assets/            # Logo, ícones e imagens
+├── backend/               # API em Java 21 + Spring Boot + PostgreSQL
+└── backend-legacy-api.md  # Referência da API antiga (Node)
 ```
+
+O backend tem o próprio guia em [`backend/README.md`](backend/README.md).
 
 ---
 
