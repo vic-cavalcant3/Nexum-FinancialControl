@@ -64,6 +64,11 @@
   --nav-icon: #6b6478;
   --nav-active: #5b2e87;
   --nav-indicator: rgba(16, 13, 28, 0.07);
+  /* Vidro fosco da nav mobile e do balão do Mais */
+  /* 0.86 (e não 0.80): com o card roxo atrás, 0.80 deixava os labels inativos abaixo de 4,5:1 */
+  --nav-glass-bg: rgba(255, 255, 255, 0.86);
+  --nav-glass-border: rgba(16, 13, 28, 0.08);
+  --nav-glass-highlight: rgba(255, 255, 255, 0.6);
 
   --font: 'Inter', sans-serif;
   --font-brand: 'Poppins', sans-serif;
@@ -110,4 +115,7 @@
   --nav-icon: #9994a8;
   --nav-active: #c4a1ff;
   --nav-indicator: rgba(255, 255, 255, 0.10);
+  --nav-glass-bg: rgba(20, 18, 26, 0.80);
+  --nav-glass-border: rgba(255, 255, 255, 0.08);
+  --nav-glass-highlight: rgba(255, 255, 255, 0.12);
 }

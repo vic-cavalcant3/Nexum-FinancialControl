@@ -153,7 +153,16 @@
     function posDaAba(i) { var l = larguras[i]; return [limita((i + 0.5) * cel() - l / 2, l), l]; }
     function abaNoCentro(cx) { return Math.max(0, Math.min(tabs.length - 1, Math.floor(cx / cel()))); }
 
+    // Marca o indicador como "em movimento" só durante a animação (will-change temporário)
+    var movTimer = null;
+    function emMovimento(ms) {
+      ind.classList.add('is-moving');
+      clearTimeout(movTimer);
+      movTimer = setTimeout(function () { ind.classList.remove('is-moving'); }, ms + 60);
+    }
+
     function setPos(nx, nw, t) {
+      if (t) emMovimento(t[0]);
       x = nx;
       w = nw;
       ind.style.transition = t ? 'transform ' + t[0] + 'ms ' + t[1] + ', width ' + t[0] + 'ms ' + t[1] : 'none';
@@ -164,6 +173,7 @@
     function vaiPara(i, t) { var pos = posDaAba(i); setPos(pos[0], pos[1], t); }
 
     function setEscala(sx, sy, t) {
+      if (t) emMovimento(t[0]);
       blob.style.transition = t ? 'transform ' + t[0] + 'ms ' + t[1] : 'none';
       blob.style.transform = 'scale(' + sx + ', ' + sy + ')';
     }

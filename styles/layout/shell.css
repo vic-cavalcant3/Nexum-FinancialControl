@@ -353,10 +353,7 @@
   height: var(--nav-h);
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  background: var(--nav-bg);
-  border: 0.5px solid var(--nav-border);
   border-radius: var(--radius-full);
-  box-shadow: var(--nav-shadow);
   /* O arrasto precisa receber o gesto desde o toque (touch-action não muda no meio do gesto) */
   touch-action: none;
   -webkit-user-select: none;
@@ -375,7 +372,6 @@
   left: 0;
   width: calc(25% - 8px);
   pointer-events: none;
-  will-change: transform;
 }
 
 .mnav-indicator.is-hidden { opacity: 0; }
@@ -385,8 +381,13 @@
   inset: 0;
   border-radius: var(--radius-full);
   background: var(--nav-indicator);
-  will-change: transform;
 }
+
+/* will-change só enquanto a bolha anima ou é arrastada (não o tempo todo) */
+.mnav-indicator.is-moving,
+.mnav-indicator.is-moving .mnav-indicator-blob,
+.mnav-pill.is-dragging .mnav-indicator,
+.mnav-pill.is-dragging .mnav-indicator-blob { will-change: transform; }
 
 /* Sombra de "levantar" ao arrastar */
 .mnav-indicator-blob::after {
@@ -483,11 +484,8 @@
   grid-template-columns: repeat(4, 1fr);
   gap: 10px;
   padding: 14px 14px 12px;
-  /* Mesmo estilo da barra */
-  background: var(--nav-bg);
-  border: 0.5px solid var(--nav-border);
+  /* Mesmo estilo da barra (vidro fosco: ver abaixo) */
   border-radius: 22px;
-  box-shadow: var(--nav-shadow);
   font-family: var(--font-nav);
   transition: background-color 200ms ease-out, border-color 200ms ease-out, box-shadow 200ms ease-out;
   transform-origin: bottom right;
@@ -553,6 +551,38 @@
 .mnav-tile svg {
   width: 20px;
   height: 20px;
+}
+
+/* ===== Vidro fosco leve: só na barra e no balão do Mais (nenhum outro elemento usa blur) =====
+   A bolha, os tiles e o botão Mais continuam sólidos. */
+.mnav-pill,
+.mnav-bubble {
+  background: var(--nav-glass-bg);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  backdrop-filter: blur(20px) saturate(160%);
+  border: 0.5px solid var(--nav-glass-border);
+  /* brilho sutil no topo + sombra atual */
+  box-shadow: inset 0 0.5px 0 var(--nav-glass-highlight), var(--nav-shadow);
+}
+
+/* Sem suporte a backdrop-filter: fundo sólido como antes */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .mnav-pill,
+  .mnav-bubble {
+    background: var(--nav-bg);
+    border-color: var(--nav-border);
+  }
+}
+
+/* Quem pede menos transparência: fundo sólido */
+@media (prefers-reduced-transparency: reduce) {
+  .mnav-pill,
+  .mnav-bubble {
+    background: var(--nav-bg);
+    border-color: var(--nav-border);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
 }
 
 @keyframes bubble-in {
