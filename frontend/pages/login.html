@@ -155,7 +155,7 @@
             if (lembrar.checked) localStorage.setItem(REMEMBER_KEY, emailVal);
             else localStorage.removeItem(REMEMBER_KEY);
           } catch (e) {}
-          salvarSessao(res.usuario);
+          salvarSessao(res.usuario, res.token);
           window.location.href = 'dashboard.html';
         } catch (err) {
           mostrarErro(mensagemErroApi(err, true));

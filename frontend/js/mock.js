@@ -352,8 +352,9 @@
 
     // ---- Auth ----
     if (method === 'POST' && path === '/auth/login') {
-      if (!body.email || !body.senha) erro('Credenciais inválidas.');
-      return { usuario: clone(db.usuario) };
+      if (!body.email || !body.senha) erro('E-mail ou senha inválidos');
+      // Token falso: só para o front ter o que salvar ('nexum_token'). O mock não confere.
+      return { token: 'mock-token.' + Date.now(), usuario: clone(db.usuario) };
     }
     if (method === 'POST' && path === '/auth/registrar') {
       return { usuario: clone(db.usuario) };

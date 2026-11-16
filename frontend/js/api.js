@@ -1,4 +1,18 @@
-const API_URL = 'https://nexum-financialcontrol.onrender.com/api';
+// URL da API: rodando local (localhost / 127.0.0.1) usa o backend Java local;
+// no deploy usa o backend no Render.
+// Obs.: em localhost o js/mock.js liga sozinho. Para usar o backend local de verdade, abra com ?mock=0.
+const API_URL_LOCAL = 'http://localhost:8080/api';
+const API_URL_PROD = ''; // TODO: URL do backend no Render, ex.: 'https://nexum-api.onrender.com/api'
+const API_URL = ['localhost', '127.0.0.1'].includes(window.location.hostname) ? API_URL_LOCAL : API_URL_PROD;
+
+const TOKEN_KEY = 'nexum_token';
+
+// Rotas em que 401 é só "e-mail ou senha errados", não sessão vencida.
+const ROTAS_SEM_SESSAO = ['/auth/login', '/auth/registrar'];
+
+function getToken() {
+  return localStorage.getItem(TOKEN_KEY);
+}
 
 function getUsuarioId() {
   return localStorage.getItem('nexum_usuario_id');
@@ -9,31 +23,43 @@ function getUsuario() {
   return u ? JSON.parse(u) : null;
 }
 
-function salvarSessao(usuario) {
+// token é opcional: quem só atualiza o usuário (ex.: perfil) mantém o token atual.
+function salvarSessao(usuario, token) {
   localStorage.setItem('nexum_usuario_id', usuario.id_usuario);
   localStorage.setItem('nexum_usuario', JSON.stringify(usuario));
+  if (token) localStorage.setItem(TOKEN_KEY, token);
 }
 
 function limparSessao() {
   localStorage.removeItem('nexum_usuario_id');
   localStorage.removeItem('nexum_usuario');
+  localStorage.removeItem(TOKEN_KEY);
 }
 
 function estaLogado() {
-  return !!getUsuarioId();
+  return !!getToken();
+}
+
+// login.html fica em pages/; o index.html está um nível acima.
+function caminhoLogin() {
+  return window.location.pathname.indexOf('/pages/') !== -1 ? 'login.html' : 'pages/login.html';
 }
 
 function redirecionarSeNaoLogado() {
   if (!estaLogado()) {
-    window.location.href = 'login.html';
+    window.location.href = caminhoLogin();
   }
 }
 
 async function apiFetch(endpoint, options = {}) {
-  const usuarioId = getUsuarioId();
+  if (!API_URL) {
+    throw new Error('URL da API não configurada (API_URL_PROD em js/api.js).');
+  }
+
+  const token = getToken();
   const headers = {
     'Content-Type': 'application/json',
-    ...(usuarioId ? { 'x-user-id': usuarioId } : {}),
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
     ...(options.headers || {})
   };
 
@@ -43,6 +69,13 @@ async function apiFetch(endpoint, options = {}) {
   });
 
   const data = await res.json();
+
+  // Token ausente, inválido ou vencido: encerra a sessão e volta para o login.
+  if (res.status === 401 && !ROTAS_SEM_SESSAO.includes(endpoint)) {
+    limparSessao();
+    window.location.href = caminhoLogin();
+    throw new Error(data.erro || 'Sessão expirada. Faça login novamente.');
+  }
 
   if (!res.ok) {
     throw new Error(data.erro || 'Erro na requisição');
