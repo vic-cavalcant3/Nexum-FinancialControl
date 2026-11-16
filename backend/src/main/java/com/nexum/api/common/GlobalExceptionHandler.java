@@ -18,6 +18,8 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
+import tools.jackson.databind.DatabindException;
+
 /**
  * Transforma qualquer exceção lançada pelos controllers em {@code { "erro": "..." }}
  * com o status HTTP certo. Assim nenhum controller precisa de try/catch.
@@ -49,6 +51,13 @@ public class GlobalExceptionHandler {
     /** 400: JSON malformado ou com tipo errado (ex.: texto onde era número). */
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<ErroResponse> handleJsonInvalido(HttpMessageNotReadableException ex) {
+        // Se o Jackson sabe qual campo falhou (ex.: "data_prazo": "amanhã"), diz qual foi.
+        if (ex.getCause() instanceof DatabindException erro && !erro.getPath().isEmpty()) {
+            String campo = erro.getPath().getLast().getPropertyName();
+            if (campo != null) {
+                return resposta(HttpStatus.BAD_REQUEST, "Valor inválido no campo " + campo + ".");
+            }
+        }
         return resposta(HttpStatus.BAD_REQUEST, "Corpo da requisição inválido.");
     }
 

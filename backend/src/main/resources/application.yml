@@ -48,6 +48,8 @@ server:
     include-stacktrace: never
 
 app:
+  # Fuso usado para definir "o mês" do usuário (o banco guarda tudo em UTC).
+  fuso-horario: ${APP_TIMEZONE:America/Sao_Paulo}
   jwt:
     # Mínimo de 32 caracteres. Gere com: openssl rand -base64 48
     secret: ${JWT_SECRET}

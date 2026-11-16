@@ -8,40 +8,18 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import java.util.UUID;
-
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
-import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.DynamicPropertyRegistry;
-import org.springframework.test.context.DynamicPropertySource;
-import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
 import com.jayway.jsonpath.JsonPath;
-import com.nexum.api.TestcontainersConfig;
+import com.nexum.api.IntegracaoTest;
 
 /**
  * Testes de ponta a ponta da autenticação, com banco Postgres de verdade (Testcontainers).
  * Cada teste usa um e-mail novo, então a ordem de execução não importa.
  */
-@SpringBootTest
-@AutoConfigureMockMvc
-@Import(TestcontainersConfig.class)
-class AuthControllerTest {
-
-    private static final String SENHA = "segredo123";
-
-    @DynamicPropertySource
-    static void propriedades(DynamicPropertyRegistry registry) {
-        registry.add("app.jwt.secret", () -> UUID.randomUUID() + "-" + UUID.randomUUID());
-    }
-
-    @Autowired
-    MockMvc mockMvc;
+class AuthControllerTest extends IntegracaoTest {
 
     // ------------------------------------------------------------------ registrar
 
@@ -198,10 +176,6 @@ class AuthControllerTest {
         String corpo = login(email, senha).andExpect(status().isOk())
                 .andReturn().getResponse().getContentAsString();
         return JsonPath.read(corpo, "$.token");
-    }
-
-    private static String emailNovo() {
-        return "teste-" + UUID.randomUUID() + "@nexum.app";
     }
 
     /** Monta um JSON simples a partir de pares chave/valor (todos texto). */

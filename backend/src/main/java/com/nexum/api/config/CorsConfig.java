@@ -22,6 +22,8 @@ public class CorsConfig {
         config.setAllowedOrigins(corsProperties.origins());
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("Authorization", "Content-Type"));
+        // Total de itens da listagem paginada de transações (o navegador só deixa o JS ler se for exposto).
+        config.setExposedHeaders(List.of("X-Total-Count"));
         // O token vai no header Authorization, não em cookie: não precisa de credenciais.
         config.setAllowCredentials(false);
         config.setMaxAge(3600L);
