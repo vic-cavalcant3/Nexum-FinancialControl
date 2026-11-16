@@ -345,6 +345,50 @@
     return -1;
   }
 
+  // ---- Orçamento: db.orcamentos['2026-11'] = [{ categoria_id, limite }] ----
+  function chaveMes(mes, ano) { return ano + '-' + (mes < 10 ? '0' : '') + Number(mes); }
+
+  function orcamentoDoMes(mes, ano) {
+    var todos = db.orcamentos || {};
+    var chave = chaveMes(mes, ano);
+    var linhas = todos[chave], herdado = false;
+    if (!linhas) {
+      // Mês sem orçamento: herda o do último mês planejado antes dele.
+      var anteriores = Object.keys(todos).filter(function (k) { return k < chave; }).sort();
+      if (anteriores.length) { linhas = todos[anteriores[anteriores.length - 1]]; herdado = true; }
+    }
+    var limites = {};
+    (linhas || []).forEach(function (l) { limites[l.categoria_id] = l.limite; });
+
+    var r = intervaloMes(Number(mes), Number(ano));
+    var gastos = {}, totalGasto = 0;
+    db.transacoes.forEach(function (t) {
+      if (t.tipo !== 'despesa' || !noIntervalo(t.data, r)) return;
+      gastos[t.categoria_id] = (gastos[t.categoria_id] || 0) + Number(t.valor);
+      totalGasto += Number(t.valor);
+    });
+
+    var totalOrcado = 0;
+    var categorias = db.categorias.filter(function (c) { return c.tipo === 'despesa'; }).map(function (c) {
+      var limite = limites[c.id] != null ? limites[c.id] : null;
+      var gasto = gastos[c.id] || 0;
+      if (limite != null) totalOrcado += limite;
+      return {
+        categoria_id: c.id, nome: c.nome, icone: c.icone, limite: limite, gasto: gasto,
+        percentual: limite ? Math.round(gasto / limite * 100) : null
+      };
+    }).sort(function (a, b) {
+      if ((a.limite == null) !== (b.limite == null)) return a.limite == null ? 1 : -1;
+      if (a.limite != null && a.limite !== b.limite) return b.limite - a.limite;
+      return a.nome.localeCompare(b.nome, 'pt-BR');
+    });
+
+    return {
+      mes: Number(mes), ano: Number(ano), herdado: herdado,
+      total_orcado: totalOrcado, total_gasto: totalGasto, categorias: categorias
+    };
+  }
+
   // Campos que o Prisma aceitaria em update (ignora o resto)
   function aplicar(alvo, body, campos) {
     campos.forEach(function (c) { if (Object.prototype.hasOwnProperty.call(body, c)) alvo[c] = body[c]; });
@@ -550,6 +594,29 @@
         save();
         return { mensagem: 'Meta removida.' };
       }
+    }
+
+    // ---- Orçamento (mesmo formato da API Java) ----
+    if (method === 'GET' && path === '/orcamentos') {
+      var hojeO = new Date();
+      return orcamentoDoMes(Number(query.mes) || hojeO.getMonth() + 1, Number(query.ano) || hojeO.getFullYear());
+    }
+    if (method === 'PUT' && path === '/orcamentos') {
+      var vistosO = {};
+      (body.limites || []).forEach(function (l) {
+        var c = findCategoria(Number(l.categoria_id));
+        if (!c) erro('Categoria não encontrada.');
+        if (c.tipo !== 'despesa') erro('O orçamento só aceita categorias de despesa (' + c.nome + ' é de receita).');
+        if (!(Number(l.limite) >= 0)) erro('O limite não pode ser negativo.');
+        if (vistosO[c.id]) erro('A mesma categoria apareceu duas vezes no orçamento.');
+        vistosO[c.id] = true;
+      });
+      db.orcamentos = db.orcamentos || {};
+      db.orcamentos[chaveMes(body.mes, body.ano)] = (body.limites || []).map(function (l) {
+        return { categoria_id: Number(l.categoria_id), limite: Number(l.limite) };
+      });
+      save();
+      return orcamentoDoMes(body.mes, body.ano);
     }
 
     // ---- Admin ----

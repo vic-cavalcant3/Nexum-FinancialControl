@@ -151,6 +151,17 @@ const Admin = {
   deletarUsuario: (id) => apiFetch(`/admin/usuarios/${id}`, { method: 'DELETE' })
 };
 
+// Orçamento mensal por categoria (tela Planejamento)
+const Orcamentos = {
+  // { mes, ano, herdado, total_orcado, total_gasto, categorias: [{ categoria_id, nome, limite, gasto, ... }] }
+  listar: (mes, ano) => apiFetch(`/orcamentos?mes=${mes}&ano=${ano}`),
+  // limites: [{ categoria_id, limite }]: substitui o orçamento inteiro do mês
+  atualizar: (mes, ano, limites) => apiFetch('/orcamentos', {
+    method: 'PUT',
+    body: JSON.stringify({ mes, ano, limites })
+  })
+};
+
 // Metas
 const Metas = {
   listar: () => apiFetch('/metas'),
