@@ -1,8 +1,9 @@
 // MODO MOCK — desenvolve o front sem backend.
 // Carregar logo DEPOIS de js/api.js. Não altera o api.js: só substitui window.apiFetch.
 //
-// Liga com ?mock=1 (fica salvo), rodando em localhost/127.0.0.1 ou no deploy de teste
-// (nexumweb.onrender.com, enquanto MOCK_NO_DEPLOY = true). ?mock=0 desliga (remove o salvo).
+// Liga sozinho em localhost/127.0.0.1 e no deploy de teste (nexumweb.onrender.com, enquanto
+// MOCK_NO_DEPLOY = true). ?mock=1 força ligado e ?mock=0 força desligado (usa o backend de verdade);
+// os dois ficam salvos no navegador até trocar de novo.
 // Dados em memória, persistidos em localStorage 'nexum-mock-db'.
 // Console: nexumMock.reset() recria os dados iniciais.
 (function () {
@@ -133,12 +134,13 @@
 
   var param = new URLSearchParams(window.location.search).get('mock');
   if (param === '1') lsSet(FLAG_KEY, '1');
-  if (param === '0') lsDel(FLAG_KEY);
+  if (param === '0') lsSet(FLAG_KEY, '0');
 
   var host = window.location.hostname;
   var local = host === 'localhost' || host === '127.0.0.1';
   var deploy = host === DEPLOY_HOST;
-  var enabled = param !== '0' && (lsGet(FLAG_KEY) === '1' || local || (deploy && MOCK_NO_DEPLOY));
+  var flag = lsGet(FLAG_KEY);
+  var enabled = flag === '1' || (flag !== '0' && (local || (deploy && MOCK_NO_DEPLOY)));
   if (!enabled) return;
 
   // ===================== DADOS INICIAIS =====================
