@@ -1,65 +1,272 @@
-.splash {
-  position: relative;
+/* Splash (index.html) — sempre escura, não segue o tema claro/escuro.
+   Linha do tempo: 0–0,9s N desenhado · 0,9–1,3s crossfade p/ o logo · 1,1s "Nexum" · 1,3s frase
+   · 0,3–2,4s barra · 2,5s fade-out (250ms) e redireciona. Anima só transform e opacity
+   (exceção: o traço do N, que precisa de stroke-dashoffset). */
+
+html,
+body {
   height: 100dvh;
   overflow: hidden;
-  background: var(--brand-gradient);
+  background: var(--splash-bg);
+}
+
+.sp {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
+  background: var(--splash-bg);
+  font-family: var(--font);
+  transition: opacity 250ms ease-out;
 }
 
-.ellipse {
+.sp.is-leaving { opacity: 0; }
+
+/* Já vista nesta sessão: redireciona sem mostrar nada */
+.sp-skip .sp { visibility: hidden; }
+
+/* ============ FUNDO ============ */
+.sp-bg {
   position: absolute;
+  inset: 0;
   pointer-events: none;
 }
 
-.ellipse img {
+.sp-orb {
   position: absolute;
-  left: calc(-1 * var(--i));
-  top: calc(-1 * var(--i));
-  width: calc(100% + 2 * var(--i));
-  height: calc(100% + 2 * var(--i));
-  max-width: none;
+  width: var(--s);
+  height: var(--s);
+  margin: calc(var(--s) / -2) 0 0 calc(var(--s) / -2);
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--c) 0%, transparent 70%);
+  filter: blur(70px);
+  mix-blend-mode: screen;
+  will-change: transform;
+  animation: var(--anim) var(--dur) ease-in-out var(--delay) infinite alternate both;
 }
 
-.ellipse-1 { width: 280px; height: 280px; left: -90px; top: -120px; --i: 14.29%; }
-.ellipse-2 { width: 220px; height: 220px; right: -90px; top: 40px; --i: 22.73%; }
-.ellipse-3 { width: 260px; height: 260px; left: -60px; bottom: -36px; --i: 17.31%; }
-.ellipse-4 { width: 180px; height: 180px; right: -20px; bottom: -56px; --i: 19.44%; }
+.sp-orb-1 { --s: 55vmax; --c: var(--splash-orb-1); left: 12%; top: 18%; opacity: 0.55; --anim: sp-drift-1; --dur: 22s; --delay: -3s; }
+.sp-orb-2 { --s: 40vmax; --c: var(--splash-orb-2); left: 84%; top: 78%; opacity: 0.45; --anim: sp-drift-2; --dur: 18s; --delay: -9s; }
+.sp-orb-3 { --s: 50vmax; --c: var(--splash-orb-3); left: 18%; top: 88%; opacity: 0.6; --anim: sp-drift-3; --dur: 24s; --delay: -14s; }
+.sp-orb-4 { --s: 30vmax; --c: var(--splash-orb-4); left: 86%; top: 20%; opacity: 0.35; --anim: sp-drift-4; --dur: 14s; --delay: -5s; }
+.sp-orb-5 { --s: 45vmax; --c: var(--splash-orb-5); left: 52%; top: 50%; opacity: 0.4; --anim: sp-drift-5; --dur: 20s; --delay: -11s; }
 
-.splash-content {
+@keyframes sp-drift-1 {
+  0% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(8vmax, 6vmax) scale(1.08); }
+  100% { transform: translate(14vmax, -4vmax) scale(0.96); }
+}
+
+@keyframes sp-drift-2 {
+  0% { transform: translate(0, 0) scale(1.05); }
+  50% { transform: translate(-10vmax, -5vmax) scale(0.95); }
+  100% { transform: translate(-4vmax, -12vmax) scale(1.1); }
+}
+
+@keyframes sp-drift-3 {
+  0% { transform: translate(0, 0) scale(0.95); }
+  50% { transform: translate(12vmax, -8vmax) scale(1.06); }
+  100% { transform: translate(6vmax, -14vmax) scale(1); }
+}
+
+@keyframes sp-drift-4 {
+  0% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(-8vmax, 9vmax) scale(1.12); }
+  100% { transform: translate(-15vmax, 4vmax) scale(0.94); }
+}
+
+@keyframes sp-drift-5 {
+  0% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(-6vmax, 5vmax) scale(0.92); }
+  100% { transform: translate(7vmax, -6vmax) scale(1.08); }
+}
+
+/* Vinheta: escurece as bordas */
+.sp-vignette {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at center, transparent 35%, var(--splash-vignette) 100%);
+}
+
+/* Grão sutil (ruído SVG) */
+.sp-grain {
+  position: absolute;
+  inset: 0;
+  opacity: 0.05;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ============ CONTEÚDO ============ */
+.sp-content {
   position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 18px;
-  animation: splash-in 400ms ease-out both;
+  text-align: center;
 }
 
-.splash-content img {
-  width: 96px;
-  height: 96px;
+/* Logo: 104px mobile / 128px desktop */
+.sp-logo {
+  position: relative;
+  width: 104px;
+  height: 104px;
 }
 
-.splash-title {
-  font-family: var(--font);
-  font-size: 26px;
+.sp-logo-img,
+.sp-n {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* Glow atrás do badge: aparece com o logo e depois pulsa */
+.sp-glow {
+  position: absolute;
+  inset: 0;
+  border-radius: 25%;
+  box-shadow: 0 0 60px var(--splash-badge-glow);
+  animation:
+    sp-fade-in 400ms ease-out 900ms both,
+    sp-glow-pulse 2.4s ease-in-out 1.3s infinite alternate;
+}
+
+.sp-logo-img {
+  animation: sp-logo-in 400ms ease-out 900ms both;
+}
+
+/* Contorno do N em neon */
+.sp-n {
+  overflow: visible;
+  filter: drop-shadow(0 0 6px var(--splash-neon)) drop-shadow(0 0 18px var(--splash-neon-deep));
+  animation: sp-fade-out 400ms ease-in 900ms both;
+}
+
+.sp-n path {
+  fill: none;
+  stroke: var(--splash-stroke);
+  stroke-width: 3;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: sp-draw 900ms ease-in-out both;
+}
+
+.sp-title {
+  margin-top: 22px;
+  font-size: 34px;
   font-weight: 700;
-  color: var(--on-brand);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  color: var(--splash-title);
+  text-shadow: 0 0 24px var(--splash-title-glow);
+  animation: sp-rise 500ms ease-out 1.1s both;
 }
 
-.splash-subtitle {
-  font-family: var(--font);
-  font-size: 13px;
+.sp-sub {
+  margin-top: 8px;
+  font-size: 15px;
   font-weight: 500;
-  color: var(--on-brand-muted);
+  letter-spacing: 0.02em;
+  color: var(--splash-sub);
+  animation: sp-rise 500ms ease-out 1.3s both;
 }
 
-@keyframes splash-in {
-  from { opacity: 0; transform: scale(0.96); }
+/* ============ BARRA ============ */
+.sp-bar {
+  position: relative;
+  margin-top: 28px;
+  width: 168px;
+  height: 3px;
+  border-radius: var(--radius-full);
+  background: var(--splash-track);
+}
+
+.sp-bar-fill {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border-radius: var(--radius-full);
+  background: linear-gradient(90deg, var(--splash-bar-from), var(--splash-bar-to));
+  box-shadow: 0 0 12px var(--splash-neon);
+  transform: scaleX(0);
+  transform-origin: left center;
+  animation: sp-fill 2.1s ease-in-out 300ms both;
+}
+
+/* Brilho percorrendo a barra */
+.sp-bar-fill::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 40%;
+  background: linear-gradient(90deg, transparent, var(--splash-shimmer), transparent);
+  transform: translateX(-100%);
+  animation: sp-shimmer 1.1s ease-in-out 300ms infinite;
+}
+
+/* ============ KEYFRAMES ============ */
+@keyframes sp-draw {
+  to { stroke-dashoffset: 0; }
+}
+
+@keyframes sp-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes sp-fade-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+@keyframes sp-logo-in {
+  from { opacity: 0; transform: scale(0.92); }
   to { opacity: 1; transform: scale(1); }
 }
 
+@keyframes sp-glow-pulse {
+  from { opacity: 1; transform: scale(1); }
+  to { opacity: 0.6; transform: scale(1.04); }
+}
+
+@keyframes sp-rise {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes sp-fill {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+
+@keyframes sp-shimmer {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(250%); }
+}
+
+/* ============ DESKTOP ============ */
+@media (min-width: 1024px) {
+  .sp-logo { width: 128px; height: 128px; }
+  .sp-title { font-size: 46px; }
+  .sp-sub { font-size: 18px; }
+  .sp-bar { width: 220px; }
+}
+
+/* ============ MOVIMENTO REDUZIDO ============ */
+/* Orbes parados, N já pronto, barra enche sem shimmer; o JS reduz o tempo para 1s */
 @media (prefers-reduced-motion: reduce) {
-  .splash-content { animation: none; }
+  .sp-orb { animation: none; }
+  .sp-n { display: none; }
+  .sp-glow,
+  .sp-logo-img,
+  .sp-title,
+  .sp-sub { animation: none; }
+  .sp-bar-fill { animation: sp-fill 800ms linear 100ms both; }
+  .sp-bar-fill::after { display: none; }
 }

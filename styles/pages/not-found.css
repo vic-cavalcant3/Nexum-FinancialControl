@@ -1,0 +1,67 @@
+/* 404 — mesmo visual da splash antiga (gradiente da marca + elipses) */
+
+.splash {
+  position: relative;
+  height: 100dvh;
+  overflow: hidden;
+  background: var(--brand-gradient);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ellipse {
+  position: absolute;
+  pointer-events: none;
+}
+
+.ellipse img {
+  position: absolute;
+  left: calc(-1 * var(--i));
+  top: calc(-1 * var(--i));
+  width: calc(100% + 2 * var(--i));
+  height: calc(100% + 2 * var(--i));
+  max-width: none;
+}
+
+.ellipse-1 { width: 280px; height: 280px; left: -90px; top: -120px; --i: 14.29%; }
+.ellipse-2 { width: 220px; height: 220px; right: -90px; top: 40px; --i: 22.73%; }
+.ellipse-3 { width: 260px; height: 260px; left: -60px; bottom: -36px; --i: 17.31%; }
+.ellipse-4 { width: 180px; height: 180px; right: -20px; bottom: -56px; --i: 19.44%; }
+
+.splash-content {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+  animation: splash-in 400ms ease-out both;
+}
+
+.splash-content img {
+  width: 96px;
+  height: 96px;
+}
+
+.splash-title {
+  font-family: var(--font);
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--on-brand);
+}
+
+.splash-subtitle {
+  font-family: var(--font);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--on-brand-muted);
+}
+
+@keyframes splash-in {
+  from { opacity: 0; transform: scale(0.96); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .splash-content { animation: none; }
+}

@@ -34,6 +34,25 @@
   --on-brand: #ffffff;
   --on-brand-muted: rgba(255, 255, 255, 0.75);
   --on-brand-strong: rgba(255, 255, 255, 0.85);
+  /* Splash (index.html) — sempre escura, não muda com o tema */
+  --splash-bg: #07050d;
+  --splash-orb-1: #7c3aed;
+  --splash-orb-2: #a855f7;
+  --splash-orb-3: #5b2e87;
+  --splash-orb-4: #c084fc;
+  --splash-orb-5: #6d28d9;
+  --splash-vignette: rgba(7, 5, 13, 0.85);
+  --splash-stroke: #c4a1ff;
+  --splash-neon: #a855f7;
+  --splash-neon-deep: #7c3aed;
+  --splash-badge-glow: rgba(168, 85, 247, 0.55);
+  --splash-title: #ffffff;
+  --splash-title-glow: rgba(168, 85, 247, 0.45);
+  --splash-sub: #dccfff;
+  --splash-track: rgba(255, 255, 255, 0.08);
+  --splash-bar-from: #7c3aed;
+  --splash-bar-to: #c084fc;
+  --splash-shimmer: rgba(255, 255, 255, 0.7);
 
   /* Navegação mobile */
   --nav-bg: #ffffff;
