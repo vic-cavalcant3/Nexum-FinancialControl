@@ -101,7 +101,8 @@ curl http://localhost:8080/api/auth/me -H "Authorization: Bearer COLE_O_TOKEN_AQ
 
 **Front apontando para a API local:** abra o front pelo Live Server
 (`http://127.0.0.1:5500/frontend/...`). Em localhost o `js/mock.js` liga sozinho; para usar
-a API de verdade, abra uma página com `?mock=0` (ex.: `pages/login.html?mock=0`).
+a API de verdade, abra uma página com `?mock=0` (ex.: `pages/login.html?mock=0`). A escolha
+fica salva no navegador e vale para as outras páginas; `?mock=1` volta para o mock.
 
 **Parar:** `Ctrl+C` na API e `docker compose down` (os dados continuam no volume).
 Para apagar o banco local e começar do zero: `docker compose down -v`.
@@ -118,23 +119,25 @@ precisa do `.env` nem do `docker compose up`. O `JWT_SECRET` dos testes é gerad
 
 ## Rotas prontas
 
-| Método | Rota | Auth | Corpo | Resposta |
-|---|---|---|---|---|
-| GET | `/api/health` | não | n/a | `200 {"status":"ok"}` |
-| POST | `/api/auth/registrar` | não | `{nome, email, senha}` | `201 {usuario}` · `409` e-mail já cadastrado |
-| POST | `/api/auth/login` | não | `{email, senha}` | `200 {token, usuario}` · `401` e-mail ou senha inválidos |
-| GET | `/api/auth/me` | sim | n/a | `200 {id_usuario, nome, email}` |
-| PUT | `/api/auth/perfil` | sim | `{nome, email}` | `200 {id_usuario, nome, email}` · `409` |
-| PUT | `/api/auth/trocar-senha` | sim | `{senha_atual, nova_senha}` | `200 {mensagem}` · `400` senha atual incorreta |
+A referência completa (parâmetros, corpos, respostas e erros) está em [`API.md`](API.md).
 
-- **Auth = sim**: mande o header `Authorization: Bearer <token>`. Sem token, ou com token
-  inválido ou vencido: `401`.
+| Módulo | Rotas |
+|---|---|
+| Health | `GET /api/health` (público) |
+| Auth | `POST /api/auth/registrar`, `POST /api/auth/login` (públicas) · `GET /api/auth/me`, `PUT /api/auth/perfil`, `PUT /api/auth/trocar-senha` |
+| Categorias | `GET`, `POST /api/categorias` · `DELETE /api/categorias/{id}` |
+| Transações | `GET` (filtros e paginação), `POST /api/transacoes` · `GET`, `PUT`, `DELETE /api/transacoes/{id}` · `GET /api/transacoes/resumo` · `GET /api/transacoes/relatorio` |
+| Metas | `GET`, `POST /api/metas` · `GET`, `PUT`, `DELETE /api/metas/{id}` |
+| Orçamento | `GET /api/orcamentos?mes&ano` · `PUT /api/orcamentos` |
+
+- Fora health, login e registro, tudo exige o header `Authorization: Bearer <token>`.
+  Sem token, ou com token inválido ou vencido: `401`.
+- O usuário vem sempre do token. Dado de outro usuário responde `404`.
 - **Todo erro** vem como `{ "erro": "mensagem em português" }`.
 - JSON em `snake_case` (`id_usuario`, `senha_atual`). No Java os campos ficam em camelCase
   e o Jackson converte sozinho (`spring.jackson.property-naming-strategy`).
-
-As rotas de transações, categorias, metas e orçamento ainda vão ser feitas. O formato
-esperado pelo front está em [`../backend-legacy-api.md`](../backend-legacy-api.md).
+- Cada módulo segue o mesmo padrão: `Controller` (rotas) → `Service` (regras) →
+  `Repository` (banco), com DTOs de entrada validados (`@Valid`) e de saída (`*Response`).
 
 ## Banco e migrations
 
@@ -190,6 +193,7 @@ O Flyway cria as tabelas no Neon sozinho no primeiro deploy.
    | `JWT_SECRET` | uma chave **nova**, só de produção: `openssl rand -base64 48` |
    | `JWT_EXPIRATION_HOURS` | `168` (opcional) |
    | `CORS_ORIGINS` | `https://nexumweb.onrender.com` (URL do front, sem barra no final) |
+   | `APP_TIMEZONE` | `America/Sao_Paulo` (opcional; é o padrão. O servidor do Render roda em UTC) |
 
    **Não** cadastre `PORT`: o Render define sozinho e a API usa.
 

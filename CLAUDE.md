@@ -6,7 +6,7 @@
   Os caminhos são relativos a `frontend/` (o deploy estático publica essa pasta).
 - `backend/`: API em Java 21 + Spring Boot (Maven), PostgreSQL (Neon em produção, Docker em dev), Flyway, JWT.
   Pacote base `com.nexum.api`, organizado por funcionalidade (`auth/`, `usuario/`, `transacao/`...).
-- `backend-legacy-api.md`: rotas e formatos de resposta do backend Node antigo (só consulta).
+- `backend/API.md`: referência de todas as rotas, parâmetros e formatos do JSON (mantenha atualizado ao mudar a API).
 
 ## Frontend
 
@@ -22,7 +22,7 @@
 
 - Nada de senha, connection string real ou `JWT_SECRET` no código ou em arquivo commitado: tudo vem de variável de ambiente (`backend/.env.example` lista as variáveis).
 - Erros sempre no formato `{ "erro": "mensagem em português" }`, com o status HTTP correto.
-- Nomes de campo do JSON em `snake_case`, iguais aos que o front já usa (ver `backend-legacy-api.md`).
+- Nomes de campo do JSON em `snake_case`, iguais aos que o front já usa (ver `backend/API.md`).
 - O usuário logado vem sempre do token JWT, nunca de um id enviado pelo front.
 - O banco só muda via migration Flyway nova (`V<n>__descricao.sql`). Nunca edite uma migration já aplicada.
 - Sem Lombok: código explícito.

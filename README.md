@@ -26,8 +26,8 @@ Nexum-FinancialControl/
 │   ├── styles/            # CSS (tokens, componentes, páginas)
 │   ├── js/                # Scripts (api.js, mock.js, páginas)
 │   └── assets/            # Logo, ícones e imagens
-├── backend/               # API em Java 21 + Spring Boot + PostgreSQL
-└── backend-legacy-api.md  # Referência da API antiga (Node)
+└── backend/               # API em Java 21 + Spring Boot + PostgreSQL
+    └── API.md             # Referência das rotas da API
 ```
 
 O backend tem o próprio guia em [`backend/README.md`](backend/README.md).
