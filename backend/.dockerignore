@@ -1,0 +1,13 @@
+# Nada disso entra na imagem
+.env
+.env.*
+target/
+.mvn/
+mvnw
+mvnw.cmd
+.idea/
+.vscode/
+*.iml
+*.log
+docker-compose.yml
+README.md
