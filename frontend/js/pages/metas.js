@@ -39,7 +39,8 @@
       pct: Math.floor(frac * 100),
       prazo: prazoData(m.data_prazo),
       ritmo: faltam > 0 && aporte > 0 ? Math.ceil(faltam / aporte) : null,
-      icone: U.iconeMeta(m.id_meta)
+      // O ícone agora vem da API; o navegador fica de reserva para metas antigas.
+      icone: m.icone || U.iconeMeta(m.id_meta)
     };
   }
 
@@ -225,7 +226,8 @@
       valor_alvo: alvo,
       valor_atual: atual,
       aporte_mensal: aporte,
-      data_prazo: inPrazo.value
+      data_prazo: inPrazo.value,
+      icone: selIcone.value
     };
     if (!editando) dados.data_inicio = U.isoDia(new Date());
 

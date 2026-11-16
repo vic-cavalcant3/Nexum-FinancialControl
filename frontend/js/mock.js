@@ -325,6 +325,9 @@
     o.valor_alvo = dec(m.valor_alvo);
     o.valor_atual = dec(m.valor_atual);
     o.aporte_mensal = dec(m.aporte_mensal);
+    // Igual à API Java: 0 a 100, arredondado para baixo.
+    var alvo = Number(m.valor_alvo);
+    o.percentual = alvo > 0 ? Math.max(0, Math.min(100, Math.floor(Number(m.valor_atual) / alvo * 100))) : 0;
     return o;
   }
 
@@ -523,7 +526,8 @@
         aporte_mensal: parseFloat(body.aporte_mensal || 0),
         data_inicio: new Date(body.data_inicio || new Date()).toISOString(),
         data_prazo: new Date(body.data_prazo).toISOString(),
-        status_meta: 'em_andamento'
+        status_meta: 'em_andamento',
+        icone: body.icone || null
       };
       db.metas.push(meta);
       save();
@@ -531,10 +535,12 @@
     }
     if ((m = path.match(/^\/metas\/(\d+)$/))) {
       var im = porId(db.metas, 'id_meta', parseInt(m[1], 10));
-      if (im === -1) erro('Registro não encontrado.');
+      if (im === -1) erro('Meta não encontrada.');
+      if (method === 'GET') return outMeta(db.metas[im]);
       if (method === 'PUT') {
         var mt = db.metas[im];
         aplicar(mt, body, ['descricao', 'valor_alvo', 'valor_atual', 'aporte_mensal', 'data_inicio', 'data_prazo', 'status_meta']);
+        if (body.icone != null) mt.icone = body.icone || null; // "" remove; sem "icone" mantém (igual à API)
         ['valor_alvo', 'valor_atual', 'aporte_mensal'].forEach(function (c) { if (body[c] != null) mt[c] = Number(body[c]); });
         save();
         return outMeta(mt);
