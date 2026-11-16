@@ -87,8 +87,30 @@
     setTimeout(function () { if (top() === t) campoVisivel(t.el); }, 300);
   });
 
-  // ---------- Campo de data: placeholder "dd/mm/aaaa" quando vazio (Safari do iPhone mostra em branco) ----------
-  function syncData(inp) { inp.classList.toggle('is-empty', !inp.value); }
+  // ---------- Campo de data: no mobile o texto "15/11/2026" (ou "dd/mm/aaaa") fica por cima do input nativo ----------
+  // O Safari do iPhone mostra "15 de nov. de 2026" (quebra a linha) ou nada quando vazio.
+  function syncData(inp) {
+    var v = inp.value;
+    inp.classList.toggle('is-empty', !v);
+    var ph = inp.parentNode.querySelector('.date-ph');
+    if (!ph) return;
+    var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(v);
+    ph.textContent = m ? m[3] + '/' + m[2] + '/' + m[1] : 'dd/mm/aaaa';
+    ph.classList.toggle('is-empty', !m);
+  }
+
+  // ---------- Selects: placeholder curto "Selecione" no mobile ("Selecionar categoria/conta/ícone" no desktop) ----------
+  function placeholdersSelects(root) {
+    Array.prototype.forEach.call(root.querySelectorAll('select.field-input'), function (sel) {
+      var op = sel.options[0];
+      if (!op || op.value !== '') return;
+      if (!op.dataset.full) {
+        if (!/^Selecionar\b/.test(op.textContent)) return;
+        op.dataset.full = op.textContent;
+      }
+      op.textContent = mobile.matches ? 'Selecione' : op.dataset.full;
+    });
+  }
 
   function preparaDatas(root) {
     Array.prototype.forEach.call(root.querySelectorAll('input[type="date"].field-input'), function (inp) {
@@ -125,9 +147,10 @@
     document.body.classList.add('has-modal');
     travaScroll();
     preparaDatas(el);
+    placeholdersSelects(el);
     ajustaViewport();
-    // o JS da página pode preencher a data logo depois de abrir
-    requestAnimationFrame(function () { preparaDatas(el); });
+    // o JS da página pode preencher a data / recriar as opções logo depois de abrir
+    requestAnimationFrame(function () { preparaDatas(el); placeholdersSelects(el); });
 
     var alvo = el.querySelector('[autofocus]') || focusables(el)[0];
     // espera o próximo frame para o elemento estar visível
@@ -156,7 +179,7 @@
     if (reduced()) done();
     else {
       el.classList.add('is-closing');
-      setTimeout(done, DURATION);
+      setTimeout(done, mobile.matches ? 140 : DURATION);
     }
 
     if (entry.returnTo && entry.returnTo.focus && document.contains(entry.returnTo)) {

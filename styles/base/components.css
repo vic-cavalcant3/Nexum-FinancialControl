@@ -530,7 +530,7 @@ input[type="date"].field-input::-webkit-calendar-picker-indicator { opacity: 0.5
 
 body.has-modal { overflow: hidden; }
 
-/* Campo de data: wrapper e placeholder criados pelo js/modal.js (só aparecem no mobile) */
+/* Campo de data: wrapper e texto "dd/mm/aaaa" criados pelo js/modal.js (o texto só aparece no mobile) */
 .date-wrap {
   position: relative;
   display: block;
@@ -539,7 +539,56 @@ body.has-modal { overflow: hidden; }
 
 .date-ph { display: none; }
 
-/* ============ Modais no mobile: card centralizado (desktop não muda) ============ */
+/* ============ Modais no mobile: card centralizado e enxuto (desktop >= 1024px não muda) ============ */
+/* Tamanhos por largura. 600–1023px (tablet) é a base; 390–599 e < 390 sobrescrevem. */
+@media (max-width: 1023px) {
+  .modal {
+    --m-card-max: 400px;
+    --m-card-w: calc(100% - 32px);
+    --m-pad: 20px;
+    --m-radius: 20px;
+    --m-title: 19px;
+    --m-close: 32px;
+    --m-toggle-h: 38px;
+    --m-toggle-fs: 13px;
+    --m-label: 12.5px;
+    --m-gap: 12px;
+    --m-input-h: 44px;
+    --m-input-fs: 15px;
+    --m-input-r: 10px;
+    --m-btn-h: 42px;
+    --m-btn-fs: 14px;
+    --m-btn-gap: 10px;
+  }
+}
+
+/* 390–599px */
+@media (max-width: 599px) {
+  .modal {
+    --m-card-max: 360px;
+    --m-pad: 18px;
+    --m-title: 18px;
+    --m-input-h: 42px;
+    --m-input-fs: 14px;
+  }
+}
+
+/* < 390px (iPhone SE e telas pequenas) */
+@media (max-width: 389px) {
+  .modal {
+    --m-card-max: 340px;
+    --m-card-w: calc(100% - 24px);
+    --m-pad: 16px;
+    --m-radius: 18px;
+    --m-title: 17px;
+    --m-close: 30px;
+    --m-toggle-h: 36px;
+    --m-label: 12px;
+    --m-input-h: 40px;
+    --m-btn-h: 40px;
+  }
+}
+
 @media (max-width: 1023px) {
   /* --vv-top / --vv-h vêm do visualViewport (teclado do iPhone): o card fica centralizado na área visível */
   .modal {
@@ -550,7 +599,7 @@ body.has-modal { overflow: hidden; }
     justify-content: center;
     padding: 0;
     background: transparent;
-    animation: modal-fade 300ms ease-out both;
+    animation: modal-fade 180ms ease-out both;
   }
 
   /* Overlay em tela cheia (cobre também o que fica fora da área visível) */
@@ -562,156 +611,208 @@ body.has-modal { overflow: hidden; }
     background: var(--overlay-modal-m);
   }
 
-  .modal.is-closing { animation: modal-fade-out 160ms ease-out both; }
+  .modal.is-closing { animation: modal-fade-out 140ms ease-out both; }
 
   /* Padding lateral no card; em cima/embaixo fica no header/footer fixos (sticky) */
   .modal-card {
     position: relative;
-    width: calc(100% - 32px);
-    max-width: 420px;
+    width: var(--m-card-w);
+    max-width: var(--m-card-max);
     max-height: calc(var(--vv-h, 100dvh) - 48px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
     overflow-y: auto;
     overscroll-behavior: contain;
     -webkit-overflow-scrolling: touch;
-    gap: 14px;
-    padding: 0 20px;
+    gap: var(--m-gap);
+    padding: 0 var(--m-pad);
     background: var(--bg-elevated);
     border: 1px solid var(--border);
-    border-radius: 20px;
+    border-radius: var(--m-radius);
     box-shadow: var(--shadow-modal-m);
-    animation: modal-card-in 300ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+    animation: modal-card-in 220ms ease-out both;
   }
 
-  .modal.is-closing .modal-card { animation: modal-card-out 160ms ease-in both; }
+  .modal.is-closing .modal-card { animation: modal-card-out 140ms ease-in both; }
 
   .modal-head {
     position: sticky;
     top: 0;
     z-index: 2;
-    padding-top: 20px;
+    padding-top: var(--m-pad);
     background: var(--bg-elevated);
   }
 
   .modal-title {
-    font-size: 20px;
+    font-size: var(--m-title);
     font-weight: 700;
   }
+
+  .modal-close {
+    width: var(--m-close);
+    height: var(--m-close);
+  }
+
+  .modal-close svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  .modal-desc { font-size: 13px; }
 
   .modal-actions {
     position: sticky;
     bottom: 0;
     z-index: 2;
-    padding: 6px 0 20px;
+    gap: var(--m-btn-gap);
+    padding: 4px 0 var(--m-pad);
     background: var(--bg-elevated);
   }
 
   .modal .btn {
-    height: 46px;
+    height: var(--m-btn-h);
     padding-top: 0;
     padding-bottom: 0;
+    border-radius: var(--radius-full);
+    font-size: var(--m-btn-fs);
+    font-weight: 600;
+  }
+
+  /* Toggle Despesa / Receita */
+  .modal .type-toggle { height: var(--m-toggle-h); }
+
+  .modal .type-toggle-pill,
+  .modal .type-toggle button { height: calc(var(--m-toggle-h) - 8px); }
+
+  .modal .type-toggle button {
+    font-size: var(--m-toggle-fs);
+    font-weight: 600;
   }
 
   /* ----- Campos ----- */
+  .modal .field { gap: 6px; }
+
   .modal .field-label {
-    font-size: 13px;
+    font-size: var(--m-label);
     font-weight: 500;
   }
 
+  /* Nenhum texto sai do campo */
   .modal .field-input {
-    height: 46px;
-    padding-top: 0;
-    padding-bottom: 0;
-    border-radius: 12px;
+    height: var(--m-input-h);
+    padding: 0 12px;
+    border-radius: var(--m-input-r);
+    font-size: var(--m-input-fs);
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
   }
 
-  /* 16px evita o zoom automático do iPhone ao focar o campo */
-  .modal input,
-  .modal select,
-  .modal textarea { font-size: 16px; }
+  .modal .orc-input { font-size: var(--m-input-fs); }
 
   .field-row {
     display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    gap: 14px 12px;
+    gap: var(--m-gap) 10px;
   }
 
-  /* Select: texto com reticências e espaço para a seta */
-  select.field-input {
-    padding-right: 36px;
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
+  /* Select: espaço para a seta (chevron de 12px desenhado com gradientes) */
+  .modal select.field-input {
+    padding-right: 32px;
     background-image:
       linear-gradient(45deg, transparent 50%, var(--text-secondary) 50%),
       linear-gradient(135deg, var(--text-secondary) 50%, transparent 50%);
-    background-position: calc(100% - 19px) 50%, calc(100% - 14px) 50%;
-    background-size: 5px 5px;
+    background-position: calc(100% - 18px) 50%, calc(100% - 12px) 50%;
+    background-size: 6px 6px;
     background-repeat: no-repeat;
   }
 
-  /* Data: não vaza no Safari do iPhone e mostra placeholder quando vazia */
-  input[type="date"].field-input {
+  /* Data: o input nativo fica transparente (ocupa a área toda e abre o seletor do iPhone)
+     e o texto "15/11/2026" / "dd/mm/aaaa" aparece por cima */
+  .modal input[type="date"].field-input {
     display: block;
     width: 100%;
     min-width: 0;
-    height: 46px;
+    height: var(--m-input-h);
     -webkit-appearance: none;
     appearance: none;
+    color: transparent;
     text-align: left;
   }
 
-  input[type="date"].field-input::-webkit-date-and-time-value { text-align: left; }
+  .modal input[type="date"].field-input::-webkit-datetime-edit,
+  .modal input[type="date"].field-input::-webkit-date-and-time-value { color: transparent; }
 
-  input[type="date"].field-input.is-empty:not(:focus) { color: transparent; }
-
-  input[type="date"].field-input.is-empty:not(:focus) + .date-ph {
+  .modal .date-ph {
     display: block;
     position: absolute;
-    left: 15px;
+    left: 13px;
+    right: 12px;
     top: 50%;
     transform: translateY(-50%);
-    font-size: 16px;
-    color: var(--text-secondary);
+    overflow: hidden;
     white-space: nowrap;
+    text-overflow: ellipsis;
+    font-size: var(--m-input-fs);
+    color: var(--text-primary);
     pointer-events: none;
   }
 
-  /* ----- Sucesso: card menor, centralizado, check com "pop" ----- */
+  .modal .date-ph.is-empty { color: var(--text-secondary); }
+
+  /* ----- Sucesso: card menor e centralizado ----- */
   .modal-card.modal-success {
-    max-width: 320px;
+    width: calc(100% - 32px);
+    max-width: 280px;
     align-items: center;
-    gap: 16px;
-    padding: 24px 20px;
+    gap: 14px;
+    padding: 20px;
     text-align: center;
-    box-shadow: var(--shadow-modal-m);
+  }
+
+  .modal-success .success-icon {
+    width: 44px;
+    height: 44px;
+    animation: success-pop 320ms ease-out 80ms both;
+  }
+
+  .modal-success .success-icon svg {
+    width: 22px;
+    height: 22px;
   }
 
   .modal-success .success-text { align-items: center; }
-  .modal-success .success-desc { margin-inline: auto; }
 
-  .modal-success .success-icon {
-    animation: success-pop 420ms cubic-bezier(0.34, 1.56, 0.64, 1) 120ms both;
+  .modal-success .success-title {
+    font-size: 16px;
+    font-weight: 700;
   }
+
+  .modal .modal-card.modal-success .success-desc {
+    margin-inline: auto;
+    font-size: 13px;
+    color: var(--text-secondary);
+  }
+
+  .modal-success .btn { height: 38px; }
 }
 
-/* < 360px: campos em dupla viram 1 coluna */
-@media (max-width: 359px) {
+/* Card com menos de 340px de largura (tela < 364px): campos em dupla viram 1 coluna */
+@media (max-width: 363px) {
   .field-row { grid-template-columns: minmax(0, 1fr); }
 }
 
 @keyframes modal-card-in {
-  from { opacity: 0; transform: scale(0.94); }
-  to { opacity: 1; transform: scale(1); }
+  from { opacity: 0; transform: translateY(6px) scale(0.96); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
 @keyframes modal-card-out {
-  from { opacity: 1; transform: scale(1); }
-  to { opacity: 0; transform: scale(0.96); }
+  from { opacity: 1; transform: translateY(0) scale(1); }
+  to { opacity: 0; transform: translateY(6px) scale(0.96); }
 }
 
 @keyframes success-pop {
-  0% { opacity: 0; transform: scale(0.4); }
-  60% { opacity: 1; transform: scale(1.15); }
+  0% { opacity: 0; transform: scale(0.6); }
+  70% { opacity: 1; transform: scale(1.06); }
   100% { opacity: 1; transform: scale(1); }
 }
 
