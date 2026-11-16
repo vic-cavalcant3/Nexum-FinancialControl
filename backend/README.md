@@ -202,11 +202,17 @@ O Flyway cria as tabelas no Neon sozinho no primeiro deploy.
 
 ### 3. Ligar o front
 
-1. Em `frontend/js/api.js`, preencha
-   `API_URL_PROD = 'https://SEU-SERVICO.onrender.com/api'`.
-2. Em `frontend/js/mock.js`, troque `MOCK_NO_DEPLOY = true` para `false`.
+Já está feito para `https://nexum-api-s83b.onrender.com`. Se o serviço mudar de URL:
+
+1. Em `frontend/js/api.js`, ajuste `API_URL_PROD = 'https://SEU-SERVICO.onrender.com/api'`.
+2. `frontend/js/mock.js` fica com `MOCK_NO_DEPLOY = false` (o mock só liga em localhost ou
+   com `?mock=1`).
 3. O site estático do front no Render precisa publicar a pasta **`frontend`**
    (Static Site > Settings > *Publish Directory* = `frontend`, ou *Root Directory* = `frontend`).
+
+Para o servidor dormindo não parecer erro: a splash (`index.html`) já chama `/api/health` em
+segundo plano para acordá-lo, e login/cadastro esperam até 150 s, mostrando
+"Acordando o servidor..." depois de 4 s.
 
 ### Plano grátis: o que esperar
 

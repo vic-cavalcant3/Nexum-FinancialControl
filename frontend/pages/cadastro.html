@@ -95,6 +95,10 @@
       </div>
 
       <button class="auth-submit" id="btn-criar" type="submit">Criar conta</button>
+      <p class="auth-wake" id="signup-wake" role="status" hidden>
+        <span class="auth-spinner" aria-hidden="true"></span>
+        <span>Acordando o servidor, pode levar até 2 minutos...</span>
+      </p>
       <p class="auth-error" id="signup-error" role="alert" hidden></p>
 
       <div class="auth-divider">
@@ -126,6 +130,7 @@
       var termos = document.getElementById('termos');
       var btn = document.getElementById('btn-criar');
       var erroGeral = document.getElementById('signup-error');
+      var acordando = document.getElementById('signup-wake');
 
       var campos = [
         { input: nome, erro: document.getElementById('erro-nome') },
@@ -181,11 +186,13 @@
 
         btn.disabled = true;
         btn.textContent = 'Criando conta...';
+        var pararAviso = avisarServidorAcordando(acordando);
 
         try {
           await Auth.registrar(nomeVal, emailVal, senha.value);
           window.location.href = 'login.html?email=' + encodeURIComponent(emailVal);
         } catch (err) {
+          pararAviso();
           erroGeral.textContent = mensagemErroApi(err);
           erroGeral.hidden = false;
           btn.disabled = false;

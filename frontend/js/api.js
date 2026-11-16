@@ -2,13 +2,17 @@
 // no deploy usa o backend no Render.
 // Obs.: em localhost o js/mock.js liga sozinho. Para usar o backend local de verdade, abra com ?mock=0.
 const API_URL_LOCAL = 'http://localhost:8080/api';
-const API_URL_PROD = ''; // TODO: URL do backend no Render, ex.: 'https://nexum-api.onrender.com/api'
+const API_URL_PROD = 'https://nexum-api-s83b.onrender.com/api';
 const API_URL = ['localhost', '127.0.0.1'].includes(window.location.hostname) ? API_URL_LOCAL : API_URL_PROD;
 
 const TOKEN_KEY = 'nexum_token';
 
 // Rotas em que 401 é só "e-mail ou senha errados", não sessão vencida.
 const ROTAS_SEM_SESSAO = ['/auth/login', '/auth/registrar'];
+
+// Login e cadastro esperam até 150 s: no plano grátis do Render o servidor dorme sem acesso
+// e pode levar 1-2 minutos para acordar. As outras rotas não têm limite próprio.
+const TIMEOUT_AUTH_MS = 150000;
 
 function getToken() {
   return localStorage.getItem(TOKEN_KEY);
@@ -56,19 +60,35 @@ async function apiFetch(endpoint, options = {}) {
     throw new Error('URL da API não configurada (API_URL_PROD em js/api.js).');
   }
 
+  // options.timeout (ms) é opcional: passado esse tempo, a requisição é cancelada.
+  const { timeout, ...opcoes } = options;
   const token = getToken();
   const headers = {
     'Content-Type': 'application/json',
     ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    ...(options.headers || {})
+    ...(opcoes.headers || {})
   };
 
-  const res = await fetch(`${API_URL}${endpoint}`, {
-    ...options,
-    headers
-  });
+  const controle = timeout ? new AbortController() : null;
+  const timer = controle ? setTimeout(() => controle.abort(), timeout) : null;
+  let res;
+  try {
+    res = await fetch(`${API_URL}${endpoint}`, {
+      ...opcoes,
+      headers,
+      ...(controle ? { signal: controle.signal } : {})
+    });
+  } catch (err) {
+    if (err.name === 'AbortError') {
+      throw new Error('O servidor demorou demais para responder. Tente de novo em instantes.');
+    }
+    throw err;
+  } finally {
+    clearTimeout(timer);
+  }
 
-  const data = await res.json();
+  // Resposta sem JSON (ex.: página de erro do Render enquanto o servidor sobe) vira {}.
+  const data = await res.json().catch(() => ({}));
 
   // Token ausente, inválido ou vencido: encerra a sessão e volta para o login.
   if (res.status === 401 && !ROTAS_SEM_SESSAO.includes(endpoint)) {
@@ -88,11 +108,13 @@ async function apiFetch(endpoint, options = {}) {
 const Auth = {
   login: (email, senha) => apiFetch('/auth/login', {
     method: 'POST',
-    body: JSON.stringify({ email, senha })
+    body: JSON.stringify({ email, senha }),
+    timeout: TIMEOUT_AUTH_MS
   }),
   registrar: (nome, email, senha) => apiFetch('/auth/registrar', {
     method: 'POST',
-    body: JSON.stringify({ nome, email, senha })
+    body: JSON.stringify({ nome, email, senha }),
+    timeout: TIMEOUT_AUTH_MS
   }),
   atualizarPerfil: (nome, email) => apiFetch('/auth/perfil', {
     method: 'PUT',

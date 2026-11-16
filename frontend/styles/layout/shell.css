@@ -75,6 +75,7 @@
   background: var(--bg-elevated);
   border-radius: var(--radius-md);
   color: var(--text-secondary);
+  --autofill-bg: var(--bg-elevated); /* autofill: ver components.css */
 }
 
 .sb-search svg {

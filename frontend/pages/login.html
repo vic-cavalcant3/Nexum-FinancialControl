@@ -66,6 +66,10 @@
       <div class="spacer-8 only-desktop"></div>
       <p class="auth-success" id="login-success" role="status" hidden></p>
       <button class="auth-submit" id="btn-entrar" type="submit">Entrar</button>
+      <p class="auth-wake" id="login-wake" role="status" hidden>
+        <span class="auth-spinner" aria-hidden="true"></span>
+        <span>Acordando o servidor, pode levar até 2 minutos...</span>
+      </p>
       <p class="auth-error" id="login-error" role="alert" hidden></p>
 
       <div class="auth-divider">
@@ -98,6 +102,7 @@
       var erro = document.getElementById('login-error');
       var sucesso = document.getElementById('login-success');
       var lembrar = document.getElementById('lembrar');
+      var acordando = document.getElementById('login-wake');
 
       // Lembrar de mim
       try {
@@ -148,6 +153,7 @@
 
         btn.disabled = true;
         btn.textContent = 'Entrando...';
+        var pararAviso = avisarServidorAcordando(acordando);
 
         try {
           var res = await Auth.login(emailVal, senhaVal);
@@ -158,6 +164,7 @@
           salvarSessao(res.usuario, res.token);
           window.location.href = 'dashboard.html';
         } catch (err) {
+          pararAviso();
           mostrarErro(mensagemErroApi(err, true));
           btn.disabled = false;
           btn.textContent = 'Entrar';

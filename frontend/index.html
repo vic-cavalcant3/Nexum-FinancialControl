@@ -14,6 +14,17 @@
   <script src="js/api.js"></script>
   <script src="js/mock.js"></script>
   <script>
+    // Acorda o backend (no Render grátis ele dorme sem acesso) enquanto a pessoa vê a splash
+    // e digita o login. Só "cutuca": a resposta não importa (no-cors) e erros são ignorados.
+    // keepalive deixa a requisição seguir mesmo depois do redirecionamento para o login.
+    if (!window.nexumMock && API_URL) {
+      try {
+        fetch(API_URL + '/health', { mode: 'no-cors', cache: 'no-store', keepalive: true })
+          .catch(function () {});
+      } catch (e) {}
+    }
+  </script>
+  <script>
     // Splash já vista nesta sessão: vai direto, sem animação
     (function () {
       var vista = false;

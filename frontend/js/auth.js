@@ -44,3 +44,14 @@ function mensagemErroApi(err, traduzirCredenciais) {
   }
   return m;
 }
+
+// No plano grátis do Render o servidor dorme sem acesso e a 1ª requisição demora.
+// Se a API passar de 4 s, mostra o aviso "Acordando o servidor..." (el = .auth-wake).
+// Retorna a função que cancela/esconde o aviso.
+function avisarServidorAcordando(el) {
+  var timer = setTimeout(function () { el.hidden = false; }, 4000);
+  return function () {
+    clearTimeout(timer);
+    el.hidden = true;
+  };
+}

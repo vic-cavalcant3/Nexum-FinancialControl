@@ -123,6 +123,28 @@
   color: var(--link);
 }
 
+/* Autofill do navegador: sem o fundo azulado. O Chrome/Edge pintam o fundo com !important,
+   então o fundo vira uma sombra interna na cor do campo (--autofill-bg, padrão --bg-primary)
+   e o anel de foco/erro do campo continua por cima (--autofill-ring). Vale nos dois temas,
+   porque as cores vêm dos tokens. Cada campo com outro fundo define --autofill-bg. */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  -webkit-text-fill-color: var(--text-primary);
+  caret-color: var(--text-primary);
+  -webkit-box-shadow: var(--autofill-ring, 0 0 0 0 transparent), inset 0 0 0 1000px var(--autofill-bg, var(--bg-primary));
+  box-shadow: var(--autofill-ring, 0 0 0 0 transparent), inset 0 0 0 1000px var(--autofill-bg, var(--bg-primary));
+  transition: background-color 600000s 0s, color 600000s 0s;
+}
+
+/* Firefox (:autofill, em regra separada: seletor desconhecido invalidaria a regra inteira) */
+input:autofill {
+  filter: none;
+  -webkit-text-fill-color: var(--text-primary);
+  box-shadow: var(--autofill-ring, 0 0 0 0 transparent), inset 0 0 0 1000px var(--autofill-bg, var(--bg-primary));
+}
+
 /* Input */
 .input {
   width: 100%;
@@ -289,11 +311,13 @@
   outline: none;
   border-color: var(--accent);
   box-shadow: 0 0 0 1px var(--accent);
+  --autofill-ring: 0 0 0 1px var(--accent);
 }
 
 [data-theme="dark"] .field-input:focus {
   border-color: var(--link);
   box-shadow: 0 0 0 1px var(--link);
+  --autofill-ring: 0 0 0 1px var(--link);
 }
 
 .field-input.is-error { border-color: var(--danger); }
@@ -876,6 +900,7 @@ body.has-modal { overflow: hidden; }
   border: 1px solid var(--border);
   border-radius: 12px;
   color: var(--text-secondary);
+  --autofill-bg: var(--bg-elevated);
 }
 
 .search-box svg {

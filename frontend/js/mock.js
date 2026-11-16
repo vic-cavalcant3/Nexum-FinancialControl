@@ -1,14 +1,15 @@
 // MODO MOCK — desenvolve o front sem backend.
 // Carregar logo DEPOIS de js/api.js. Não altera o api.js: só substitui window.apiFetch.
 //
-// Liga sozinho em localhost/127.0.0.1 e no deploy de teste (nexumweb.onrender.com, enquanto
-// MOCK_NO_DEPLOY = true). ?mock=1 força ligado e ?mock=0 força desligado (usa o backend de verdade);
-// os dois ficam salvos no navegador até trocar de novo.
+// Liga sozinho em localhost/127.0.0.1 (no deploy nexumweb.onrender.com, só se MOCK_NO_DEPLOY = true).
+// ?mock=1 força ligado e ?mock=0 força desligado (usa o backend de verdade);
+// os dois ficam salvos no navegador até trocar de novo. Mock desligado = sem selo.
 // Dados em memória, persistidos em localStorage 'nexum-mock-db'.
 // Console: nexumMock.reset() recria os dados iniciais.
 (function () {
-  // Deploy de teste no Render (sem backend). Mude para false quando o backend em Java estiver no ar.
-  var MOCK_NO_DEPLOY = true;
+  // false: o deploy usa o backend Java no Render (API_URL_PROD em js/api.js).
+  // true volta a usar dados de teste no deploy, com o selo "Versão de teste".
+  var MOCK_NO_DEPLOY = false;
   var DEPLOY_HOST = 'nexumweb.onrender.com';
 
   var FLAG_KEY = 'nexum-mock';
