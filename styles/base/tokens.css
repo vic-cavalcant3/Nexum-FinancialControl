@@ -59,8 +59,8 @@
   --nav-border: #e3e0ee;
   --nav-shadow: 0 12px 28px rgba(16, 13, 28, 0.12), 0 2px 6px rgba(16, 13, 28, 0.08);
   --nav-icon: #6b6478;
-  --nav-active-bg: #14121a;
-  --nav-active-fg: #ffffff;
+  --nav-active: #5b2e87;
+  --nav-indicator: rgba(16, 13, 28, 0.07);
   --nav-bubble: #ffffff;
   --nav-bubble-border: var(--nav-border);
   --nav-bubble-shadow: var(--nav-shadow);
@@ -70,6 +70,8 @@
 
   --font: 'Inter', sans-serif;
   --font-brand: 'Poppins', sans-serif;
+  /* Nav mobile: fonte do sistema no iPhone (estilo tab bar do iOS) */
+  --font-nav: -apple-system, 'SF Pro Text', 'Inter', sans-serif;
 
   --space-1: 4px;
   --space-2: 8px;
@@ -109,8 +111,8 @@
   --nav-border: rgba(255, 255, 255, 0.06);
   --nav-shadow: 0 12px 28px rgba(0, 0, 0, 0.45), 0 2px 6px rgba(0, 0, 0, 0.35);
   --nav-icon: #9994a8;
-  --nav-active-bg: #ffffff;
-  --nav-active-fg: #14121a;
+  --nav-active: #c4a1ff;
+  --nav-indicator: rgba(255, 255, 255, 0.10);
   --nav-bubble: #1c1a24;
   --nav-bubble-border: rgba(255, 255, 255, 0.07);
   --nav-bubble-shadow: 0 16px 36px rgba(0, 0, 0, 0.5), 0 4px 10px rgba(0, 0, 0, 0.4);

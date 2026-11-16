@@ -278,58 +278,36 @@
   height: 28px;
 }
 
-/* ============ NAV MOBILE ============ */
+/* ============ NAV MOBILE (estilo tab bar do iOS) ============ */
 /* Tamanhos por largura de tela (mobile-first). Base: < 360px. */
 :root {
+  --nav-h: 56px;
   --nav-side: 12px;
   --nav-gap: 10px;
   --nav-bottom: 14px;
   --nav-max: none;
-  --nav-pill-pad: 5px;
-  --nav-tab-icon: 18px;
-  --nav-tab-label: 13px;
-  --bubble-pad: 14px 12px 12px;
-  --bubble-radius: 20px;
-  --tile: 48px;
-  --tile-radius: 14px;
-  --tile-icon: 20px;
-  --tile-label: 11px;
-  --tile-gap: 6px;
-  /* Altura da nav: pílula e botão Mais têm a mesma altura em todas as larguras */
-  --nav-h: 48px;
-  /* Abas preenchem a pílula: altura - borda (2 x 1px) - padding da pílula */
-  --nav-tab-size: calc(var(--nav-h) - 2px - 2 * var(--nav-pill-pad));
-  /* Padding lateral que deixa a aba só-ícone redonda */
-  --nav-tab-pad: calc((var(--nav-tab-size) - var(--nav-tab-icon)) / 2);
+  --nav-tab-label: 10px;
+  /* Mola usada no indicador e no balão */
+  --nav-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 /* 360–389px */
 @media (min-width: 360px) {
   :root {
+    --nav-h: 60px;
     --nav-side: 16px;
     --nav-gap: 12px;
     --nav-bottom: 16px;
-    --nav-tab-icon: 20px;
-    --tile: 52px;
-    --tile-gap: 8px;
+    --nav-tab-label: 10.5px;
   }
 }
 
-/* 390–429px (valores do Figma) */
+/* 390–429px */
 @media (min-width: 390px) {
   :root {
     --nav-side: 20px;
     --nav-gap: 14px;
     --nav-bottom: 19px;
-    --nav-pill-pad: 6px;
-    --nav-tab-label: 14px;
-    --bubble-pad: 18px 18px 16px;
-    --bubble-radius: 24px;
-    --tile: 56px;
-    --tile-radius: 16px;
-    --tile-icon: 22px;
-    --tile-label: 12px;
-    --tile-gap: 12px;
   }
 }
 
@@ -343,8 +321,6 @@
   :root {
     --nav-max: 480px;
     --nav-bottom: 24px;
-    --tile: 60px;
-    --tile-gap: 16px;
   }
 }
 
@@ -359,6 +335,7 @@
   display: flex;
   align-items: center;
   gap: var(--nav-gap);
+  font-family: var(--font-nav);
 }
 
 @media (min-width: 1024px) {
@@ -367,84 +344,98 @@
   .mnav-backdrop { display: none !important; }
 }
 
+/* Barra: 4 colunas iguais, indicador ("bolha") absoluto por trás das abas */
 .mnav-pill {
+  position: relative;
   flex: 1;
   min-width: 0;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
   box-sizing: border-box;
   height: var(--nav-h);
-  padding: var(--nav-pill-pad);
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   background: var(--nav-bg);
-  border: 1px solid var(--nav-border);
+  border: 0.5px solid var(--nav-border);
   border-radius: var(--radius-full);
   box-shadow: var(--nav-shadow);
+  /* O arrasto precisa receber o gesto desde o toque (touch-action não muda no meio do gesto) */
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
   transition: background-color 200ms ease-out, border-color 200ms ease-out, box-shadow 200ms ease-out;
 }
 
-.mnav-tab {
-  position: relative;
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  gap: 0;
-  height: var(--nav-tab-size);
-  padding: 0 var(--nav-tab-pad);
-  border-radius: var(--radius-full);
-  color: var(--nav-icon);
-  transition: background-color 200ms ease-out, padding 200ms ease-out, gap 200ms ease-out, color 200ms ease-out;
+/* Indicador: só transform (translateX no externo, escala no interno) */
+.mnav-indicator {
+  position: absolute;
+  top: 4px;
+  bottom: 4px;
+  left: 0;
+  width: calc(25% - 8px);
+  pointer-events: none;
+  will-change: transform;
 }
 
-/* Área de toque mínima de 44px sem mudar o visual */
-.mnav-tab::after {
+.mnav-indicator.is-hidden { opacity: 0; }
+
+.mnav-indicator-blob {
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius-full);
+  background: var(--nav-indicator);
+  will-change: transform;
+}
+
+/* Sombra de "levantar" ao arrastar */
+.mnav-indicator-blob::after {
   content: '';
   position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 100%;
-  height: 100%;
-  min-width: 44px;
-  min-height: 44px;
-  transform: translate(-50%, -50%);
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: var(--nav-shadow);
+  opacity: 0;
+  transition: opacity 160ms ease-out;
+}
+
+.mnav-pill.is-dragging .mnav-indicator-blob::after { opacity: 1; }
+
+.mnav-tab {
+  position: relative;
+  z-index: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  color: var(--nav-icon);
+  -webkit-touch-callout: none;
+  -webkit-user-drag: none;
+  transition: color 160ms ease-out;
 }
 
 .mnav-tab svg {
-  width: var(--nav-tab-icon);
-  height: var(--nav-tab-icon);
+  width: 22px;
+  height: 22px;
   flex-shrink: 0;
 }
 
 .mnav-label {
-  max-width: 0;
+  max-width: 100%;
   overflow: hidden;
   white-space: nowrap;
+  text-overflow: ellipsis;
   font-size: var(--nav-tab-label);
-  font-weight: 500;
-  transition: max-width 200ms ease-out;
+  font-weight: 600;
+  line-height: 1.2;
 }
 
-.mnav-tab.is-active {
-  gap: 8px;
-  padding: 0 calc(var(--nav-tab-pad) + 6px) 0 calc(var(--nav-tab-pad) + 4px);
-  background: var(--nav-active-bg);
-  color: var(--nav-active-fg);
-}
+.mnav-tab.is-on { color: var(--nav-active); }
 
-.mnav-tab.is-active .mnav-label {
-  max-width: 120px;
-}
-
-/* < 360px: a aba ativa mostra só o ícone, com o fundo de ativo */
-@media (max-width: 359px) {
-  .mnav-tab.is-active {
-    gap: 0;
-    padding: 0 var(--nav-tab-pad);
-  }
-
-  .mnav-tab.is-active .mnav-label {
-    max-width: 0;
-  }
+.mnav-tab:focus-visible {
+  outline: 2px solid var(--nav-active);
+  outline-offset: -4px;
+  border-radius: var(--radius-full);
 }
 
 .mnav-more {
@@ -463,7 +454,7 @@
 .mnav-more svg {
   width: 22px;
   height: 22px;
-  transition: transform 200ms ease-out;
+  transition: transform 320ms var(--nav-spring);
 }
 
 .mnav-more[aria-expanded="true"] svg {
@@ -477,30 +468,31 @@
   background: transparent;
 }
 
-/* Balão: alinhado com o container da nav (mesmo left/right/max-width) */
+/* ===== Balão do "Mais": alinhado com a nav, abre a partir do botão ===== */
 .mnav-bubble {
   position: fixed;
   left: var(--nav-side);
   right: var(--nav-side);
-  bottom: calc(var(--nav-bottom) + env(safe-area-inset-bottom, 0px) + var(--nav-h) + 12px);
+  bottom: calc(var(--nav-h) + var(--nav-bottom) + 10px + env(safe-area-inset-bottom, 0px));
   z-index: 61;
   max-width: var(--nav-max);
   margin-inline: auto;
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: var(--tile-gap);
-  padding: var(--bubble-pad);
+  gap: 10px;
+  padding: 14px 14px 12px;
   background: var(--nav-bubble);
   border: 1px solid var(--nav-bubble-border);
-  border-radius: var(--bubble-radius);
+  border-radius: 22px;
   box-shadow: var(--nav-bubble-shadow);
+  font-family: var(--font-nav);
   transition: background-color 200ms ease-out, border-color 200ms ease-out, box-shadow 200ms ease-out;
   transform-origin: bottom right;
-  animation: bubble-in 180ms ease-out both;
+  animation: bubble-in 320ms var(--nav-spring) both;
 }
 
 .mnav-bubble.is-closing {
-  animation: bubble-out 180ms ease-in both;
+  animation: bubble-out 320ms var(--nav-spring) both;
 }
 
 .mnav-bubble-item {
@@ -509,8 +501,8 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
-  font-size: var(--tile-label);
+  gap: 6px;
+  font-size: 11px;
   font-weight: 500;
   color: var(--nav-label);
   transition: color 200ms ease-out;
@@ -518,8 +510,8 @@
 
 /* Rótulo centralizado pode usar metade do gap de cada lado (sem invadir o vizinho) */
 .mnav-bubble-label {
-  max-width: calc(100% + var(--tile-gap));
-  margin-inline: calc(var(--tile-gap) / -2);
+  max-width: calc(100% + 10px);
+  margin-inline: -5px;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
@@ -534,34 +526,35 @@
 }
 
 .mnav-tile {
-  width: var(--tile);
-  height: var(--tile);
+  width: 48px;
+  height: 48px;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  border-radius: var(--tile-radius);
+  border-radius: 14px;
   background: var(--nav-tile);
   color: var(--nav-tile-icon);
   transition: background-color 200ms ease-out, color 200ms ease-out;
 }
 
 .mnav-tile svg {
-  width: var(--tile-icon);
-  height: var(--tile-icon);
+  width: 20px;
+  height: 20px;
 }
 
 @keyframes bubble-in {
-  from { opacity: 0; transform: translateY(8px) scale(0.96); }
-  to { opacity: 1; transform: translateY(0) scale(1); }
+  from { opacity: 0; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1); }
 }
 
 @keyframes bubble-out {
-  from { opacity: 1; transform: translateY(0) scale(1); }
-  to { opacity: 0; transform: translateY(8px) scale(0.96); }
+  from { opacity: 1; transform: scale(1); }
+  to { opacity: 0; transform: scale(0.9); }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .mnav-bubble, .mnav-bubble.is-closing { animation: none; }
-  .mnav-tab, .mnav-label, .mnav-more svg, .theme-toggle-pill { transition: none; }
+  .mnav-bubble { animation: bubble-in 150ms ease-out both; }
+  .mnav-bubble.is-closing { animation: bubble-out 150ms ease-out both; }
+  .mnav-tab, .mnav-more svg, .theme-toggle-pill { transition: none; }
 }
