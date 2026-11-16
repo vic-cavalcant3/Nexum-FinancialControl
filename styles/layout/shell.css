@@ -366,10 +366,12 @@
 }
 
 /* Indicador: só transform (translateX no externo, escala no interno) */
+/* Altura = barra - 8px: 3,5px + a borda de 0,5px = 4px da borda externa em cima e embaixo.
+   Largura e posição vêm do JS (conteúdo da aba + 14px de cada lado). */
 .mnav-indicator {
   position: absolute;
-  top: 4px;
-  bottom: 4px;
+  top: 3.5px;
+  bottom: 3.5px;
   left: 0;
   width: calc(25% - 8px);
   pointer-events: none;
@@ -481,10 +483,11 @@
   grid-template-columns: repeat(4, 1fr);
   gap: 10px;
   padding: 14px 14px 12px;
-  background: var(--nav-bubble);
-  border: 1px solid var(--nav-bubble-border);
+  /* Mesmo estilo da barra */
+  background: var(--nav-bg);
+  border: 0.5px solid var(--nav-border);
   border-radius: 22px;
-  box-shadow: var(--nav-bubble-shadow);
+  box-shadow: var(--nav-shadow);
   font-family: var(--font-nav);
   transition: background-color 200ms ease-out, border-color 200ms ease-out, box-shadow 200ms ease-out;
   transform-origin: bottom right;
@@ -503,9 +506,10 @@
   align-items: center;
   gap: 6px;
   font-size: 11px;
-  font-weight: 500;
-  color: var(--nav-label);
-  transition: color 200ms ease-out;
+  font-weight: 600;
+  color: var(--nav-icon);
+  -webkit-tap-highlight-color: transparent;
+  transition: color 120ms ease-out;
 }
 
 /* Rótulo centralizado pode usar metade do gap de cada lado (sem invadir o vizinho) */
@@ -533,9 +537,17 @@
   justify-content: center;
   flex-shrink: 0;
   border-radius: 14px;
-  background: var(--nav-tile);
-  color: var(--nav-tile-icon);
-  transition: background-color 200ms ease-out, color 200ms ease-out;
+  background: var(--nav-indicator);
+  color: var(--nav-icon);
+  transition: background-color 120ms ease-out, color 120ms ease-out;
+}
+
+/* Toque: o tile acende na cor ativa por um instante */
+.mnav-bubble-item.is-pressed { color: var(--nav-active); }
+
+.mnav-bubble-item.is-pressed .mnav-tile {
+  background: var(--nav-active);
+  color: var(--nav-bg);
 }
 
 .mnav-tile svg {

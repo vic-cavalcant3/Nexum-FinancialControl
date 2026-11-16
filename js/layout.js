@@ -124,22 +124,44 @@
     var atual = tabIndex(activePage);   // -1 quando a página não é uma das abas
     var naAba = atual;                  // aba onde o indicador está agora
     var x = 0;                          // translateX atual do indicador (px)
+    var w = 0;                          // largura atual do indicador (px)
+    var larguras = [];                  // largura do indicador em cada aba
     var navTimer = null;
     var p = null;                       // ponteiro em andamento
 
     function cel() { return pill.clientWidth / tabs.length; }
-    function largura() { return cel() - 8; }                      // inset de 4px de cada lado
-    function xDaAba(i) { return i * cel() + 4; }
-    function limita(v) { return Math.max(4, Math.min(pill.clientWidth - largura() - 4, v)); }
-    function abaNoX(v) { return Math.max(0, Math.min(tabs.length - 1, Math.floor((v + largura() / 2) / cel()))); }
     function lerp(a, b, k) { return a + (b - a) * k; }
     function mola(normal) { return reduz.matches ? [150, 'ease-out'] : [normal || 420, MOLA]; }
 
-    function setX(v, t) {
-      x = v;
-      ind.style.transition = t ? 'transform ' + t[0] + 'ms ' + t[1] : 'none';
-      ind.style.transform = 'translateX(' + v + 'px)';
+    // Largura = conteúdo da aba (o maior entre ícone e label) + 14px de cada lado,
+    // no mínimo a largura da aba - 4px e no máximo a barra menos as bordas internas (4px)
+    function mede() {
+      var c = cel();
+      // 4px da borda externa em cima e embaixo, qualquer que seja a espessura usada da borda (0,5px ou 1px)
+      var borda = parseFloat(getComputedStyle(pill).borderTopWidth) || 0;
+      ind.style.top = ind.style.bottom = (4 - borda) + 'px';
+      larguras = tabs.map(function (tab) {
+        var ic = tab.querySelector('svg').getBoundingClientRect().width;
+        var lb = tab.querySelector('.mnav-label');
+        var conteudo = Math.max(ic, lb.getBoundingClientRect().width, lb.scrollWidth);
+        return Math.min(pill.clientWidth - 8, Math.max(c - 4, conteudo + 28));
+      });
     }
+
+    // Centralizado no ponto, mas sem sair das bordas internas da barra
+    function limita(esq, larg) { return Math.max(4, Math.min(pill.clientWidth - 4 - larg, esq)); }
+    function posDaAba(i) { var l = larguras[i]; return [limita((i + 0.5) * cel() - l / 2, l), l]; }
+    function abaNoCentro(cx) { return Math.max(0, Math.min(tabs.length - 1, Math.floor(cx / cel()))); }
+
+    function setPos(nx, nw, t) {
+      x = nx;
+      w = nw;
+      ind.style.transition = t ? 'transform ' + t[0] + 'ms ' + t[1] + ', width ' + t[0] + 'ms ' + t[1] : 'none';
+      ind.style.width = nw + 'px';
+      ind.style.transform = 'translateX(' + nx + 'px)';
+    }
+
+    function vaiPara(i, t) { var pos = posDaAba(i); setPos(pos[0], pos[1], t); }
 
     function setEscala(sx, sy, t) {
       blob.style.transition = t ? 'transform ' + t[0] + 'ms ' + t[1] : 'none';
@@ -156,8 +178,8 @@
     function deslizaPara(i, t) {
       naAba = i;
       pinta(i);
-      if (ind.classList.contains('is-hidden')) { setX(xDaAba(i)); mostra(true); return; }
-      setX(xDaAba(i), t);
+      if (ind.classList.contains('is-hidden')) { vaiPara(i); mostra(true); return; }
+      vaiPara(i, t);
     }
 
     function voltaPraAtual() {
@@ -181,17 +203,36 @@
       anterior = parseInt(sessionStorage.getItem(NAV_PREV_KEY), 10);
       sessionStorage.removeItem(NAV_PREV_KEY);
     } catch (e) {}
+    mede();
     if (atual < 0) {
       mostra(false);
       pinta(-1);
     } else if (anterior >= 0 && anterior < tabs.length && anterior !== atual) {
-      setX(xDaAba(anterior));
+      vaiPara(anterior);
       pinta(anterior);
       requestAnimationFrame(function () {
         requestAnimationFrame(function () { deslizaPara(atual, mola(380)); });
       });
     } else {
-      setX(xDaAba(atual));
+      vaiPara(atual);
+    }
+
+    // Remede quando a fonte carregar (muda a largura dos labels)
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(function () {
+        mede();
+        if ((p && p.arrastando) || naAba < 0) return;
+        // Se a bolha estiver deslizando, só corrige o destino (mantém a animação em andamento)
+        var pos = posDaAba(naAba);
+        if (ind.style.transition && ind.style.transition !== 'none') {
+          x = pos[0];
+          w = pos[1];
+          ind.style.width = w + 'px';
+          ind.style.transform = 'translateX(' + x + 'px)';
+        } else {
+          setPos(pos[0], pos[1]);
+        }
+      });
     }
 
     // ----- Arrasto (Pointer Events) -----
@@ -202,12 +243,13 @@
       clearTimeout(navTimer);
       try { pill.setPointerCapture(p.id); } catch (e) {}
       pill.classList.add('is-dragging');
-      if (ind.classList.contains('is-hidden')) { setX(xDaAba(p.aba)); mostra(true); }
-      setX(x);
+      if (ind.classList.contains('is-hidden')) { vaiPara(p.aba); mostra(true); }
+      setPos(x, w);
       p.xIni = x;
+      p.w = w;
       p.t0 = p.tAnt = performance.now();
       p.vel = 0;
-      p.quente = naAba;
+      p.quente = naAba >= 0 ? naAba : p.aba;
       p.raf = requestAnimationFrame(quadro);
     }
 
@@ -216,12 +258,14 @@
       // Nos primeiros 160ms a bolha "levanta" e vai até o dedo; depois segue o dedo direto
       var k = reduz.matches ? 1 : Math.min(1, (agora - p.t0) / 160);
       var e = 1 - Math.pow(1 - k, 3);
-      var alvo = limita(p.x - p.esq - largura() / 2);
+      // A largura acompanha suavemente a da aba que está sob a bolha
+      p.w = lerp(p.w, larguras[p.quente], 0.2);
+      var alvo = limita(p.x - p.esq - p.w / 2, p.w);
       var nx = lerp(p.xIni, alvo, e);
       var dt = Math.max(1, agora - p.tAnt);
       p.vel = p.vel * 0.75 + ((nx - x) / dt) * 0.25;     // px/ms suavizado (cai a 0 quando o dedo para)
       p.tAnt = agora;
-      setX(nx);
+      setPos(nx, p.w);
 
       if (!reduz.matches) {
         var v = Math.min(1, Math.abs(p.vel) / 1.2);       // 1.2 px/ms = velocidade alta
@@ -229,7 +273,7 @@
         setEscala(Math.min(1.3, lerp(1, 1.12, e) + 0.18 * v), Math.max(0.9, lerp(1, 1.18, e) - 0.28 * v));
       }
 
-      var q = abaNoX(nx);
+      var q = abaNoCentro(nx + p.w / 2);
       if (q !== p.quente) {
         p.quente = q;
         pinta(q);
@@ -244,7 +288,7 @@
       try { pill.releasePointerCapture(p.id); } catch (e) {}
       setEscala(1, 1, mola());                            // volta ao tamanho com um leve quique
       // Aba mais próxima de onde o dedo soltou (a bolha pode ainda estar a caminho dele)
-      var alvo = abaNoX(limita(p.x - p.esq - largura() / 2));
+      var alvo = abaNoCentro(Math.max(0, Math.min(pill.clientWidth, p.x - p.esq)));
       p = null;
       if (confirma) navega(alvo);
       else voltaPraAtual();
@@ -254,7 +298,7 @@
       if (p || (e.pointerType === 'mouse' && e.button !== 0)) return;
       var r = pill.getBoundingClientRect();
       p = { id: e.pointerId, x0: e.clientX, x: e.clientX, esq: r.left, arrastando: false };
-      p.aba = abaNoX(e.clientX - r.left - largura() / 2);
+      p.aba = abaNoCentro(e.clientX - r.left);
       p.segura = setTimeout(iniciaArrasto, 180);
     });
 
@@ -314,7 +358,8 @@
 
     window.addEventListener('resize', function () {
       if (p && p.arrastando) return;
-      if (naAba >= 0) setX(xDaAba(naAba));
+      mede();
+      if (naAba >= 0) vaiPara(naAba);
     });
 
     // Voltar pelo histórico (bfcache): restaura a bolha na aba desta página
@@ -323,7 +368,7 @@
       clearTimeout(navTimer);
       setEscala(1, 1);
       if (atual < 0) { mostra(false); pinta(-1); naAba = -1; }
-      else { naAba = atual; pinta(atual); setX(xDaAba(atual)); }
+      else { naAba = atual; pinta(atual); vaiPara(atual); }
     });
   }
 
@@ -378,6 +423,32 @@
       setOpen(!isOpen());
     });
     backdrop.addEventListener('click', function () { setOpen(false); });
+
+    // Toque num item: o tile acende na cor ativa por um instante e depois navega
+    bubble.addEventListener('pointerdown', function (e) {
+      var item = e.target.closest('.mnav-bubble-item');
+      if (item) item.classList.add('is-pressed');
+    });
+    ['pointerup', 'pointercancel', 'pointerleave'].forEach(function (tipo) {
+      bubble.addEventListener(tipo, function (e) {
+        var item = e.target.closest && e.target.closest('.mnav-bubble-item');
+        if (item && tipo !== 'pointerup') item.classList.remove('is-pressed');
+      });
+    });
+    bubble.addEventListener('click', function (e) {
+      var item = e.target.closest('.mnav-bubble-item');
+      if (!item || e.ctrlKey || e.metaKey || e.shiftKey) return;
+      e.preventDefault();
+      item.classList.add('is-pressed');
+      setTimeout(function () { window.location.href = item.getAttribute('href'); }, reduzMovimento.matches ? 0 : 160);
+    });
+
+    // Voltar pelo histórico (bfcache): balão fechado e sem item aceso
+    window.addEventListener('pageshow', function (e) {
+      if (!e.persisted) return;
+      bubble.querySelectorAll('.is-pressed').forEach(function (i) { i.classList.remove('is-pressed'); });
+      if (isOpen()) { setOpen(false); bubble.hidden = true; bubble.classList.remove('is-closing'); }
+    });
     document.addEventListener('keydown', function (e) {
       if (e.key === 'Escape' && isOpen()) { setOpen(false); btn.focus(); }
     });

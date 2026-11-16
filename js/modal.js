@@ -1,4 +1,4 @@
-// Modais (desktop) / bottom sheets (mobile).
+// Modais: card centralizado (desktop e mobile; no mobile com header/footer fixos e rolagem interna).
 // Estrutura: <div class="modal" hidden role="dialog" aria-modal="true" aria-labelledby="...">
 //              <div class="modal-card"> ... <button data-modal-close> ... </div>
 //            </div>
@@ -21,6 +21,101 @@
 
   function top() { return stack[stack.length - 1]; }
 
+  var mobile = window.matchMedia ? window.matchMedia('(max-width: 1023px)') : { matches: false };
+  var vv = window.visualViewport;
+
+  // ---------- Trava o scroll da página atrás (sem pular no iOS) ----------
+  var travaY = null;
+
+  function travaScroll() {
+    if (travaY !== null || !mobile.matches) return;
+    travaY = window.scrollY || window.pageYOffset || 0;
+    var s = document.body.style;
+    s.position = 'fixed';
+    s.top = -travaY + 'px';
+    s.left = '0';
+    s.right = '0';
+    s.width = '100%';
+  }
+
+  function destravaScroll() {
+    if (travaY === null) return;
+    var s = document.body.style;
+    s.position = s.top = s.left = s.right = s.width = '';
+    window.scrollTo(0, travaY);
+    travaY = null;
+  }
+
+  // ---------- Teclado do iPhone: card cabe na área visível e o campo focado aparece ----------
+  function campoVisivel(el) {
+    var a = document.activeElement;
+    if (!a || !el.contains(a) || !/^(INPUT|SELECT|TEXTAREA)$/.test(a.tagName)) return;
+    var card = el.querySelector('.modal-card');
+    if (!card || card.scrollHeight <= card.clientHeight) return;
+    var head = card.querySelector('.modal-head');
+    var acoes = card.querySelector('.modal-actions');
+    var c = card.getBoundingClientRect();
+    var r = a.getBoundingClientRect();
+    var topo = c.top + (head ? head.offsetHeight : 0) + 8;
+    var base = c.bottom - (acoes ? acoes.offsetHeight : 0) - 8;
+    if (r.top < topo) card.scrollTop -= topo - r.top;
+    else if (r.bottom > base) card.scrollTop += r.bottom - base;
+  }
+
+  function ajustaViewport() {
+    var t = top();
+    if (!t) return;
+    if (!vv || !mobile.matches) {
+      t.el.style.removeProperty('--vv-h');
+      t.el.style.removeProperty('--vv-top');
+      return;
+    }
+    t.el.style.setProperty('--vv-h', vv.height + 'px');
+    t.el.style.setProperty('--vv-top', vv.offsetTop + 'px');
+    campoVisivel(t.el);
+  }
+
+  if (vv) {
+    vv.addEventListener('resize', ajustaViewport);
+    vv.addEventListener('scroll', ajustaViewport);
+  }
+
+  document.addEventListener('focusin', function (e) {
+    var t = top();
+    if (!t || !t.el.contains(e.target)) return;
+    // espera o teclado terminar de abrir
+    setTimeout(function () { if (top() === t) campoVisivel(t.el); }, 300);
+  });
+
+  // ---------- Campo de data: placeholder "dd/mm/aaaa" quando vazio (Safari do iPhone mostra em branco) ----------
+  function syncData(inp) { inp.classList.toggle('is-empty', !inp.value); }
+
+  function preparaDatas(root) {
+    Array.prototype.forEach.call(root.querySelectorAll('input[type="date"].field-input'), function (inp) {
+      if (!inp.parentNode.classList.contains('date-wrap')) {
+        var wrap = document.createElement('span');
+        wrap.className = 'date-wrap';
+        inp.parentNode.insertBefore(wrap, inp);
+        wrap.appendChild(inp);
+        var ph = document.createElement('span');
+        ph.className = 'date-ph';
+        ph.setAttribute('aria-hidden', 'true');
+        ph.textContent = 'dd/mm/aaaa';
+        wrap.appendChild(ph);
+        ['input', 'change', 'blur', 'focus'].forEach(function (ev) {
+          inp.addEventListener(ev, function () { syncData(inp); });
+        });
+      }
+      syncData(inp);
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function () { preparaDatas(document); });
+  } else {
+    preparaDatas(document);
+  }
+
   function open(el, opts) {
     if (!el || stack.some(function (s) { return s.el === el; })) return;
     var entry = { el: el, opts: opts || {}, returnTo: document.activeElement };
@@ -28,6 +123,11 @@
     el.classList.remove('is-closing');
     el.hidden = false;
     document.body.classList.add('has-modal');
+    travaScroll();
+    preparaDatas(el);
+    ajustaViewport();
+    // o JS da página pode preencher a data logo depois de abrir
+    requestAnimationFrame(function () { preparaDatas(el); });
 
     var alvo = el.querySelector('[autofocus]') || focusables(el)[0];
     // espera o próximo frame para o elemento estar visível
@@ -40,10 +140,17 @@
     if (i === -1) return;
     var entry = stack.splice(i, 1)[0];
 
+    clearTimeout(entry.autoFecha);
+
     function done() {
       el.hidden = true;
       el.classList.remove('is-closing');
-      if (!stack.length) document.body.classList.remove('has-modal');
+      el.style.removeProperty('--vv-h');
+      el.style.removeProperty('--vv-top');
+      if (!stack.length) {
+        document.body.classList.remove('has-modal');
+        destravaScroll();
+      }
     }
 
     if (reduced()) done();
@@ -121,5 +228,17 @@
     el.querySelector('.btn').textContent = opts.botao || 'Concluir';
     el.querySelector('.modal-success').classList.toggle('is-compact', !!opts.compacto);
     open(el, { onClose: onDone });
+
+    // Mobile: fecha sozinho após 2s ou ao tocar em qualquer lugar
+    if (mobile.matches) {
+      var entry = stack[stack.length - 1];
+      entry.autoFecha = setTimeout(function () { close(el); }, 2000);
+      if (!el.dataset.tocaFecha) {
+        el.dataset.tocaFecha = '1';
+        el.addEventListener('click', function () {
+          if (mobile.matches && Modal.isOpen(el)) close(el);
+        });
+      }
+    }
   };
 })();
