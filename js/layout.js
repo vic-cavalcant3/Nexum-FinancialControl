@@ -25,7 +25,7 @@
   ];
 
   var MAIS = [
-    { id: 'planejamento', href: 'planejamento.html', label: 'Planejamento', icon: 'planejamento' },
+    { id: 'planejamento', href: 'planejamento.html', label: 'Planejamento', short: 'Planej.', icon: 'planejamento' },
     { id: 'consultor', href: 'consultor.html', label: 'Consultor IA', short: 'Consultor', icon: 'consultor' },
     { id: 'configuracoes', href: 'configuracoes.html', label: 'Config.', icon: 'config' },
     { id: 'dicas', href: 'dicas.html', label: 'Dicas', icon: 'dicas' }
