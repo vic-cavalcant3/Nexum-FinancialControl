@@ -33,6 +33,9 @@ public class JsonAccessDeniedHandler implements AccessDeniedHandler {
         response.setStatus(HttpStatus.FORBIDDEN.value());
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setCharacterEncoding("UTF-8");
-        objectMapper.writeValue(response.getWriter(), new ErroResponse("Acesso negado."));
+        String mensagem = request.getRequestURI().startsWith(request.getContextPath() + "/api/admin")
+                ? "Acesso restrito a administradores."
+                : "Acesso negado.";
+        objectMapper.writeValue(response.getWriter(), new ErroResponse(mensagem));
     }
 }

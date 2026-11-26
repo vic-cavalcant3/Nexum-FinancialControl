@@ -12,6 +12,7 @@ usa exatamente estes caminhos, parâmetros e nomes de campo.
 - [Transações](#transações-apitransacoes)
 - [Metas](#metas-apimetas)
 - [Orçamento](#orçamento-apiorcamentos)
+- [Admin](#admin-apiadmin)
 - [O que mudou em relação à API antiga (Node)](#o-que-mudou-em-relação-à-api-antiga-node)
 
 ## Convenções
@@ -19,7 +20,7 @@ usa exatamente estes caminhos, parâmetros e nomes de campo.
 | Assunto | Regra |
 |---|---|
 | Base | `/api`. Corpo sempre JSON (`Content-Type: application/json`). |
-| Autenticação | `Authorization: Bearer <token>` (o token vem do login). Só `/api/health`, `/api/auth/login` e `/api/auth/registrar` são públicas. |
+| Autenticação | `Authorization: Bearer <token>` (o token vem do login). Só `/api/health`, `/api/auth/login` e `/api/auth/registrar` são públicas. `/api/admin/**` exige papel `ADMIN`. |
 | Usuário logado | Vem **sempre** do token. Nenhuma rota aceita id de usuário do front. |
 | Dado de outro usuário | Ler, editar ou apagar um registro que não é seu → `404`, como se ele não existisse. |
 | Erros | Sempre `{ "erro": "mensagem em português" }`. |
@@ -51,10 +52,13 @@ Mensagens de validação comuns: `"Informe o nome da meta."`, `"O valor deve ser
 | PUT | `/auth/trocar-senha` | sim | `{ senha_atual, nova_senha }` | `200 { mensagem }` · `400 "Senha atual incorreta."` |
 
 ```json
-{ "id_usuario": 1, "nome": "Maria Silva", "email": "maria@exemplo.com" }
+{ "id_usuario": 1, "nome": "Maria Silva", "email": "maria@exemplo.com", "papel": "USER" }
 ```
 
 - E-mail é salvo em minúsculas. Senha: 6 a 72 caracteres, guardada com BCrypt.
+- `papel`: `"USER"` ou `"ADMIN"`. É ADMIN quem está em `ADMIN_EMAILS` (recalculado ao iniciar a
+  API e em todo cadastro, login e troca de e-mail).
+- O login grava o horário em `usuario.ultimo_acesso` (usado no painel de admin).
 - Token JWT com validade de `JWT_EXPIRATION_HOURS` (padrão 168 h = 7 dias). Guarda o id do
   usuário: trocar o e-mail não invalida o token.
 - 401 vem com o motivo: `"Autenticação necessária."`, `"Token inválido."`,
@@ -303,6 +307,82 @@ Planejamento mensal: um limite por categoria de despesa, por mês.
   - categoria de outro usuário: `404 "Categoria não encontrada."`.
 - Responde igual ao GET, já com os gastos.
 
+## Admin: `/api/admin`
+
+Só para usuários com `papel` `ADMIN` (variável `ADMIN_EMAILS`). Sem token: `401`.
+Logado como `USER`: `403 { "erro": "Acesso restrito a administradores." }`.
+Usado por `frontend/pages/admin.html`.
+
+| Método | Rota | Resposta |
+|---|---|---|
+| GET | `/admin/estatisticas` | `200` (abaixo) |
+| GET | `/admin/usuarios?busca=&pagina=0&tamanho=20` | `200` página de usuários |
+| DELETE | `/admin/usuarios/{id}` | `200 { "mensagem": "Usuário excluído." }` · `403` · `404 "Usuário não encontrado."` |
+
+### GET `/admin/estatisticas`
+
+```json
+{
+  "total_usuarios": 128,
+  "novos_ultimos_30_dias": 14,
+  "ativos_ultimos_7_dias": 37,
+  "total_transacoes": 5210,
+  "total_metas": 301,
+  "cadastros_por_mes": [
+    { "ano": 2025, "mes": 12, "total": 4 },
+    "... 12 itens, do mais antigo ao mês atual (mês sem cadastro vem com 0)",
+    { "ano": 2026, "mes": 11, "total": 9 }
+  ]
+}
+```
+
+- `novos_ultimos_30_dias`: `criado_em` nos últimos 30 dias.
+- `ativos_ultimos_7_dias`: fizeram login nos últimos 7 dias (`ultimo_acesso`).
+- `cadastros_por_mes`: meses no fuso `APP_TIMEZONE`.
+
+### GET `/admin/usuarios`
+
+| Parâmetro | Padrão | O que faz |
+|---|---|---|
+| `busca` | vazio (todos) | trecho do nome ou do e-mail, sem diferenciar maiúsculas. `%` e `_` são texto, não curinga. |
+| `pagina` | `0` | página, **começando em 0** (diferente de `/transacoes`, que começa em 1) |
+| `tamanho` | `20` | itens por página, de 1 a 100 |
+
+Ordem: cadastro mais recente primeiro.
+
+```json
+{
+  "usuarios": [
+    {
+      "id_usuario": 42,
+      "nome": "Maria Silva",
+      "email": "maria@exemplo.com",
+      "papel": "USER",
+      "criado_em": "2026-11-16T13:15:00Z",
+      "ultimo_acesso": "2026-11-20T09:02:11Z",
+      "qtd_transacoes": 87,
+      "qtd_metas": 3
+    }
+  ],
+  "pagina": 0,
+  "tamanho": 20,
+  "total": 128,
+  "total_paginas": 7
+}
+```
+
+- `ultimo_acesso` é `null` se a pessoa nunca fez login depois que a coluna foi criada.
+- Erros: `400 "A página começa em 0."`, `400 "O tamanho da página deve ser de 1 a 100."`.
+
+### DELETE `/admin/usuarios/{id}`
+
+Apaga o usuário e **todos** os dados dele (transações, metas, categorias próprias e orçamentos),
+numa única transação. A exclusão fica registrada no log da API (quem apagou e quem foi apagado).
+
+- O próprio admin: `403 "Você não pode excluir a sua própria conta."`
+- Outro admin: `403 "Não é possível excluir outro administrador."`
+- Depois de apagado, o token dessa pessoa passa a receber `401 "Usuário não encontrado."`.
+
 ## O que mudou em relação à API antiga (Node)
 
 O backend Node/Express + Prisma + MySQL foi apagado, mas continua no histórico do Git:
@@ -324,5 +404,5 @@ git show 9b07fe3:backend/src/controller/TransacaoController.js
 | Mês calculado no fuso do servidor | No fuso dos usuários (`APP_TIMEZONE`) |
 | Conta da transação, ícone da meta e orçamento só no navegador | Na API (`conta`, `icone`, `/orcamentos`). O front ainda usa o navegador como reserva para dados antigos. |
 | PUT aceitava qualquer campo do corpo (`req.body` direto no banco) | Só os campos do DTO, validados |
-| `/api/admin/*` (senha fixa + `ADMIN_EMAILS`) | Ainda não existe. O usuário já tem `papel` (`USER`/`ADMIN`) para isso. |
+| `/api/admin/*` (senha fixa + `ADMIN_EMAILS`) | Só papel `ADMIN` (definido por `ADMIN_EMAILS`), sem senha extra. Ver [Admin](#admin-apiadmin). |
 | Tabelas `divida`, `alerta`, `relatorio`, `planejamento_mensal` (sem rota) | Não existem. O orçamento por categoria substitui o `planejamento_mensal`. |

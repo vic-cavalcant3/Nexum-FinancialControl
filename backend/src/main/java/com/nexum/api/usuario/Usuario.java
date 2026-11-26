@@ -53,6 +53,10 @@ public class Usuario {
     @Column(name = "atualizado_em", nullable = false)
     private OffsetDateTime atualizadoEm;
 
+    /** Último login (migration V3). Gravado por UsuarioRepository.registrarAcesso. */
+    @Column(name = "ultimo_acesso")
+    private OffsetDateTime ultimoAcesso;
+
     /** Exigido pelo JPA. Use o outro construtor no código. */
     protected Usuario() {
     }
@@ -133,5 +137,9 @@ public class Usuario {
 
     public OffsetDateTime getAtualizadoEm() {
         return atualizadoEm;
+    }
+
+    public OffsetDateTime getUltimoAcesso() {
+        return ultimoAcesso;
     }
 }

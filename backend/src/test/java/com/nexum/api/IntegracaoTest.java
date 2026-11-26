@@ -43,7 +43,20 @@ public abstract class IntegracaoTest {
     static void propriedades(DynamicPropertyRegistry registry) {
         // Segredo aleatório a cada execução: nenhuma chave fica salva no código.
         registry.add("app.jwt.secret", () -> UUID.randomUUID() + "-" + UUID.randomUUID());
+        // Dois admins fixos para os testes do painel (AdminControllerTest).
+        registry.add("app.admin-emails", () -> ADMIN_1 + "," + ADMIN_2);
+
+        // Sem Docker: usa o Postgres de TEST_DB_URL (ver TestcontainersConfig).
+        String urlTeste = System.getenv("TEST_DB_URL");
+        if (urlTeste != null && !urlTeste.isBlank()) {
+            registry.add("spring.datasource.url", () -> urlTeste);
+            registry.add("spring.datasource.username", () -> System.getenv().getOrDefault("TEST_DB_USER", "postgres"));
+            registry.add("spring.datasource.password", () -> System.getenv().getOrDefault("TEST_DB_PASSWORD", ""));
+        }
     }
+
+    protected static final String ADMIN_1 = "admin1-teste@nexum.app";
+    protected static final String ADMIN_2 = "admin2-teste@nexum.app";
 
     @Autowired
     protected MockMvc mockMvc;
@@ -59,9 +72,29 @@ public abstract class IntegracaoTest {
 
     /** Cadastra um usuário novo e devolve o token dele. */
     protected String novoUsuario() throws Exception {
-        String email = emailNovo();
-        enviar(post("/api/auth/registrar"), null, mapa("nome", "Usuário Teste", "email", email, "senha", SENHA))
+        return cadastrarELogar(emailNovo(), "Usuário Teste");
+    }
+
+    /**
+     * Token de um admin fixo (ADMIN_1 / ADMIN_2). O e-mail é sempre o mesmo, então o cadastro
+     * só acontece na primeira vez (409 nas seguintes é esperado).
+     */
+    protected String tokenAdmin(String email) throws Exception {
+        int status = enviar(post("/api/auth/registrar"), null, mapa("nome", "Admin Teste", "email", email, "senha", SENHA))
+                .andReturn().getResponse().getStatus();
+        if (status != 201 && status != 409) {
+            throw new IllegalStateException("Cadastro do admin de teste falhou: HTTP " + status);
+        }
+        return login(email);
+    }
+
+    protected String cadastrarELogar(String email, String nome) throws Exception {
+        enviar(post("/api/auth/registrar"), null, mapa("nome", nome, "email", email, "senha", SENHA))
                 .andExpect(status().isCreated());
+        return login(email);
+    }
+
+    protected String login(String email) throws Exception {
         String corpo = enviar(post("/api/auth/login"), null, mapa("email", email, "senha", SENHA))
                 .andExpect(status().isOk())
                 .andReturn().getResponse().getContentAsString();

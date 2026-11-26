@@ -9,6 +9,7 @@ Docker em desenvolvimento), **Flyway** para as migrations e **JWT** para autenti
 - [Pré-requisitos](#pré-requisitos)
 - [Rodar local](#rodar-local)
 - [Testes](#testes)
+- [Administradores (ADMIN_EMAILS)](#administradores-admin_emails)
 - [Rotas prontas](#rotas-prontas)
 - [Banco e migrations](#banco-e-migrations)
 - [Deploy no Render](#deploy-no-render)
@@ -29,8 +30,9 @@ backend/
     │   ├── security/       # JWT: JwtService, JwtAuthFilter, UsuarioDetailsService
     │   ├── common/         # erros ({ "erro": ... }), health, DTOs comuns
     │   ├── auth/           # registrar, login, me, perfil, trocar senha
-    │   ├── usuario/        # entidade Usuario + repository
-    │   └── transacao/, categoria/, meta/, orcamento/   # próximas etapas
+    │   ├── usuario/        # entidade Usuario, repository e PapelService (ADMIN_EMAILS)
+    │   ├── admin/          # painel de admin: estatísticas, lista e exclusão de usuários
+    │   └── transacao/, categoria/, meta/, orcamento/
     ├── main/resources/
     │   ├── application.yml # configuração (lê tudo de variáveis de ambiente)
     │   └── db/migration/   # V1__..., V2__... (Flyway)
@@ -117,6 +119,30 @@ Os testes sobem a aplicação inteira e um **Postgres 16 descartável** em conta
 (Testcontainers), rodam as migrations e testam as rotas. Precisa do Docker rodando, mas não
 precisa do `.env` nem do `docker compose up`. O `JWT_SECRET` dos testes é gerado na hora.
 
+**Sem Docker?** Aponte os testes para um Postgres 16 que você já tenha rodando, num banco
+**só de teste** (os testes gravam dados nele):
+
+```bash
+TEST_DB_URL=jdbc:postgresql://localhost:5432/nexum_test TEST_DB_USER=postgres TEST_DB_PASSWORD=senha ./mvnw test
+```
+
+Com `TEST_DB_URL` definido o container não sobe. O banco pode ser reaproveitado entre execuções.
+
+## Administradores (`ADMIN_EMAILS`)
+
+O painel `frontend/pages/admin.html` (sem link no menu, acesso só pela URL) usa as rotas
+`/api/admin/**`, liberadas só para o papel `ADMIN`.
+
+- Cadastre a variável `ADMIN_EMAILS` com os e-mails dos admins, separados por vírgula
+  (ex.: `ADMIN_EMAILS=fulano@exemplo.com,ciclana@exemplo.com`).
+- Ao **iniciar a API**, quem está na lista vira `ADMIN` e os outros voltam a `USER`. O papel
+  também é recalculado em todo **cadastro**, **login** e troca de e-mail no perfil.
+- O login e o `GET /api/auth/me` devolvem `"papel": "USER" | "ADMIN"` dentro do `usuario`.
+- Para tirar o acesso de alguém: remova o e-mail da lista e reinicie a API.
+- O e-mail não é verificado no cadastro: coloque na lista só e-mails que **já têm conta**
+  (ou crie a conta antes de adicionar), para ninguém se cadastrar com ele antes.
+- Toda exclusão feita pelo painel fica no log da API (`Admin X (id N) excluiu o usuário Y...`).
+
 ## Rotas prontas
 
 A referência completa (parâmetros, corpos, respostas e erros) está em [`API.md`](API.md).
@@ -129,6 +155,7 @@ A referência completa (parâmetros, corpos, respostas e erros) está em [`API.m
 | Transações | `GET` (filtros e paginação), `POST /api/transacoes` · `GET`, `PUT`, `DELETE /api/transacoes/{id}` · `GET /api/transacoes/resumo` · `GET /api/transacoes/relatorio` |
 | Metas | `GET`, `POST /api/metas` · `GET`, `PUT`, `DELETE /api/metas/{id}` |
 | Orçamento | `GET /api/orcamentos?mes&ano` · `PUT /api/orcamentos` |
+| Admin (só `ADMIN`) | `GET /api/admin/estatisticas` · `GET /api/admin/usuarios` · `DELETE /api/admin/usuarios/{id}` |
 
 - Fora health, login e registro, tudo exige o header `Authorization: Bearer <token>`.
   Sem token, ou com token inválido ou vencido: `401`.
@@ -194,6 +221,7 @@ O Flyway cria as tabelas no Neon sozinho no primeiro deploy.
    | `JWT_EXPIRATION_HOURS` | `168` (opcional) |
    | `CORS_ORIGINS` | `https://nexumweb.onrender.com` (URL do front, sem barra no final) |
    | `APP_TIMEZONE` | `America/Sao_Paulo` (opcional; é o padrão. O servidor do Render roda em UTC) |
+   | `ADMIN_EMAILS` | e-mails dos administradores, separados por vírgula (ex.: `fulano@exemplo.com,ciclana@exemplo.com`) |
 
    **Não** cadastre `PORT`: o Render define sozinho e a API usa.
 

@@ -1,5 +1,8 @@
 package com.nexum.api.auth;
 
+import java.time.Clock;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.Locale;
 
 import org.springframework.dao.DataIntegrityViolationException;
@@ -24,6 +27,7 @@ import com.nexum.api.common.RecursoNaoEncontradoException;
 import com.nexum.api.common.RequisicaoInvalidaException;
 import com.nexum.api.security.JwtService;
 import com.nexum.api.security.UsuarioAutenticado;
+import com.nexum.api.usuario.PapelService;
 import com.nexum.api.usuario.Usuario;
 import com.nexum.api.usuario.UsuarioRepository;
 
@@ -41,13 +45,18 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
+    private final PapelService papelService;
+    private final Clock clock;
 
     public AuthService(UsuarioRepository usuarioRepository, PasswordEncoder passwordEncoder,
-                       AuthenticationManager authenticationManager, JwtService jwtService) {
+                       AuthenticationManager authenticationManager, JwtService jwtService,
+                       PapelService papelService, Clock clock) {
         this.usuarioRepository = usuarioRepository;
         this.passwordEncoder = passwordEncoder;
         this.authenticationManager = authenticationManager;
         this.jwtService = jwtService;
+        this.papelService = papelService;
+        this.clock = clock;
     }
 
     @Transactional
@@ -58,6 +67,7 @@ public class AuthService {
         }
 
         Usuario usuario = new Usuario(dados.nome().trim(), email, passwordEncoder.encode(dados.senha()));
+        papelService.aplicar(usuario);
         try {
             usuarioRepository.saveAndFlush(usuario);
         } catch (DataIntegrityViolationException e) {
@@ -67,7 +77,7 @@ public class AuthService {
         return UsuarioResponse.de(usuario);
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public LoginResponse login(LoginRequest dados) {
         Authentication autenticacao;
         try {
@@ -82,7 +92,10 @@ public class AuthService {
 
         UsuarioAutenticado logado = (UsuarioAutenticado) autenticacao.getPrincipal();
         Usuario usuario = buscar(logado.id());
-        return new LoginResponse(jwtService.gerarToken(logado), UsuarioResponse.de(usuario));
+        // ADMIN_EMAILS pode ter mudado desde o cadastro: recalcula o papel a cada login.
+        papelService.aplicar(usuario);
+        usuarioRepository.registrarAcesso(usuario.getId(), OffsetDateTime.now(clock).withOffsetSameInstant(ZoneOffset.UTC));
+        return new LoginResponse(jwtService.gerarToken(UsuarioAutenticado.de(usuario)), UsuarioResponse.de(usuario));
     }
 
     @Transactional(readOnly = true)
@@ -101,6 +114,7 @@ public class AuthService {
 
         usuario.setNome(dados.nome().trim());
         usuario.setEmail(email);
+        papelService.aplicar(usuario);
         try {
             usuarioRepository.saveAndFlush(usuario);
         } catch (DataIntegrityViolationException e) {
