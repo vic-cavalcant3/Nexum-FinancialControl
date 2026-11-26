@@ -397,6 +397,51 @@
     campos.forEach(function (c) { if (Object.prototype.hasOwnProperty.call(body, c)) alvo[c] = body[c]; });
   }
 
+  // No mock o usuário logado é ADMIN (para testar pages/admin.html sem backend).
+  function usuarioOut() {
+    var u = clone(db.usuario);
+    u.papel = 'ADMIN';
+    return u;
+  }
+
+  // ---- Admin: ~25 usuários falsos, criados uma vez e salvos com o resto do mock ----
+  var NOMES_ADMIN = [
+    'Ana Beatriz Souza', 'Bruno Carvalho', 'Camila Ferreira', 'Diego Martins', 'Eduarda Lima',
+    'Felipe Rocha', 'Gabriela Nunes', 'Henrique Alves', 'Isabela Costa', 'João Pedro Ramos',
+    'Larissa Mendes', 'Marcos Vinícius Dias', 'Natália Ribeiro', 'Otávio Barbosa', 'Paula Teixeira',
+    'Rafael Gomes', 'Sabrina Lopes', 'Thiago Moreira', 'Vanessa Pires', 'William Araújo',
+    'Yasmin Cardoso', 'Lucas Oliveira', 'Mariana Castro', 'Pedro Henrique Silva'
+  ];
+  function adminUsuarios() {
+    if (db.adminUsuarios) return db.adminUsuarios;
+    var agora = Date.now(), DIA = 86400000, lista = [];
+    lista.push({
+      id_usuario: db.usuario.id_usuario, nome: db.usuario.nome, email: db.usuario.email, papel: 'ADMIN',
+      criado_em: new Date(agora - 330 * DIA).toISOString(), ultimo_acesso: new Date(agora - 600000).toISOString(),
+      qtd_transacoes: db.transacoes.length, qtd_metas: db.metas.length
+    });
+    NOMES_ADMIN.forEach(function (nome, i) {
+      var partes = semAcentoMock(nome).toLowerCase().split(' ');
+      var diasCadastro = Math.round(i * 13.7 + (i % 3) * 4);           // espalhado pelos últimos ~11 meses
+      var diasAcesso = [0, 1, 2, 3, 5, 9, 15, 26, 40, null][i % 10];   // alguns nunca entraram
+      lista.push({
+        id_usuario: 100 + i,
+        nome: nome,
+        email: partes[0] + '.' + partes[partes.length - 1] + (i % 4 === 0 ? '@gmail.com' : '@exemplo.com'),
+        papel: i === 6 ? 'ADMIN' : 'USER',
+        criado_em: new Date(agora - diasCadastro * DIA - i * 3600000).toISOString(),
+        ultimo_acesso: diasAcesso == null || diasAcesso > diasCadastro ? null
+          : new Date(agora - diasAcesso * DIA - (i + 1) * 1800000).toISOString(),
+        qtd_transacoes: (i * 37) % 140,
+        qtd_metas: i % 5
+      });
+    });
+    db.adminUsuarios = lista;
+    save();
+    return lista;
+  }
+  function semAcentoMock(s) { return String(s).normalize('NFD').replace(/[̀-ͯ]/g, ''); }
+
   function handle(method, path, query, body) {
     var m;
 
@@ -404,15 +449,18 @@
     if (method === 'POST' && path === '/auth/login') {
       if (!body.email || !body.senha) erro('E-mail ou senha inválidos');
       // Token falso: só para o front ter o que salvar ('nexum_token'). O mock não confere.
-      return { token: 'mock-token.' + Date.now(), usuario: clone(db.usuario) };
+      return { token: 'mock-token.' + Date.now(), usuario: usuarioOut() };
     }
     if (method === 'POST' && path === '/auth/registrar') {
-      return { usuario: clone(db.usuario) };
+      return { usuario: usuarioOut() };
+    }
+    if (method === 'GET' && path === '/auth/me') {
+      return usuarioOut();
     }
     if (method === 'PUT' && path === '/auth/perfil') {
       aplicar(db.usuario, body, ['nome', 'email']);
       save();
-      return clone(db.usuario);
+      return usuarioOut();
     }
     if (method === 'PUT' && path === '/auth/trocar-senha') {
       if (!body.senha_atual) erro('Senha atual incorreta.');
@@ -622,20 +670,52 @@
       return orcamentoDoMes(body.mes, body.ano);
     }
 
-    // ---- Admin ----
-    if (method === 'POST' && path === '/admin/verificar-senha') {
-      if (!body.senha) erro('Senha incorreta.');
-      return { ok: true };
+    // ---- Admin (mesmo formato da API Java; o usuário do mock é ADMIN) ----
+    if (method === 'GET' && path === '/admin/estatisticas') {
+      var lista = adminUsuarios(), agoraA = Date.now(), DIA = 86400000;
+      var hojeA = new Date(), porMes = [];
+      for (var i = 11; i >= 0; i--) {
+        var ref = new Date(hojeA.getFullYear(), hojeA.getMonth() - i, 1);
+        porMes.push({ ano: ref.getFullYear(), mes: ref.getMonth() + 1, total: 0 });
+      }
+      var tx = 0, mt = 0;
+      lista.forEach(function (u) {
+        tx += u.qtd_transacoes; mt += u.qtd_metas;
+        var d = new Date(u.criado_em);
+        porMes.forEach(function (p) { if (p.ano === d.getFullYear() && p.mes === d.getMonth() + 1) p.total++; });
+      });
+      return {
+        total_usuarios: lista.length,
+        novos_ultimos_30_dias: lista.filter(function (u) { return agoraA - new Date(u.criado_em) <= 30 * DIA; }).length,
+        ativos_ultimos_7_dias: lista.filter(function (u) { return u.ultimo_acesso && agoraA - new Date(u.ultimo_acesso) <= 7 * DIA; }).length,
+        total_transacoes: tx,
+        total_metas: mt,
+        cadastros_por_mes: porMes
+      };
     }
     if (method === 'GET' && path === '/admin/usuarios') {
-      return [{
-        id_usuario: db.usuario.id_usuario, nome: db.usuario.nome, email: db.usuario.email,
-        telefone: null, ativo: true, criado_em: new Date().toISOString(),
-        _count: { transacoes: db.transacoes.length, metas: db.metas.length }
-      }];
+      var pagina = query.pagina != null ? Number(query.pagina) : 0;
+      var tamanho = query.tamanho != null ? Number(query.tamanho) : 20;
+      if (!(pagina >= 0)) erro('A página começa em 0.');
+      if (!(tamanho >= 1 && tamanho <= 100)) erro('O tamanho da página deve ser de 1 a 100.');
+      var termo = String(query.busca || '').trim().toLowerCase();
+      var achados = adminUsuarios().filter(function (u) {
+        return !termo || u.nome.toLowerCase().indexOf(termo) !== -1 || u.email.indexOf(termo) !== -1;
+      }).sort(function (a, b) { return new Date(b.criado_em) - new Date(a.criado_em) || b.id_usuario - a.id_usuario; });
+      return {
+        usuarios: clone(achados.slice(pagina * tamanho, (pagina + 1) * tamanho)),
+        pagina: pagina, tamanho: tamanho, total: achados.length,
+        total_paginas: Math.ceil(achados.length / tamanho)
+      };
     }
-    if (path.match(/^\/admin\/usuarios\/\d+$/) && method === 'DELETE') {
-      erro('Você não pode apagar sua própria conta de admin por aqui.');
+    if (method === 'DELETE' && (m = path.match(/^\/admin\/usuarios\/(\d+)$/))) {
+      var idA = Number(m[1]), listaA = adminUsuarios(), iA = porId(listaA, 'id_usuario', idA);
+      if (idA === db.usuario.id_usuario) erro('Você não pode excluir a sua própria conta.');
+      if (iA === -1) erro('Usuário não encontrado.');
+      if (listaA[iA].papel === 'ADMIN') erro('Não é possível excluir outro administrador.');
+      listaA.splice(iA, 1);
+      save();
+      return { mensagem: 'Usuário excluído.' };
     }
 
     erro('Rota não encontrada no mock: ' + method + ' ' + path);

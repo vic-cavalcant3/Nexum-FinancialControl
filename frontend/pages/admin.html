@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="light dark">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Painel do administrador — Nexum</title>
+  <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
+  <script src="../js/theme.js"></script>
+  <script src="../js/api.js"></script>
+  <script src="../js/mock.js"></script>
+  <script>
+    // Sem login: vai para o login. Papel conhecido e diferente de ADMIN: volta para o app.
+    // (A confirmação de verdade vem do servidor: GET /auth/me e o 403 das rotas /admin.)
+    redirecionarSeNaoLogado();
+    (function () {
+      var u = getUsuario();
+      if (u && u.papel && u.papel !== 'ADMIN') window.location.replace('dashboard.html');
+    })();
+  </script>
+  <link rel="stylesheet" href="../styles/base/tokens.css">
+  <link rel="stylesheet" href="../styles/base/reset.css">
+  <link rel="stylesheet" href="../styles/base/components.css">
+  <link rel="stylesheet" href="../styles/pages/dashboard.css">
+  <link rel="stylesheet" href="../styles/pages/admin.css">
+</head>
+<body>
+  <header class="adm-bar">
+    <div class="adm-bar-in">
+      <a class="adm-brand" href="dashboard.html">
+        <img src="../assets/logo/logo-48.svg" width="32" height="32" alt="">
+        <span>Nexum</span>
+      </a>
+      <h1 class="adm-title">Painel do administrador</h1>
+      <div class="adm-bar-actions">
+        <a class="btn btn-secondary adm-back" href="dashboard.html">Voltar ao app</a>
+        <button type="button" class="adm-logout" id="adm-sair" aria-label="Sair"></button>
+      </div>
+    </div>
+  </header>
+
+  <main class="adm" id="adm">
+    <div class="load-alert" id="adm-stats-erro" role="alert" hidden>
+      <span>Não foi possível carregar as estatísticas.</span>
+      <button type="button" id="adm-stats-retry">Tentar de novo</button>
+    </div>
+
+    <div class="adm-stats" aria-label="Resumo">
+      <div class="dstat">
+        <span class="dstat-label">Usuários</span>
+        <span class="dstat-value" data-stat="total_usuarios"></span>
+      </div>
+      <div class="dstat">
+        <span class="dstat-label">Novos em 30 dias</span>
+        <span class="dstat-value" data-stat="novos_ultimos_30_dias"></span>
+      </div>
+      <div class="dstat">
+        <span class="dstat-label">Ativos em 7 dias</span>
+        <span class="dstat-value" data-stat="ativos_ultimos_7_dias"></span>
+      </div>
+      <div class="dstat">
+        <span class="dstat-label">Transações</span>
+        <span class="dstat-value" data-stat="total_transacoes"></span>
+      </div>
+    </div>
+
+    <section class="dcard adm-chart">
+      <h2 class="dcard-title">Cadastros por mês</h2>
+      <div class="flow adm-flow" id="adm-flow"></div>
+    </section>
+
+    <section class="dcard adm-users">
+      <div class="dcard-head">
+        <h2 class="dcard-title">Usuários</h2>
+        <span class="adm-count" id="adm-count"></span>
+      </div>
+
+      <label class="search-box adm-search">
+        <span class="adm-search-ic" aria-hidden="true"></span>
+        <span class="sr-only">Buscar por nome ou e-mail</span>
+        <input type="search" id="adm-busca" placeholder="Buscar por nome ou e-mail" autocomplete="off">
+      </label>
+
+      <div class="load-alert" id="adm-lista-erro" role="alert" hidden>
+        <span>Não foi possível carregar os usuários.</span>
+        <button type="button" id="adm-lista-retry">Tentar de novo</button>
+      </div>
+
+      <!-- Desktop: tabela -->
+      <div class="adm-table-wrap">
+        <table class="adm-table">
+          <thead>
+            <tr>
+              <th scope="col">Usuário</th>
+              <th scope="col">Papel</th>
+              <th scope="col">Cadastro</th>
+              <th scope="col">Último acesso</th>
+              <th scope="col" class="is-num">Transações</th>
+              <th scope="col" class="is-num">Metas</th>
+              <th scope="col"><span class="sr-only">Ações</span></th>
+            </tr>
+          </thead>
+          <tbody id="adm-tbody"></tbody>
+        </table>
+      </div>
+
+      <!-- Mobile: cards -->
+      <ul class="adm-cards" id="adm-cards"></ul>
+
+      <p class="empty-state" id="adm-vazio" hidden></p>
+
+      <nav class="adm-pager" id="adm-pager" aria-label="Paginação" hidden>
+        <button type="button" class="btn btn-secondary" id="adm-prev">Anterior</button>
+        <span class="adm-pager-info" id="adm-pager-info"></span>
+        <button type="button" class="btn btn-secondary" id="adm-next">Próxima</button>
+      </nav>
+    </section>
+  </main>
+
+  <!-- Modal: excluir usuário -->
+  <div class="modal" id="modal-excluir-usuario" hidden role="dialog" aria-modal="true" aria-labelledby="mx-titulo">
+    <form class="modal-card" id="form-excluir-usuario" novalidate>
+      <div class="modal-head">
+        <h2 class="modal-title" id="mx-titulo">Excluir usuário</h2>
+        <button type="button" class="modal-close" data-modal-close aria-label="Fechar"></button>
+      </div>
+      <p class="modal-desc">
+        Isso apaga <strong id="mx-nome"></strong> e todos os dados dele (transações, metas, categorias e orçamentos) de forma permanente.
+        Para confirmar, digite o e-mail <strong id="mx-email"></strong>.
+      </p>
+      <label class="field">
+        <span class="sr-only">Digite o e-mail do usuário</span>
+        <input class="field-input" id="mx-conf" type="email" autocomplete="off" autocapitalize="off" spellcheck="false">
+      </label>
+      <p class="field-error" id="mx-erro" role="alert" hidden></p>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-secondary" data-modal-close>Cancelar</button>
+        <button type="submit" class="btn btn-secondary btn-danger-text" id="mx-ok" disabled>Excluir usuário</button>
+      </div>
+    </form>
+  </div>
+
+  <script src="../js/icons.js"></script>
+  <script src="../js/util.js"></script>
+  <script src="../js/modal.js"></script>
+  <script src="../js/toast.js"></script>
+  <script src="../js/pages/admin.js"></script>
+</body>
+</html>

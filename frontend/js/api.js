@@ -123,7 +123,9 @@ const Auth = {
   trocarSenha: (senha_atual, nova_senha) => apiFetch('/auth/trocar-senha', {
     method: 'PUT',
     body: JSON.stringify({ senha_atual, nova_senha })
-  })
+  }),
+  // { id_usuario, nome, email, papel } do dono do token
+  me: () => apiFetch('/auth/me')
 };
 
 // Transações
@@ -163,16 +165,6 @@ const Categorias = {
   deletar: (id) => apiFetch(`/categorias/${id}`, { method: 'DELETE' })
 };
 
-// Admin
-const Admin = {
-  verificarSenha: (senha) => apiFetch('/admin/verificar-senha', {
-    method: 'POST',
-    body: JSON.stringify({ senha })
-  }),
-  listarUsuarios: () => apiFetch('/admin/usuarios'),
-  deletarUsuario: (id) => apiFetch(`/admin/usuarios/${id}`, { method: 'DELETE' })
-};
-
 // Orçamento mensal por categoria (tela Planejamento)
 const Orcamentos = {
   // { mes, ano, herdado, total_orcado, total_gasto, categorias: [{ categoria_id, nome, limite, gasto, ... }] }
@@ -190,4 +182,16 @@ const Metas = {
   criar: (dados) => apiFetch('/metas', { method: 'POST', body: JSON.stringify(dados) }),
   atualizar: (id, dados) => apiFetch(`/metas/${id}`, { method: 'PUT', body: JSON.stringify(dados) }),
   deletar: (id) => apiFetch(`/metas/${id}`, { method: 'DELETE' })
+};
+
+// Painel de admin (pages/admin.html). Só papel ADMIN; USER recebe 403.
+const Admin = {
+  // { total_usuarios, novos_ultimos_30_dias, ativos_ultimos_7_dias, total_transacoes, total_metas, cadastros_por_mes: [{ ano, mes, total }] }
+  estatisticas: () => apiFetch('/admin/estatisticas'),
+  // params: { busca, pagina (a partir de 0), tamanho } -> { usuarios, pagina, tamanho, total, total_paginas }
+  listarUsuarios: (params = {}) => {
+    const q = new URLSearchParams(params).toString();
+    return apiFetch(`/admin/usuarios${q ? '?' + q : ''}`);
+  },
+  excluirUsuario: (id) => apiFetch(`/admin/usuarios/${id}`, { method: 'DELETE' })
 };
