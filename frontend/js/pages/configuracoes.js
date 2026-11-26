@@ -93,6 +93,7 @@
   var modalSenha = $('modal-senha');
   $('cf-senha').addEventListener('click', function () {
     $('form-senha').reset();
+    $('sn-usuario').value = (getUsuario() || {}).email || '';
     erro($('sn-erro'));
     foco($('sn-atual'));
     Modal.open(modalSenha);

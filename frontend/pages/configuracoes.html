@@ -161,6 +161,9 @@
         <h2 class="modal-title" id="modal-senha-t">Alterar senha</h2>
         <button type="button" class="modal-close" data-modal-close aria-label="Fechar"></button>
       </div>
+      <!-- Oculto: diz ao navegador/gerenciador de senhas de qual conta é a senha -->
+      <input type="email" id="sn-usuario" autocomplete="username" hidden tabindex="-1" aria-hidden="true">
+
       <label class="field">
         <span class="field-label">Senha atual</span>
         <input class="field-input" id="sn-atual" type="password" autocomplete="current-password" required>
