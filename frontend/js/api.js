@@ -151,8 +151,10 @@ const Transacoes = {
 };
 
 // Categorias
+// Categoria: { id, usuario_id, nome, tipo, icone, descricao, padrao }
 const Categorias = {
   listar: () => apiFetch('/categorias'),
+  // criar({ nome, tipo, icone, descricao }) ou criar(nome, tipo, icone)
   criar: (nomeOuObj, tipo, icone) => {
     const dados = typeof nomeOuObj === 'object'
       ? nomeOuObj
@@ -162,6 +164,12 @@ const Categorias = {
       body: JSON.stringify(dados)
     });
   },
+  // dados: { nome, descricao, icone } (o tipo não muda). 403 padrão · 404 · 409 nome repetido
+  atualizar: (id, dados) => apiFetch(`/categorias/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(dados)
+  }),
+  // 409 se houver transações usando a categoria
   deletar: (id) => apiFetch(`/categorias/${id}`, { method: 'DELETE' })
 };
 

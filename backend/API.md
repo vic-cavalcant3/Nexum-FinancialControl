@@ -69,20 +69,32 @@ Mensagens de validação comuns: `"Informe o nome da meta."`, `"O valor deve ser
 | Método | Rota | Corpo | Resposta |
 |---|---|---|---|
 | GET | `/categorias` | n/a | `200 [Categoria]`: as padrão + as do usuário, por nome |
-| POST | `/categorias` | `{ nome, tipo, icone? }` | `201 Categoria` · `409` nome repetido |
+| POST | `/categorias` | `{ nome, tipo, icone?, descricao? }` | `201 Categoria` · `409` nome repetido |
+| PUT | `/categorias/{id}` | `{ nome, descricao?, icone? }` | `200 Categoria` · `403` padrão · `404` · `409` nome repetido |
 | DELETE | `/categorias/{id}` | n/a | `200 { mensagem: "Categoria removida." }` |
 
 ```json
-{ "id": 3, "usuario_id": null, "nome": "Alimentação", "tipo": "despesa", "icone": "utensils", "padrao": true }
+{ "id": 3, "usuario_id": null, "nome": "Alimentação", "tipo": "despesa", "icone": "utensils", "descricao": null, "padrao": true }
 ```
 
 - `usuario_id: null` / `padrao: true` = categoria padrão (vem da migration V2).
+- `descricao`: opcional, até 60 caracteres (migration V4). `""` ou só espaços vira `null`.
+  As padrão vêm com `null` (o front usa textos próprios para elas).
+- `icone`: chave do desenho no front. Além das padrão, o modal "Nova categoria" usa
+  `home`, `cart`, `car`, `film`, `heart`, `book`, `dumbbell`, `paw`, `plane`, `gift`,
+  `phone`, `shirt`, `coffee`, `briefcase`, `trending-up`, `dots`.
 - **POST:** `409 "Você já tem uma categoria com esse nome e tipo."` também quando o nome é
   igual ao de uma padrão (sem diferenciar maiúsculas). Mesmo nome em outro tipo pode.
+- **PUT:** troca nome, descrição e ícone (o **tipo não muda**; `descricao`/`icone` ausentes ou
+  vazios ficam `null`). Erros:
+  - padrão: `403 "Categorias padrão não podem ser editadas."`;
+  - de outro usuário ou inexistente: `404 "Categoria não encontrada."`;
+  - nome igual ao de outra categoria do mesmo tipo (dele ou padrão): `409 "Você já tem uma categoria com esse nome e tipo."`.
+    Manter o próprio nome (até mudando maiúsculas) pode.
 - **DELETE:**
   - padrão: `403 "Categorias padrão não podem ser excluídas."`;
   - de outro usuário: `404 "Categoria não encontrada."`;
-  - com transações: `409 "Não dá para excluir a categoria \"Pets\": 3 transações usam ela. Troque a categoria dessas transações ou exclua-as antes."`;
+  - com transações: `409 "Essa categoria tem transações. Mova ou apague as transações antes."`;
   - os limites de orçamento da categoria são apagados junto.
 - Atenção: a chave da categoria se chama `id` (e não `id_categoria`).
 

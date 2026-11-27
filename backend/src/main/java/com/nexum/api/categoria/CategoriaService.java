@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.nexum.api.categoria.dto.CategoriaAtualizarRequest;
 import com.nexum.api.categoria.dto.CategoriaRequest;
 import com.nexum.api.categoria.dto.CategoriaResponse;
 import com.nexum.api.common.ApiException;
@@ -22,6 +23,8 @@ import com.nexum.api.common.TipoTransacao;
 public class CategoriaService {
 
     static final String NAO_ENCONTRADA = "Categoria não encontrada.";
+    static final String NOME_REPETIDO = "Você já tem uma categoria com esse nome e tipo.";
+    static final String EM_USO = "Essa categoria tem transações. Mova ou apague as transações antes.";
 
     private final CategoriaRepository categoriaRepository;
 
@@ -41,17 +44,44 @@ public class CategoriaService {
 
         // Bloqueia também nome igual a uma categoria padrão ("Lazer" duas vezes na lista confunde).
         if (categoriaRepository.existeVisivel(usuarioId, nome, tipo)) {
-            throw new ConflitoException("Você já tem uma categoria com esse nome e tipo.");
+            throw new ConflitoException(NOME_REPETIDO);
         }
 
-        String icone = dados.icone() == null || dados.icone().isBlank() ? null : dados.icone().trim();
-        Categoria categoria = new Categoria(usuarioId, nome, tipo, icone);
+        Categoria categoria = new Categoria(usuarioId, nome, tipo, textoOpcional(dados.icone()),
+                textoOpcional(dados.descricao()));
         try {
             categoriaRepository.saveAndFlush(categoria);
         } catch (DataIntegrityViolationException e) {
-            throw new ConflitoException("Você já tem uma categoria com esse nome e tipo.");
+            throw new ConflitoException(NOME_REPETIDO);
         }
         return CategoriaResponse.de(categoria);
+    }
+
+    /** Edita nome, descrição e ícone de uma categoria do próprio usuário. */
+    @Transactional
+    public CategoriaResponse atualizar(Long usuarioId, Long categoriaId, CategoriaAtualizarRequest dados) {
+        Categoria categoria = buscarVisivel(usuarioId, categoriaId);
+        if (categoria.isPadrao()) {
+            throw new ApiException(HttpStatus.FORBIDDEN, "Categorias padrão não podem ser editadas.");
+        }
+
+        String nome = dados.nome().trim();
+        if (categoriaRepository.existeVisivelOutra(usuarioId, nome, categoria.getTipo(), categoriaId)) {
+            throw new ConflitoException(NOME_REPETIDO);
+        }
+
+        categoria.atualizar(nome, textoOpcional(dados.descricao()), textoOpcional(dados.icone()));
+        try {
+            categoriaRepository.saveAndFlush(categoria);
+        } catch (DataIntegrityViolationException e) {
+            throw new ConflitoException(NOME_REPETIDO);
+        }
+        return CategoriaResponse.de(categoria);
+    }
+
+    /** "" ou só espaços vira null. */
+    private static String textoOpcional(String valor) {
+        return valor == null || valor.isBlank() ? null : valor.trim();
     }
 
     @Transactional
@@ -64,11 +94,8 @@ public class CategoriaService {
             throw new ApiException(HttpStatus.FORBIDDEN, "Categorias padrão não podem ser excluídas.");
         }
 
-        long emUso = categoriaRepository.contarTransacoes(categoriaId);
-        if (emUso > 0) {
-            throw new ConflitoException("Não dá para excluir a categoria \"" + categoria.getNome() + "\": "
-                    + (emUso == 1 ? "1 transação usa" : emUso + " transações usam")
-                    + " ela. Troque a categoria dessas transações ou exclua-as antes.");
+        if (categoriaRepository.contarTransacoes(categoriaId) > 0) {
+            throw new ConflitoException(EM_USO);
         }
 
         // Os limites de orçamento dessa categoria somem junto (ON DELETE CASCADE).

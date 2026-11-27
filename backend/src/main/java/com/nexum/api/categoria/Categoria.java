@@ -40,6 +40,10 @@ public class Categoria {
     @Column(name = "icone", length = 50)
     private String icone;
 
+    /** Descrição curta opcional (V4), ex.: "Academia e suplementos". */
+    @Column(name = "descricao", length = 60)
+    private String descricao;
+
     @Column(name = "criado_em", nullable = false, updatable = false)
     private OffsetDateTime criadoEm;
 
@@ -47,9 +51,21 @@ public class Categoria {
     }
 
     public Categoria(Long usuarioId, String nome, TipoTransacao tipo, String icone) {
+        this(usuarioId, nome, tipo, icone, null);
+    }
+
+    public Categoria(Long usuarioId, String nome, TipoTransacao tipo, String icone, String descricao) {
         this.usuarioId = usuarioId;
         this.nome = nome;
         this.tipo = tipo;
+        this.icone = icone;
+        this.descricao = descricao;
+    }
+
+    /** Edição pelo dono (o tipo não muda). */
+    public void atualizar(String nome, String descricao, String icone) {
+        this.nome = nome;
+        this.descricao = descricao;
         this.icone = icone;
     }
 
@@ -85,6 +101,10 @@ public class Categoria {
 
     public String getIcone() {
         return icone;
+    }
+
+    public String getDescricao() {
+        return descricao;
     }
 
     public OffsetDateTime getCriadoEm() {

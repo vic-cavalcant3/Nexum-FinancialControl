@@ -1027,6 +1027,12 @@ body.has-modal { overflow: hidden; }
   color: var(--text-secondary);
 }
 
+/* Ícones de categoria em viewBox 24 (js/icons.js, class "ic-24"): mesmo traço de 1,8px dos outros */
+.ic-24 * {
+  stroke-width: 1.8px;
+  vector-effect: non-scaling-stroke;
+}
+
 /* Barra de progresso */
 .pbar {
   height: 6px;

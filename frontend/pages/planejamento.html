@@ -86,27 +86,72 @@
     </form>
   </div>
 
-  <!-- Modal: nova categoria no orçamento -->
+  <!-- Modal: nova / editar categoria -->
   <div class="modal" id="modal-cat" hidden role="dialog" aria-modal="true" aria-labelledby="modal-cat-title">
-    <form class="modal-card" id="form-cat" novalidate>
+    <form class="modal-card modal-card--cat" id="form-cat" novalidate>
       <div class="modal-head">
         <h2 class="modal-title" id="modal-cat-title">Nova categoria</h2>
         <button type="button" class="modal-close" data-modal-close aria-label="Fechar"></button>
       </div>
-      <label class="field">
-        <span class="field-label">Categoria</span>
-        <select class="field-input" id="cat-nome"></select>
-      </label>
-      <label class="field">
-        <span class="field-label">Limite mensal</span>
-        <input class="field-input" id="cat-limite" type="text" inputmode="numeric" placeholder="R$ 0,00">
-      </label>
+
+      <div class="field">
+        <label class="field-label" for="cat-nome">Nome</label>
+        <input class="field-input" id="cat-nome" type="text" maxlength="30" autocomplete="off"
+               placeholder="Ex.: Academia" aria-describedby="cat-nome-erro">
+        <p class="field-error" id="cat-nome-erro" hidden></p>
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="cat-desc">Descrição curta <span class="field-opt">(opcional)</span></label>
+        <input class="field-input" id="cat-desc" type="text" maxlength="60" autocomplete="off"
+               placeholder="Ex.: Academia e suplementos" aria-describedby="cat-desc-erro">
+        <p class="field-error" id="cat-desc-erro" hidden></p>
+      </div>
+
+      <div class="field">
+        <span class="field-label" id="cat-tipo-label">Tipo</span>
+        <div class="type-toggle" id="cat-tipo" role="radiogroup" aria-labelledby="cat-tipo-label" data-value="despesa">
+          <span class="type-toggle-pill" aria-hidden="true"></span>
+          <button type="button" role="radio" data-tipo="despesa" aria-checked="true">Despesa</button>
+          <button type="button" role="radio" data-tipo="receita" aria-checked="false">Receita</button>
+        </div>
+        <p class="field-hint" id="cat-tipo-hint" hidden>O tipo não pode ser alterado depois de criada.</p>
+      </div>
+
+      <div class="field">
+        <span class="field-label" id="cat-icone-label">Ícone</span>
+        <div class="cat-icons" id="cat-icones" role="radiogroup" aria-labelledby="cat-icone-label"></div>
+      </div>
+
+      <div class="field" id="cat-limite-field">
+        <label class="field-label" for="cat-limite">Limite mensal <span class="field-opt">(opcional)</span></label>
+        <input class="field-input" id="cat-limite" type="text" inputmode="numeric" autocomplete="off"
+               placeholder="R$ 0,00" aria-describedby="cat-limite-erro">
+        <p class="field-error" id="cat-limite-erro" hidden></p>
+      </div>
+
       <p class="field-error" id="cat-erro" role="alert" hidden></p>
       <div class="modal-actions">
         <button type="button" class="btn btn-secondary" data-modal-close>Cancelar</button>
-        <button type="submit" class="btn btn-primary">Adicionar</button>
+        <button type="submit" class="btn btn-primary" id="cat-salvar">Criar categoria</button>
       </div>
     </form>
+  </div>
+
+  <!-- Modal: excluir categoria -->
+  <div class="modal" id="modal-cat-del" hidden role="dialog" aria-modal="true" aria-labelledby="modal-cat-del-title">
+    <div class="modal-card">
+      <div class="modal-head">
+        <h2 class="modal-title" id="modal-cat-del-title">Excluir categoria</h2>
+        <button type="button" class="modal-close" data-modal-close aria-label="Fechar"></button>
+      </div>
+      <p class="modal-desc" id="cat-del-texto"></p>
+      <p class="field-error" id="cat-del-erro" role="alert" hidden></p>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-secondary" data-modal-close>Cancelar</button>
+        <button type="button" class="btn btn-secondary btn-danger-text" id="cat-del-ok">Excluir</button>
+      </div>
+    </div>
   </div>
 
   <script src="../js/icons.js"></script>
@@ -114,6 +159,7 @@
   <script>renderLayout('planejamento');</script>
   <script src="../js/util.js"></script>
   <script src="../js/modal.js"></script>
+  <script src="../js/toast.js"></script>
   <script src="../js/pages/planejamento.js"></script>
 </body>
 </html>

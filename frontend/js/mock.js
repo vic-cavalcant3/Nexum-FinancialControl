@@ -312,7 +312,22 @@
   function dec(v) { return v == null ? v : String(Number(v)); }
   function clone(o) { return JSON.parse(JSON.stringify(o)); }
 
-  function outCategoria(c) { return c ? clone(c) : null; }
+  function outCategoria(c) {
+    if (!c) return null;
+    var o = clone(c);
+    o.descricao = c.descricao || null;
+    o.padrao = c.usuario_id == null;
+    return o;
+  }
+  // Mesma regra da API: nome repetido (sem diferenciar maiúsculas) no mesmo tipo, padrão ou do usuário.
+  function nomeRepetido(nome, tipo, ignorarId) {
+    var n = String(nome).trim().toLowerCase();
+    return db.categorias.some(function (c) {
+      return c.id !== ignorarId && (c.usuario_id == null || c.usuario_id === 1) &&
+        c.tipo === tipo && c.nome.toLowerCase() === n;
+    });
+  }
+  function opcional(v) { return v == null || String(v).trim() === '' ? null : String(v).trim(); }
   function findCategoria(id) {
     for (var i = 0; i < db.categorias.length; i++) if (db.categorias[i].id === id) return db.categorias[i];
     return null;
@@ -585,22 +600,43 @@
         .map(outCategoria);
     }
     if (method === 'POST' && path === '/categorias') {
-      var dup = db.categorias.some(function (c) {
-        return c.usuario_id === 1 && c.nome === body.nome && c.tipo === body.tipo;
-      });
-      if (dup) erro('Você já tem uma categoria com esse nome e tipo.');
-      var cat = { id: ++db.seq.categoria, usuario_id: 1, nome: body.nome, tipo: body.tipo, icone: body.icone || null };
+      var tipoCat = String(body.tipo || '').trim().toLowerCase();
+      if (!body.nome || !String(body.nome).trim()) erro('Informe o nome da categoria.');
+      if (tipoCat !== 'receita' && tipoCat !== 'despesa') erro('Tipo inválido: use receita ou despesa.');
+      if (body.descricao && String(body.descricao).length > 60) erro('A descrição pode ter no máximo 60 caracteres.');
+      if (nomeRepetido(body.nome, tipoCat)) erro('Você já tem uma categoria com esse nome e tipo.');
+      var cat = {
+        id: ++db.seq.categoria, usuario_id: 1, nome: String(body.nome).trim(), tipo: tipoCat,
+        icone: opcional(body.icone), descricao: opcional(body.descricao)
+      };
       db.categorias.push(cat);
       save();
       return outCategoria(cat);
     }
-    if ((m = path.match(/^\/categorias\/(\d+)$/)) && method === 'DELETE') {
+    if ((m = path.match(/^\/categorias\/(\d+)$/)) && (method === 'PUT' || method === 'DELETE')) {
       var ic = porId(db.categorias, 'id', parseInt(m[1], 10));
-      if (ic === -1 || db.categorias[ic].usuario_id !== 1) erro('Registro não encontrado.');
-      var idCat = db.categorias[ic].id;
+      var alvoCat = ic === -1 ? null : db.categorias[ic];
+      if (!alvoCat || (alvoCat.usuario_id != null && alvoCat.usuario_id !== 1)) erro('Categoria não encontrada.');
+      if (alvoCat.usuario_id == null) {
+        erro(method === 'PUT' ? 'Categorias padrão não podem ser editadas.' : 'Categorias padrão não podem ser excluídas.');
+      }
+      if (method === 'PUT') {
+        if (!body.nome || !String(body.nome).trim()) erro('Informe o nome da categoria.');
+        if (body.descricao && String(body.descricao).length > 60) erro('A descrição pode ter no máximo 60 caracteres.');
+        if (nomeRepetido(body.nome, alvoCat.tipo, alvoCat.id)) erro('Você já tem uma categoria com esse nome e tipo.');
+        alvoCat.nome = String(body.nome).trim();
+        alvoCat.descricao = opcional(body.descricao);
+        alvoCat.icone = opcional(body.icone);
+        save();
+        return outCategoria(alvoCat);
+      }
+      var emUso = db.transacoes.some(function (t) { return t.categoria_id === alvoCat.id; });
+      if (emUso) erro('Essa categoria tem transações. Mova ou apague as transações antes.');
       db.categorias.splice(ic, 1);
-      // onDelete: SetNull
-      db.transacoes.forEach(function (t) { if (t.categoria_id === idCat) t.categoria_id = null; });
+      // Os limites de orçamento da categoria somem junto (ON DELETE CASCADE).
+      Object.keys(db.orcamentos || {}).forEach(function (k) {
+        db.orcamentos[k] = db.orcamentos[k].filter(function (l) { return l.categoria_id !== alvoCat.id; });
+      });
       save();
       return { mensagem: 'Categoria removida.' };
     }

@@ -4,7 +4,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
-/** POST /api/categorias: { "nome", "tipo": "receita"|"despesa", "icone"? } */
+/** POST /api/categorias: { "nome", "tipo": "receita"|"despesa", "icone"?, "descricao"? } */
 public record CategoriaRequest(
         @NotBlank(message = "Informe o nome da categoria.")
         @Size(max = 60, message = "O nome da categoria pode ter no máximo 60 caracteres.")
@@ -15,5 +15,8 @@ public record CategoriaRequest(
         String tipo,
 
         @Size(max = 50, message = "O ícone pode ter no máximo 50 caracteres.")
-        String icone) {
+        String icone,
+
+        @Size(max = 60, message = "A descrição pode ter no máximo 60 caracteres.")
+        String descricao) {
 }

@@ -35,6 +35,15 @@ public interface CategoriaRepository extends JpaRepository<Categoria, Long> {
     boolean existeVisivel(@Param("usuarioId") Long usuarioId, @Param("nome") String nome,
                           @Param("tipo") TipoTransacao tipo);
 
+    /** Igual ao existeVisivel, ignorando a própria categoria (edição). */
+    @Query("""
+            select count(c) > 0 from Categoria c
+            where (c.usuarioId is null or c.usuarioId = :usuarioId)
+              and lower(c.nome) = lower(:nome) and c.tipo = :tipo and c.id <> :ignorarId
+            """)
+    boolean existeVisivelOutra(@Param("usuarioId") Long usuarioId, @Param("nome") String nome,
+                               @Param("tipo") TipoTransacao tipo, @Param("ignorarId") Long ignorarId);
+
     /** Quantas transações usam a categoria (de qualquer usuário: só o dono consegue usar a dele). */
     @Query(value = "select count(*) from transacao where categoria_id = :categoriaId", nativeQuery = true)
     long contarTransacoes(@Param("categoriaId") Long categoriaId);

@@ -2,6 +2,7 @@ package com.nexum.api.categoria;
 
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.nullValue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -124,8 +125,132 @@ class CategoriaControllerTest extends IntegracaoTest {
         deleteComToken("/api/categorias/" + id, token)
                 .andExpect(status().isConflict())
                 .andExpect(jsonPath("$.erro").value(
-                        "Não dá para excluir a categoria \"Pets\": 1 transação usa ela. "
-                                + "Troque a categoria dessas transações ou exclua-as antes."));
+                        "Essa categoria tem transações. Mova ou apague as transações antes."));
+        // Continua lá
+        getComToken("/api/categorias", token)
+                .andExpect(jsonPath("$[*].nome").value(hasItem("Pets")));
+    }
+
+    // ------------------------------------------------------------------ descrição e edição (PUT)
+
+    @Test
+    void criarComDescricaoDevolveODescricao() throws Exception {
+        String token = novoUsuario();
+
+        postJson("/api/categorias", token,
+                mapa("nome", "Academia", "tipo", "despesa", "icone", "dumbbell", "descricao", " Academia e suplementos "))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.descricao").value("Academia e suplementos"))
+                .andExpect(jsonPath("$.icone").value("dumbbell"));
+
+        getComToken("/api/categorias", token)
+                .andExpect(jsonPath("$[?(@.nome == 'Academia')].descricao").value(hasItem("Academia e suplementos")))
+                // As padrão vêm sem descrição
+                .andExpect(jsonPath("$[?(@.nome == 'Lazer')].descricao").value(hasItem(nullValue())));
+    }
+
+    @Test
+    void descricaoMaiorQue60Devolve400() throws Exception {
+        String token = novoUsuario();
+
+        postJson("/api/categorias", token, mapa("nome", "Pets", "tipo", "despesa", "descricao", "x".repeat(61)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.erro").value("A descrição pode ter no máximo 60 caracteres."));
+    }
+
+    @Test
+    void editarCategoriaPropria() throws Exception {
+        String token = novoUsuario();
+        long id = lerId(postJson("/api/categorias", token,
+                mapa("nome", "Pets", "tipo", "despesa", "icone", "paw")), "$.id");
+
+        putJson("/api/categorias/" + id, token, mapa("nome", " Bichos ", "descricao", "Ração e veterinário", "icone", "heart"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(id))
+                .andExpect(jsonPath("$.nome").value("Bichos"))
+                .andExpect(jsonPath("$.descricao").value("Ração e veterinário"))
+                .andExpect(jsonPath("$.icone").value("heart"))
+                .andExpect(jsonPath("$.tipo").value("despesa"));
+
+        // Descrição vazia apaga
+        putJson("/api/categorias/" + id, token, mapa("nome", "Bichos", "descricao", "", "icone", "paw"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.descricao").value(nullValue()));
+
+        getComToken("/api/categorias", token)
+                .andExpect(jsonPath("$[*].nome").value(hasItem("Bichos")))
+                .andExpect(jsonPath("$[*].nome").value(not(hasItem("Pets"))));
+    }
+
+    @Test
+    void editarMantendoOMesmoNomeNaoDaConflito() throws Exception {
+        String token = novoUsuario();
+        long id = lerId(postJson("/api/categorias", token, mapa("nome", "Pets", "tipo", "despesa")), "$.id");
+
+        putJson("/api/categorias/" + id, token, mapa("nome", "PETS", "descricao", "Ração"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.nome").value("PETS"));
+    }
+
+    @Test
+    void editarParaNomeRepetidoDevolve409() throws Exception {
+        String token = novoUsuario();
+        postJson("/api/categorias", token, mapa("nome", "Pets", "tipo", "despesa")).andExpect(status().isCreated());
+        long id = lerId(postJson("/api/categorias", token, mapa("nome", "Academia", "tipo", "despesa")), "$.id");
+
+        putJson("/api/categorias/" + id, token, mapa("nome", "pets"))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.erro").value("Você já tem uma categoria com esse nome e tipo."));
+        // Nome de categoria padrão do mesmo tipo
+        putJson("/api/categorias/" + id, token, mapa("nome", "Lazer"))
+                .andExpect(status().isConflict());
+    }
+
+    @Test
+    void editarComDadosInvalidosDevolve400() throws Exception {
+        String token = novoUsuario();
+        long id = lerId(postJson("/api/categorias", token, mapa("nome", "Pets", "tipo", "despesa")), "$.id");
+
+        putJson("/api/categorias/" + id, token, mapa("nome", "  "))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.erro").value("Informe o nome da categoria."));
+        putJson("/api/categorias/" + id, token, mapa("nome", "Pets", "descricao", "x".repeat(61)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.erro").value("A descrição pode ter no máximo 60 caracteres."));
+    }
+
+    @Test
+    void categoriaPadraoNaoPodeSerEditada() throws Exception {
+        String token = novoUsuario();
+        Long idPadrao = jdbc.queryForObject(
+                "select id from categoria where usuario_id is null and nome = 'Lazer'", Long.class);
+
+        putJson("/api/categorias/" + idPadrao, token, mapa("nome", "Diversão"))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.erro").value("Categorias padrão não podem ser editadas."));
+        getComToken("/api/categorias", token)
+                .andExpect(jsonPath("$[*].nome").value(hasItem("Lazer")));
+    }
+
+    @Test
+    void editarCategoriaDeOutroUsuarioDevolve404() throws Exception {
+        String dono = novoUsuario();
+        String intruso = novoUsuario();
+        long id = lerId(postJson("/api/categorias", dono, mapa("nome", "Secreta", "tipo", "despesa")), "$.id");
+
+        putJson("/api/categorias/" + id, intruso, mapa("nome", "Invadida"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.erro").value("Categoria não encontrada."));
+        getComToken("/api/categorias", dono)
+                .andExpect(jsonPath("$[*].nome").value(hasItem("Secreta")));
+    }
+
+    @Test
+    void editarCategoriaInexistenteDevolve404() throws Exception {
+        String token = novoUsuario();
+
+        putJson("/api/categorias/999999999", token, mapa("nome", "Nada"))
+                .andExpect(status().isNotFound());
     }
 
     @Test
