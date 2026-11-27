@@ -96,10 +96,10 @@
 
     function gastos(r) {
       var linhas = Object.keys(r.cats).sort(function (a, b) { return r.cats[b] - r.cats[a]; }).slice(0, 3)
-        .map(function (c) { return c + ' (' + brl.format(r.cats[c]) + ')'; });
+        .map(function (c) { return '- **' + c + '**: ' + brl.format(r.cats[c]); });
       var v = r.despAnt ? (r.desp - r.despAnt) / r.despAnt * 100 : null;
       return 'Neste mês você gastou ' + brl.format(r.desp) + (v !== null ? ' — ' + (v >= 0 ? 'alta' : 'queda') + ' de ' + pctF.format(Math.abs(v)) + '% em relação ao mês passado' : '') +
-        '. ' + (linhas.length ? 'Os maiores gastos foram: ' + linhas.join(', ') + '.' : '');
+        '.' + (linhas.length ? '\n\nOs maiores gastos foram:\n' + linhas.join('\n') : '');
     }
 
     function saldo(r) {
@@ -754,6 +754,81 @@
       return { mensagem: 'Usuário excluído.' };
     }
 
+    // ---- Consultor IA (mesmo formato da API Java; respostas de consultorSimulado) ----
+    if (path.indexOf('/consultor/') === 0) return consultor(method, path, body);
+
+    erro('Rota não encontrada no mock: ' + method + ' ' + path);
+  }
+
+  // ---- Consultor IA ----
+  var CONSULTOR_LIMITE = 20;
+
+  function consultor(method, path, body) {
+    db.conversas = db.conversas || [];
+    db.mensagens = db.mensagens || [];
+    db.seq.conversa = db.seq.conversa || 0;
+    db.seq.mensagem = db.seq.mensagem || 0;
+    var m;
+
+    function usadasHoje() {
+      var inicio = new Date(); inicio.setHours(0, 0, 0, 0);
+      return db.mensagens.filter(function (x) { return x.papel === 'USER' && new Date(x.criado_em) >= inicio; }).length;
+    }
+    function outConversa(c) { return { id: c.id, titulo: c.titulo, atualizado_em: c.atualizado_em }; }
+    function outMensagem(x) { return { id: x.id, papel: x.papel, conteudo: x.conteudo, criado_em: x.criado_em }; }
+    function achar(id) {
+      var i = porId(db.conversas, 'id', id);
+      if (i === -1) erro('Conversa não encontrada.');
+      return db.conversas[i];
+    }
+
+    if (method === 'GET' && path === '/consultor/uso') return { usadas_hoje: usadasHoje(), limite: CONSULTOR_LIMITE };
+    if (method === 'GET' && path === '/consultor/conversas') {
+      return db.conversas.slice().sort(function (a, b) {
+        return new Date(b.atualizado_em) - new Date(a.atualizado_em) || b.id - a.id;
+      }).map(outConversa);
+    }
+    if (method === 'POST' && path === '/consultor/conversas') {
+      var agora = new Date().toISOString();
+      var nova = { id: ++db.seq.conversa, titulo: null, criado_em: agora, atualizado_em: agora };
+      db.conversas.push(nova);
+      save();
+      return outConversa(nova);
+    }
+    if ((m = path.match(/^\/consultor\/conversas\/(\d+)$/))) {
+      var c = achar(Number(m[1]));
+      if (method === 'GET') {
+        var c2 = outConversa(c);
+        c2.mensagens = db.mensagens.filter(function (x) { return x.conversa_id === c.id; }).map(outMensagem);
+        return c2;
+      }
+      if (method === 'DELETE') {
+        db.conversas.splice(porId(db.conversas, 'id', c.id), 1);
+        db.mensagens = db.mensagens.filter(function (x) { return x.conversa_id !== c.id; });
+        save();
+        return { mensagem: 'Conversa apagada.' };
+      }
+    }
+    if ((m = path.match(/^\/consultor\/conversas\/(\d+)\/mensagens$/)) && method === 'POST') {
+      var conv = achar(Number(m[1]));
+      var texto = String(body.texto || '').trim();
+      if (!texto) erro('Escreva sua pergunta.');
+      if (texto.length > 1000) erro('A pergunta pode ter no máximo 1000 caracteres.');
+      if (usadasHoje() >= CONSULTOR_LIMITE) erro('Você usou suas ' + CONSULTOR_LIMITE + ' mensagens de hoje. Volte amanhã!');
+      return window.consultorSimulado(texto).then(function (resposta) {
+        var agora2 = new Date().toISOString();
+        var p = { id: ++db.seq.mensagem, conversa_id: conv.id, papel: 'USER', conteudo: texto, criado_em: agora2 };
+        var r = { id: ++db.seq.mensagem, conversa_id: conv.id, papel: 'ASSISTANT', conteudo: resposta, criado_em: agora2 };
+        db.mensagens.push(p, r);
+        if (!conv.titulo) conv.titulo = texto.replace(/\s+/g, ' ').slice(0, 40).trim();
+        conv.atualizado_em = agora2;
+        save();
+        return {
+          pergunta: outMensagem(p), resposta: outMensagem(r), conversa: outConversa(conv),
+          uso: { usadas_hoje: usadasHoje(), limite: CONSULTOR_LIMITE }
+        };
+      });
+    }
     erro('Rota não encontrada no mock: ' + method + ' ' + path);
   }
 

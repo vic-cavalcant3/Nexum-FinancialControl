@@ -15,6 +15,126 @@
   margin: 0 20px 16px;
 }
 
+.csp .bh-title { flex: 1; min-width: 0; }
+
+/* Botões do cabeçalho mobile: lista de conversas e nova conversa */
+.cs-hbtn {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border-radius: 12px;
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+  transition: background-color var(--ease);
+}
+
+.cs-hbtn svg { width: 18px; height: 18px; }
+.cs-hbtn.is-accent { background: var(--accent); color: var(--on-accent); }
+.cs-hbtn.is-accent:hover { background: var(--accent-hover); }
+
+.cs-hbtn:focus-visible,
+.cs-item-open:focus-visible,
+.cs-item-del:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* Corpo: só o chat no mobile; lista + chat no desktop */
+.cs-body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.cs-main {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.cs-main .load-alert { margin: 0 20px 12px; }
+
+.cs-side { display: none; }
+
+/* ---------- Lista de conversas (painel do desktop e modal do mobile) ---------- */
+.cs-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 0;
+  list-style: none;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.cs-item {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  border-radius: 10px;
+  transition: background-color var(--ease);
+}
+
+.cs-item:hover { background: var(--bg-surface); }
+.cs-item.is-active { background: var(--accent-soft); }
+
+.cs-item-open {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 4px 10px 12px;
+  border-radius: 10px;
+  text-align: left;
+}
+
+.cs-item-title {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.cs-item-date {
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--text-secondary);
+}
+
+.cs-item-del {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-right: 4px;
+  border-radius: 8px;
+  color: var(--text-secondary);
+  transition: color var(--ease), background-color var(--ease);
+}
+
+.cs-item-del:hover { color: var(--danger); background: var(--bg-elevated); }
+.cs-item-del svg { width: 16px; height: 16px; }
+
+.cs-empty {
+  padding: 12px;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.cs-nova { width: 100%; padding: 12px; flex-shrink: 0; }
+
+.modal-card.modal-card--conversas .cs-list { max-height: 50dvh; margin: 0 -8px; }
+
 /* ---------- Mensagens ---------- */
 .cs-chat {
   flex: 1;
@@ -77,12 +197,46 @@
   color: var(--on-accent);
 }
 
-/* Indicador "digitando" */
+/* Resposta do Consultor (markdown simples: parágrafos, listas, negrito) */
+.cs-md { white-space: normal; }
+.cs-md p + p,
+.cs-md p + ul, .cs-md p + ol,
+.cs-md ul + p, .cs-md ol + p,
+.cs-md ul + ul, .cs-md ol + ol { margin-top: 8px; }
+.cs-md ul, .cs-md ol { padding-left: 18px; }
+.cs-md ul { list-style: disc; }
+.cs-md ol { list-style: decimal; }
+.cs-md li + li { margin-top: 4px; }
+.cs-md strong { font-weight: 600; }
+
+/* Erro dentro da conversa (não salvo) */
+.cs-notice {
+  align-self: stretch;
+  padding: 10px 14px;
+  border: 1px solid var(--danger);
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--danger);
+}
+
+/* Indicador "digitando..." */
 .cs-typing {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 8px;
   height: 16px;
+}
+
+.cs-dots {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.cs-typing-txt {
+  font-size: 12px;
+  color: var(--text-secondary);
 }
 
 .cs-typing i {
@@ -142,12 +296,14 @@
 }
 
 /* ---------- Campo ---------- */
+.cs-suggest[hidden] { display: none; }
+
 .cs-input-row {
   flex-shrink: 0;
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   gap: 10px;
-  padding: 8px 20px calc(24px + env(safe-area-inset-bottom, 0px));
+  padding: 8px 20px 6px;
 }
 
 .cs-input {
@@ -157,26 +313,60 @@
   padding: 13px 16px;
   background: var(--bg-elevated);
   border: 1px solid var(--border);
-  border-radius: var(--radius-full);
+  border-radius: 22px;
+  cursor: text;
   --autofill-bg: var(--bg-elevated); /* autofill: ver components.css */
 }
 
 .cs-input:focus-within { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
 [data-theme="dark"] .cs-input:focus-within { border-color: var(--link); box-shadow: 0 0 0 1px var(--link); }
 
-.cs-input input {
+.cs-input textarea {
   flex: 1;
   min-width: 0;
+  height: 18px;
   padding: 0;
   border: none;
   background: none;
+  resize: none;
+  overflow-y: hidden;
+  font: inherit;
   font-size: 14px;
-  line-height: normal;
+  line-height: 18px;
   color: var(--text-primary);
 }
 
-.cs-input input::placeholder { color: var(--text-secondary); }
-.cs-input input:focus { outline: none; }
+.cs-input textarea::placeholder { color: var(--text-secondary); }
+.cs-input textarea:focus { outline: none; }
+.cs-input textarea:disabled { cursor: not-allowed; }
+.cs-input:has(textarea:disabled) { opacity: 0.7; }
+
+/* ---------- Uso do dia + aviso ---------- */
+.cs-foot {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 0 20px calc(12px + env(safe-area-inset-bottom, 0px));
+}
+
+.cs-uso {
+  min-height: 14px;
+  text-align: right;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.cs-uso.is-limit { color: var(--danger); font-weight: 600; }
+
+.cs-aviso {
+  text-align: center;
+  font-size: 10.5px;
+  font-weight: 400;
+  line-height: 1.35;
+  color: var(--text-secondary);
+}
 
 .cs-send {
   width: 44px;
@@ -204,6 +394,36 @@
   }
 
   .csp .ph.only-d { display: flex !important; margin-bottom: 20px; flex-shrink: 0; }
+
+  .cs-body {
+    display: grid;
+    grid-template-columns: 260px minmax(0, 1fr);
+    gap: 20px;
+  }
+
+  .cs-side {
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 16px;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+  }
+
+  .cs-side-title {
+    padding: 4px 4px 0;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.66px;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+  }
+
+  .cs-side .cs-list { flex: 1; margin: 0 -8px; padding: 0 8px; }
+
+  .cs-main .load-alert { margin: 0 0 12px; }
 
   .cs-chat {
     gap: 16px;
@@ -233,7 +453,6 @@
     margin-top: 20px;
   }
 
-  .cs-chip.only-d { display: inline-block !important; }
   .cs-chip { padding: 9px 16px; font-size: 13px; }
 
   .cs-input-row {
@@ -245,7 +464,10 @@
   .cs-input {
     padding: 14px 18px;
     background: var(--bg-primary);
+    border-radius: 24px;
   }
+
+  .cs-foot { padding: 8px 0 0; }
 
   .cs-send { width: 48px; height: 48px; }
   .cs-send svg { width: 18px; height: 18px; }

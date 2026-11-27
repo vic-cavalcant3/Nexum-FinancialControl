@@ -19,10 +19,12 @@
 <body class="is-chat is-subpage">
   <main class="app-main app-main--surface">
     <div class="page csp" id="csp">
-      <!-- MOBILE: voltar + título -->
+      <!-- MOBILE: voltar + título + conversas -->
       <header class="bh only-m">
         <a class="bh-back" href="dashboard.html" aria-label="Voltar"></a>
         <h1 class="bh-title">Consultor IA</h1>
+        <button type="button" class="cs-hbtn" id="cs-abrir-lista" aria-label="Suas conversas" aria-haspopup="dialog"></button>
+        <button type="button" class="cs-hbtn is-accent" data-nova aria-label="Nova conversa"></button>
       </header>
 
       <!-- DESKTOP -->
@@ -33,28 +35,80 @@
         </div>
       </header>
 
-      <section class="cs-chat" id="cs-chat" aria-label="Conversa com o Consultor IA" aria-live="polite" tabindex="0"></section>
+      <div class="cs-body">
+        <!-- DESKTOP: lista de conversas -->
+        <aside class="cs-side" aria-label="Suas conversas">
+          <button type="button" class="btn btn-primary cs-nova" data-nova>+ Nova conversa</button>
+          <p class="cs-side-title" id="cs-side-title">Conversas</p>
+          <ul class="cs-list" id="cs-list-d" aria-labelledby="cs-side-title"></ul>
+        </aside>
 
-      <div class="cs-suggest" id="cs-suggest" role="group" aria-label="Sugestões">
-        <button type="button" class="cs-chip">Como economizar mais?</button>
-        <button type="button" class="cs-chip only-d">Analisar minha meta de viagem</button>
-        <button type="button" class="cs-chip">Simular aposentadoria</button>
+        <div class="cs-main">
+          <div class="load-alert" id="cs-alert" role="alert" hidden>
+            <span id="cs-alert-txt">Consultor IA indisponível no momento.</span>
+            <button type="button" id="cs-retry">Tentar de novo</button>
+          </div>
+
+          <section class="cs-chat" id="cs-chat" role="log" aria-label="Conversa com o Consultor IA" aria-live="polite" tabindex="0"></section>
+
+          <div class="cs-suggest" id="cs-suggest" role="group" aria-label="Sugestões de perguntas" hidden>
+            <button type="button" class="cs-chip">Onde estou gastando mais?</button>
+            <button type="button" class="cs-chip">Como economizar R$ 200 este mês?</button>
+            <button type="button" class="cs-chip">Estou no caminho das minhas metas?</button>
+            <button type="button" class="cs-chip">Meu orçamento está estourando?</button>
+          </div>
+
+          <form class="cs-input-row" id="cs-form" autocomplete="off" novalidate>
+            <label class="cs-input">
+              <span class="sr-only">Mensagem para o Consultor IA (Enter envia, Shift+Enter quebra a linha)</span>
+              <textarea id="cs-texto" rows="1" maxlength="1000" placeholder="Pergunte algo..."></textarea>
+            </label>
+            <button type="submit" class="cs-send" id="cs-send" aria-label="Enviar" disabled></button>
+          </form>
+
+          <div class="cs-foot">
+            <p class="cs-uso" id="cs-uso" aria-live="polite"></p>
+            <p class="cs-aviso">O Consultor IA pode cometer erros e não substitui um profissional. Não é recomendação de investimento.</p>
+          </div>
+        </div>
       </div>
-
-      <form class="cs-input-row" id="cs-form" autocomplete="off">
-        <label class="cs-input">
-          <span class="sr-only">Mensagem</span>
-          <input type="text" id="cs-texto" maxlength="500" placeholder="Pergunte algo...">
-        </label>
-        <button type="submit" class="cs-send" id="cs-send" aria-label="Enviar"></button>
-      </form>
     </div>
   </main>
+
+  <!-- Modal (mobile): lista de conversas -->
+  <div class="modal" id="modal-conversas" hidden role="dialog" aria-modal="true" aria-labelledby="modal-conversas-title">
+    <div class="modal-card modal-card--conversas">
+      <div class="modal-head">
+        <h2 class="modal-title" id="modal-conversas-title">Suas conversas</h2>
+        <button type="button" class="modal-close" data-modal-close aria-label="Fechar"></button>
+      </div>
+      <button type="button" class="btn btn-primary cs-nova" data-nova>+ Nova conversa</button>
+      <ul class="cs-list" id="cs-list-m" aria-labelledby="modal-conversas-title"></ul>
+    </div>
+  </div>
+
+  <!-- Modal: apagar conversa -->
+  <div class="modal" id="modal-apagar" hidden role="dialog" aria-modal="true" aria-labelledby="modal-apagar-title">
+    <div class="modal-card">
+      <div class="modal-head">
+        <h2 class="modal-title" id="modal-apagar-title">Apagar conversa</h2>
+        <button type="button" class="modal-close" data-modal-close aria-label="Fechar"></button>
+      </div>
+      <p class="modal-desc" id="cs-apagar-texto"></p>
+      <p class="field-error" id="cs-apagar-erro" role="alert" hidden></p>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-secondary" data-modal-close>Cancelar</button>
+        <button type="button" class="btn btn-secondary btn-danger-text" id="cs-apagar-ok">Apagar</button>
+      </div>
+    </div>
+  </div>
 
   <script src="../js/icons.js"></script>
   <script src="../js/layout.js"></script>
   <script>renderLayout('consultor');</script>
   <script src="../js/util.js"></script>
+  <script src="../js/modal.js"></script>
+  <script src="../js/toast.js"></script>
   <script src="../js/pages/consultor.js"></script>
 </body>
 </html>

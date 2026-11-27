@@ -192,6 +192,25 @@ const Metas = {
   deletar: (id) => apiFetch(`/metas/${id}`, { method: 'DELETE' })
 };
 
+// Consultor IA (pages/consultor.html). A chave da Anthropic fica só no backend.
+// Sem chave no servidor: 503 "Consultor IA indisponível no momento.".
+const Consultor = {
+  // [{ id, titulo (null até a 1ª pergunta), atualizado_em }], mais recentes primeiro
+  listarConversas: () => apiFetch('/consultor/conversas'),
+  criarConversa: () => apiFetch('/consultor/conversas', { method: 'POST', body: '{}' }),
+  // { id, titulo, atualizado_em, mensagens: [{ id, papel: 'USER'|'ASSISTANT', conteudo, criado_em }] }
+  buscarConversa: (id) => apiFetch(`/consultor/conversas/${id}`),
+  apagarConversa: (id) => apiFetch(`/consultor/conversas/${id}`, { method: 'DELETE' }),
+  // { pergunta, resposta, conversa, uso: { usadas_hoje, limite } } · 429 limite do dia · 503 IA fora do ar
+  enviarMensagem: (id, texto) => apiFetch(`/consultor/conversas/${id}/mensagens`, {
+    method: 'POST',
+    body: JSON.stringify({ texto }),
+    timeout: 90000
+  }),
+  // { usadas_hoje, limite }
+  uso: () => apiFetch('/consultor/uso')
+};
+
 // Painel de admin (pages/admin.html). Só papel ADMIN; USER recebe 403.
 const Admin = {
   // { total_usuarios, novos_ultimos_30_dias, ativos_ultimos_7_dias, total_transacoes, total_metas, cadastros_por_mes: [{ ano, mes, total }] }
