@@ -10,6 +10,7 @@ Docker em desenvolvimento), **Flyway** para as migrations e **JWT** para autenti
 - [Rodar local](#rodar-local)
 - [Testes](#testes)
 - [Administradores (ADMIN_EMAILS)](#administradores-admin_emails)
+- [Consultor IA (API do Claude)](#consultor-ia-api-do-claude)
 - [Rotas prontas](#rotas-prontas)
 - [Banco e migrations](#banco-e-migrations)
 - [Deploy no Render](#deploy-no-render)
@@ -32,6 +33,7 @@ backend/
     │   ├── auth/           # registrar, login, me, perfil, trocar senha
     │   ├── usuario/        # entidade Usuario, repository e PapelService (ADMIN_EMAILS)
     │   ├── admin/          # painel de admin: estatísticas, lista e exclusão de usuários
+    │   ├── consultor/      # Consultor IA: conversas, limite diário e chamada ao Claude
     │   └── transacao/, categoria/, meta/, orcamento/
     ├── main/resources/
     │   ├── application.yml # configuração (lê tudo de variáveis de ambiente)
@@ -143,6 +145,34 @@ O painel `frontend/pages/admin.html` (sem link no menu, acesso só pela URL) usa
   (ou crie a conta antes de adicionar), para ninguém se cadastrar com ele antes.
 - Toda exclusão feita pelo painel fica no log da API (`Admin X (id N) excluiu o usuário Y...`).
 
+## Consultor IA (API do Claude)
+
+O Consultor IA (`frontend/pages/consultor.html`) conversa com o **Claude**, da Anthropic, pelo
+SDK oficial para Java (`com.anthropic:anthropic-java`). Ele só responde dúvidas e dá sugestões:
+não cria nem altera nada no app.
+
+| Variável | Padrão | Para quê |
+|---|---|---|
+| `ANTHROPIC_API_KEY` | (vazia) | Chave da API da Anthropic. **Obrigatória em produção.** Sem ela, só as rotas `/api/consultor` respondem `503 "Consultor IA indisponível no momento."` e o resto da API funciona normal. |
+| `ANTHROPIC_MODEL` | `claude-haiku-5-5` | Modelo usado nas respostas. |
+| `CONSULTOR_LIMITE_DIARIO` | `20` | Perguntas por usuário por dia, contadas desde 00:00 no fuso `APP_TIMEZONE`. Passou: `429`. |
+| `CONSULTOR_MAX_TOKENS` | `800` | Tamanho máximo de cada resposta, em tokens. |
+
+- A chave fica **só no backend** (o front nunca chama a Anthropic) e nunca aparece no log.
+- A cada pergunta, a API monta na hora um bloco de **dados** com o resumo do mês atual e do
+  anterior, gastos por categoria, orçamento x gasto, metas e as 30 últimas transações, e envia
+  junto as 10 últimas mensagens da conversa. **Não vão** nome, e-mail nem ids do usuário.
+- O system prompt fica em `consultor/InstrucoesConsultor.java` e o bloco de dados em
+  `consultor/ContextoFinanceiroService.java`.
+- Timeout de 60 s, sem novas tentativas. Erro, timeout ou limite da Anthropic: `503` com
+  mensagem amigável, e a pergunta não é salva nem conta no limite do dia.
+- Os tokens de entrada e saída de cada resposta ficam no log (`Consultor IA: conversa N -
+  tokens de entrada X, de saída Y.`) e na tabela `mensagem`.
+- Conversas e mensagens ficam nas tabelas `conversa` e `mensagem` (migration V5). Excluir o
+  usuário (inclusive pelo painel de admin) apaga as conversas dele.
+- Nos testes, o cliente da Anthropic é um mock (`@MockitoBean ClienteIa` em `IntegracaoTest`):
+  nenhum teste chama a API de verdade nem precisa da chave.
+
 ## Rotas prontas
 
 A referência completa (parâmetros, corpos, respostas e erros) está em [`API.md`](API.md).
@@ -151,10 +181,11 @@ A referência completa (parâmetros, corpos, respostas e erros) está em [`API.m
 |---|---|
 | Health | `GET /api/health` (público) |
 | Auth | `POST /api/auth/registrar`, `POST /api/auth/login` (públicas) · `GET /api/auth/me`, `PUT /api/auth/perfil`, `PUT /api/auth/trocar-senha` |
-| Categorias | `GET`, `POST /api/categorias` · `DELETE /api/categorias/{id}` |
+| Categorias | `GET`, `POST /api/categorias` · `PUT`, `DELETE /api/categorias/{id}` |
 | Transações | `GET` (filtros e paginação), `POST /api/transacoes` · `GET`, `PUT`, `DELETE /api/transacoes/{id}` · `GET /api/transacoes/resumo` · `GET /api/transacoes/relatorio` |
 | Metas | `GET`, `POST /api/metas` · `GET`, `PUT`, `DELETE /api/metas/{id}` |
 | Orçamento | `GET /api/orcamentos?mes&ano` · `PUT /api/orcamentos` |
+| Consultor IA | `GET`, `POST /api/consultor/conversas` · `GET`, `DELETE /api/consultor/conversas/{id}` · `POST /api/consultor/conversas/{id}/mensagens` · `GET /api/consultor/uso` |
 | Admin (só `ADMIN`) | `GET /api/admin/estatisticas` · `GET /api/admin/usuarios` · `DELETE /api/admin/usuarios/{id}` |
 
 - Fora health, login e registro, tudo exige o header `Authorization: Bearer <token>`.
@@ -222,6 +253,10 @@ O Flyway cria as tabelas no Neon sozinho no primeiro deploy.
    | `CORS_ORIGINS` | `https://nexumweb.onrender.com` (URL do front, sem barra no final) |
    | `APP_TIMEZONE` | `America/Sao_Paulo` (opcional; é o padrão. O servidor do Render roda em UTC) |
    | `ADMIN_EMAILS` | e-mails dos administradores, separados por vírgula (ex.: `fulano@exemplo.com,ciclana@exemplo.com`) |
+   | `ANTHROPIC_API_KEY` | chave da API da Anthropic (Consultor IA). Sem ela, só o Consultor fica indisponível |
+   | `ANTHROPIC_MODEL` | `claude-haiku-5-5` (opcional; é o padrão) |
+   | `CONSULTOR_LIMITE_DIARIO` | `20` (opcional) |
+   | `CONSULTOR_MAX_TOKENS` | `800` (opcional) |
 
    **Não** cadastre `PORT`: o Render define sozinho e a API usa.
 

@@ -12,6 +12,7 @@ usa exatamente estes caminhos, parâmetros e nomes de campo.
 - [Transações](#transações-apitransacoes)
 - [Metas](#metas-apimetas)
 - [Orçamento](#orçamento-apiorcamentos)
+- [Consultor IA](#consultor-ia-apiconsultor)
 - [Admin](#admin-apiadmin)
 - [O que mudou em relação à API antiga (Node)](#o-que-mudou-em-relação-à-api-antiga-node)
 
@@ -318,6 +319,51 @@ Planejamento mensal: um limite por categoria de despesa, por mês.
   - categoria repetida: `400 "A mesma categoria apareceu duas vezes no orçamento."`;
   - categoria de outro usuário: `404 "Categoria não encontrada."`.
 - Responde igual ao GET, já com os gastos.
+
+## Consultor IA: `/api/consultor`
+
+Chat com o Claude (Anthropic) sobre as finanças do usuário. Só responde e sugere: não altera
+nada. Cada usuário só acessa as próprias conversas (de outro usuário: `404`).
+
+| Método | Rota | Corpo | Resposta |
+|---|---|---|---|
+| GET | `/consultor/conversas` | n/a | `200 [Conversa]`, mais recentes primeiro |
+| POST | `/consultor/conversas` | n/a | `201 Conversa` vazia (`titulo: null`) |
+| GET | `/consultor/conversas/{id}` | n/a | `200 { id, titulo, atualizado_em, mensagens: [Mensagem] }` (em ordem) · `404` |
+| DELETE | `/consultor/conversas/{id}` | n/a | `200 { mensagem: "Conversa apagada." }` · `404` |
+| POST | `/consultor/conversas/{id}/mensagens` | `{ texto }` | `201 { pergunta, resposta, conversa, uso }` · `400` · `404` · `429` · `503` |
+| GET | `/consultor/uso` | n/a | `200 { usadas_hoje, limite }` |
+
+```json
+// Conversa
+{ "id": 7, "titulo": "Onde estou gastando mais?", "atualizado_em": "2026-11-27T20:28:00Z" }
+// Mensagem
+{ "id": 31, "papel": "ASSISTANT", "conteudo": "Seu maior gasto é **Moradia**...", "criado_em": "2026-11-27T20:28:00Z" }
+// POST /consultor/conversas/7/mensagens
+{
+  "pergunta": { "id": 30, "papel": "USER", "conteudo": "Onde estou gastando mais?", "criado_em": "..." },
+  "resposta": { "id": 31, "papel": "ASSISTANT", "conteudo": "...", "criado_em": "..." },
+  "conversa": { "id": 7, "titulo": "Onde estou gastando mais?", "atualizado_em": "..." },
+  "uso": { "usadas_hoje": 3, "limite": 20 }
+}
+```
+
+- `papel`: `USER` (pergunta) ou `ASSISTANT` (resposta). `conteudo` da resposta vem em markdown
+  simples (parágrafos, listas com `- `, `**negrito**`): o front escapa o HTML antes de formatar.
+- **Título**: `null` até a primeira pergunta; depois, os 40 primeiros caracteres dela.
+- **Pergunta**: obrigatória, até 1000 caracteres (`400 "Escreva sua pergunta."` /
+  `400 "A pergunta pode ter no máximo 1000 caracteres."`).
+- **Limite diário** (`CONSULTOR_LIMITE_DIARIO`, padrão 20): perguntas do usuário desde 00:00 no
+  fuso `APP_TIMEZONE`, somando todas as conversas. Passou:
+  `429 "Você usou suas 20 mensagens de hoje. Volte amanhã!"`.
+- **Indisponível**: sem `ANTHROPIC_API_KEY` no servidor, **todas** as rotas acima respondem
+  `503 "Consultor IA indisponível no momento."`. Erro, timeout (60 s) ou limite da Anthropic na
+  hora de responder: `503 "O Consultor IA não conseguiu responder agora. Tente de novo em
+  alguns minutos."`; nesse caso a pergunta **não** é salva e não conta no limite.
+- O que vai para o Claude: regras fixas + resumo do mês atual e anterior, gastos por categoria,
+  orçamento x gasto, metas, as 30 últimas transações e as 10 últimas mensagens da conversa.
+  Nome, e-mail e ids do usuário **não** são enviados.
+- Excluir o usuário (inclusive pelo painel de admin) apaga as conversas e mensagens dele.
 
 ## Admin: `/api/admin`
 

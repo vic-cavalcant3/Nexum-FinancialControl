@@ -42,6 +42,7 @@ Funciona no celular e no computador, com tema claro e escuro.
 | Frontend | HTML, CSS e JavaScript puros (sem framework), fonte Inter, mobile-first |
 | Backend | Java 21 + Spring Boot 4 (Maven), Spring Security + JWT, Spring Data JPA, Flyway |
 | Banco | PostgreSQL 16 (Neon em produção, Docker em desenvolvimento) |
+| Consultor IA | API do Claude (Anthropic) pelo SDK oficial para Java, modelo `claude-haiku-5-5` |
 | Deploy | Render (site estático + Web Service com Docker) |
 
 ---
@@ -77,7 +78,7 @@ Pré-requisitos: **JDK 21+** e **Docker Desktop** (para o Postgres). Comandos de
 
 ```bash
 cd backend
-cp .env.example .env          # preencha DB_PASSWORD, JWT_SECRET e (opcional) ADMIN_EMAILS
+cp .env.example .env          # preencha DB_PASSWORD, JWT_SECRET e (opcionais) ADMIN_EMAILS e ANTHROPIC_API_KEY
 docker compose up -d          # sobe o PostgreSQL local
 ./mvnw spring-boot:run        # API em http://localhost:8080
 ```
@@ -96,7 +97,15 @@ Sirva a pasta do projeto com qualquer servidor estático na porta 5500, por exem
   (ex.: `pages/login.html?mock=0`). A escolha fica salva; `?mock=1` volta para o mock.
 - No deploy, o front usa a API do Render automaticamente.
 
-### 3. Painel do administrador
+### 3. Consultor IA
+
+O Consultor usa a API do Claude, da Anthropic. A chave fica **só no backend**, na variável
+`ANTHROPIC_API_KEY`. Sem ela, só o Consultor fica indisponível (o resto do app funciona).
+Opcionais: `ANTHROPIC_MODEL` (padrão `claude-haiku-5-5`), `CONSULTOR_LIMITE_DIARIO` (padrão 20
+perguntas por usuário por dia) e `CONSULTOR_MAX_TOKENS` (padrão 800). No modo mock, as
+respostas são simuladas no navegador. Detalhes em [`backend/README.md`](backend/README.md).
+
+### 4. Painel do administrador
 
 Acesso só pela URL `pages/admin.html` (não aparece no menu). Para virar admin, coloque seu
 e-mail na variável `ADMIN_EMAILS` do backend (lista separada por vírgula) e reinicie a API ou
