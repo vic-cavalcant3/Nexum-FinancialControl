@@ -17,11 +17,13 @@ import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 
 import com.jayway.jsonpath.JsonPath;
+import com.nexum.api.consultor.ClienteIa;
 
 import tools.jackson.databind.ObjectMapper;
 
@@ -45,6 +47,8 @@ public abstract class IntegracaoTest {
         registry.add("app.jwt.secret", () -> UUID.randomUUID() + "-" + UUID.randomUUID());
         // Dois admins fixos para os testes do painel (AdminControllerTest).
         registry.add("app.admin-emails", () -> ADMIN_1 + "," + ADMIN_2);
+        // Consultor IA: limite baixo para o teste do 429 (ConsultorControllerTest).
+        registry.add("app.consultor.limite-diario", () -> "3");
 
         // Sem Docker: usa o Postgres de TEST_DB_URL (ver TestcontainersConfig).
         String urlTeste = System.getenv("TEST_DB_URL");
@@ -60,6 +64,14 @@ public abstract class IntegracaoTest {
 
     @Autowired
     protected MockMvc mockMvc;
+
+    /**
+     * Cliente do Claude mockado em TODOS os testes (fica na base para todas as classes
+     * dividirem o mesmo contexto do Spring). Nenhum teste chama a API da Anthropic.
+     * Padrão do mock: disponivel() = false (como se não houvesse ANTHROPIC_API_KEY).
+     */
+    @MockitoBean
+    protected ClienteIa clienteIa;
 
     @Autowired
     protected ObjectMapper objectMapper;

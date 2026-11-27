@@ -174,15 +174,20 @@ class AdminControllerTest extends IntegracaoTest {
                 .andExpect(status().isCreated());
         putJson("/api/orcamentos", user, mapa("mes", 3, "ano", 2026, "limites", List.of(mapa("categoria_id", categoria, "limite", 300))))
                 .andExpect(status().isOk());
+        // Conversa do Consultor IA com uma mensagem
+        Long conversa = jdbc.queryForObject("insert into conversa (usuario_id, titulo) values (?, 'Teste') returning id",
+                Long.class, id);
+        jdbc.update("insert into mensagem (conversa_id, papel, conteudo) values (?, 'USER', 'Oi')", conversa);
 
         deleteComToken("/api/admin/usuarios/" + id, admin)
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.mensagem").value("Usuário excluído."));
 
-        for (String tabela : List.of("transacao", "meta", "categoria", "orcamento")) {
+        for (String tabela : List.of("transacao", "meta", "categoria", "orcamento", "conversa")) {
             Integer restantes = jdbc.queryForObject("select count(*) from " + tabela + " where usuario_id = ?", Integer.class, id);
             assertEquals(0, restantes, "sobrou linha em " + tabela);
         }
+        assertEquals(0, jdbc.queryForObject("select count(*) from mensagem where conversa_id = ?", Integer.class, conversa));
         Integer usuarios = jdbc.queryForObject("select count(*) from usuario where id_usuario = ?", Integer.class, id);
         assertEquals(0, usuarios);
 
