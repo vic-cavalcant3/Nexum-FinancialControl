@@ -60,6 +60,14 @@ app:
   # E-mails (separados por vírgula) que viram ADMIN ao iniciar a API e no cadastro/login.
   # Os demais ficam USER. Vazio = ninguém é admin.
   admin-emails: ${ADMIN_EMAILS:}
+  # Consultor IA (API do Claude). Sem ANTHROPIC_API_KEY as rotas /api/consultor respondem 503
+  # e o resto da API funciona normal. A chave nunca vai para o front nem para o log.
+  consultor:
+    api-key: ${ANTHROPIC_API_KEY:}
+    modelo: ${ANTHROPIC_MODEL:claude-haiku-5-5}
+    limite-diario: ${CONSULTOR_LIMITE_DIARIO:20}
+    max-tokens: ${CONSULTOR_MAX_TOKENS:800}
+    timeout-segundos: 60
 
 management:
   endpoints:
